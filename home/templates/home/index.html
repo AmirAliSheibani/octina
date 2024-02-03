@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <!-- slider section -->
+    <section class="slider_section ">
+        <div id="customCarousel1" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                {% for object in slider %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <div class="container ">
+                            <div class="row">
+                                <div class="col-md-6 ">
+                                    <div class="detail-box">
+                                        <h1>
+                                            {{ object.title }}
+                                        </h1>
+                                        <p>{{object.description}}
+                                        </p>
+                                        <div class="btn-box">
+                                            <a href="" class="btn1">
+                                                Read More
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="img-box">
+                                        <img src="{{ object.image.url }}" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <ol class="carousel-indicators">
+                {% for object in slider %}
+                    <li data-target="#customCarousel1" data-slide-to="{{ forloop.counter0 }}"
+                        {% if forloop.first %}class="active"{% endif %}></li>
+                {% endfor %}
+            </ol>
+        </div>
+
+    </section>
+    <!-- end slider section -->
+    </div>
+
+
+    <!-- service section -->
+
+    <section class="service_section layout_padding">
+        <div class="service_container">
+            <div class="container ">
+                <div class="heading_container heading_center">
+                    <h2>
+                       <span>خدمات</span>  ما
+                    </h2>
+                    <p>
+                        سرویس هایی که وب اپلیکیشن ما به شما میدهد
+                    </p>
+                </div>
+                <div class="row">
+                    {% for service in services %}
+
+                    <div class="col-md-4 ">
+                        <div class="box ">
+                            <div class="img-box">
+                                <img src="{{service.image.url}}" alt="">
+                            </div>
+                            <div class="detail-box">
+                                <h5>
+                                    {{ service.title}}
+                                </h5>
+                                <p>{{service.description}}
+                                </p>
+                                <a href="{% url 'home:service' %}">
+                                    Read More
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="btn-box">
+                    <a href="{% url 'home:service' %}">
+                        View All
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- end service section -->
+
+
+    <!-- about section -->
+
+    <section class="about_section layout_padding">
+        <div class="container  ">
+            <div class="heading_container heading_center">
+                <h2>
+                    درباره <span>ما</span>
+                </h2>
+                <p>
+                    ما کی هستیم؟ 
+                </p>
+            </div>
+            <div class="row">
+                <div class="col-md-6 ">
+
+                    <div class="img-box">
+                        {% for aba in about %}
+                        {% if forloop.first %}
+                        	<img src="{{aba.image.url}}" alt="">
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-box">
+                        {% for aba in about %}
+
+                        <h3>
+                            {{ aba.title}}
+                        </h3>
+                        <p>
+                            {{ aba.description|linebreaksbr}}
+                        </p>
+                        {% endfor %}
+                        <a href="{% url 'home:about' %}">
+                            Read More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- end about section -->
+
+    <!-- why section -->
+
+    <section class="why_section layout_padding">
+        <div class="container">
+            <div class="heading_container heading_center">
+                <h2>
+                   چرا <span>ما</span>
+                </h2>
+            </div>
+            <div class="why_container">
+                {% for whyUSs in whyUS %}
+                <div class="box">
+                    <div class="img-box">
+                        <img src="{{whyUSs.image.url}}" alt="">
+                    </div>
+                    <div class="detail-box">
+                        <h5>
+                            {{ whyUSs.title}}
+                        </h5>
+                        <p>
+                            {{ whyUSs.description|linebreaksbr }}
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- end why section -->
+
+    <!-- team section -->
+    <section class="team_section layout_padding">
+        <div class="container-fluid">
+            <div class="heading_container heading_center">
+                <h2 class="">
+                    <span> تیم</span> ما
+                </h2>
+            </div>
+
+            <div class="team_container">
+                <div class="row">
+                    {% for t in team %}
+                        <div class="col-lg-6  col-sm-6 ">
+                        <div class="box ">
+                            <div class="img-box">
+                                <img src="{{t.image.url}}" class="img1" alt="">
+                            </div>
+                            <div class="detail-box">
+                                <h5>
+                                    {{ t.name }}
+                                </h5>
+                                <p>
+                                    {{ t.position }}
+                                </p>
+                            </div>
+                            <div class="social_box">
+                                <a href="{{ t.facebook }}">
+                                    <i class="fa fa-facebook" aria-hidden="true"></i>
+                                </a>
+                                <a href="{{ t.x }}">
+                                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                                </a>
+                                <a href="{{t.linkedin}}">
+                                    <i class="fa fa-linkedin" aria-hidden="true"></i>
+                                </a>
+                                <a href="{{t.instagram}}">
+                                    <i class="fa fa-instagram" aria-hidden="true"></i>
+                                </a>
+                                <a href="{{ t.youtube }}">
+                                    <i class="fa fa-youtube-play" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end team section -->
+
+
+    <!-- client section -->
+
+    <section class="client_section layout_padding">
+        <div class="container">
+            <div class="heading_container heading_center psudo_white_primary mb_45">
+                <h2>
+                    نظر  <span>مشتریان</span>
+                </h2>
+            </div>
+            <div class="carousel-wrap " style="direction: ltr">
+                <div class="owl-carousel client_owl-carousel">
+                    <div class="item">
+                        <div class="box">
+                            <div class="img-box">
+                                <img src="{% static 'images/client1.jpg' %}" alt="" class="box-img">
+                            </div>
+                            <div class="detail-box">
+                                <div class="client_id">
+                                    <div class="client_info">
+                                        <h6>
+                                            LusDen
+                                        </h6>
+                                        <p>
+                                            magna aliqua. Ut
+                                        </p>
+                                    </div>
+                                    <i class="fa fa-quote-left" aria-hidden="true"></i>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="box">
+                            <div class="img-box">
+                                <img src="{% static 'images/client2.jpg' %}" alt="" class="box-img">
+                            </div>
+                            <div class="detail-box">
+                                <div class="client_id">
+                                    <div class="client_info">
+                                        <h6>
+                                            Zen Court
+                                        </h6>
+                                        <p>
+                                            magna aliqua. Ut
+                                        </p>
+                                    </div>
+                                    <i class="fa fa-quote-left" aria-hidden="true"></i>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="box">
+                            <div class="img-box">
+                                <img src="{% static 'images/client1.jpg' %}" alt="" class="box-img">
+                            </div>
+                            <div class="detail-box">
+                                <div class="client_id">
+                                    <div class="client_info">
+                                        <h6>
+                                            LusDen
+                                        </h6>
+                                        <p>
+                                            magna aliqua. Ut
+                                        </p>
+                                    </div>
+                                    <i class="fa fa-quote-left" aria-hidden="true"></i>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="box">
+                            <div class="img-box">
+                                <img src="{% static 'images/client2.jpg' %}" alt="" class="box-img">
+                            </div>
+                            <div class="detail-box">
+                                <div class="client_id">
+                                    <div class="client_info">
+                                        <h6>
+                                            Zen Court
+                                        </h6>
+                                        <p>
+                                            magna aliqua. Ut
+                                        </p>
+                                    </div>
+                                    <i class="fa fa-quote-left" aria-hidden="true"></i>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+                                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- end client section -->
+
+
+{% endblock %}

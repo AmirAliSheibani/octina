@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block class %}sub_page{% endblock %}
+{% block content %}
+  </div>
+
+      <!-- team section -->
+    <section class="team_section layout_padding">
+        <div class="container-fluid">
+            <div class="heading_container heading_center">
+                <h2 class="">
+                    <span> تیم</span> ما
+                </h2>
+            </div>
+
+            <div class="team_container">
+                <div class="row">
+                    {% for t in team %}
+                        <div class="col-lg-6  col-sm-6 ">
+                        <div class="box ">
+                            <div class="img-box">
+                                <img src="{{t.image.url}}" class="img1" alt="">
+                            </div>
+                            <div class="detail-box">
+                                <h5>
+                                    {{ t.name }}
+                                </h5>
+                                <p>
+                                    {{ t.position }}
+                                </p>
+                            </div>
+                            <div class="social_box">
+                                <a href="{{ t.facebook }}">
+                                    <i class="fa fa-facebook" aria-hidden="true"></i>
+                                </a>
+                                <a href="{{ t.x }}">
+                                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                                </a>
+                                <a href="{{t.linkedin}}">
+                                    <i class="fa fa-linkedin" aria-hidden="true"></i>
+                                </a>
+                                <a href="{{t.instagram}}">
+                                    <i class="fa fa-instagram" aria-hidden="true"></i>
+                                </a>
+                                <a href="{{ t.youtube }}">
+                                    <i class="fa fa-youtube-play" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end team section -->
+{% endblock %}

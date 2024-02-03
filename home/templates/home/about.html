@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <!-- end header section -->
+
+  <!-- about section -->
+
+ <!-- about section -->
+
+    <section class="about_section layout_padding">
+        <div class="container  ">
+            <div class="heading_container heading_center">
+                <h2>
+                    درباره <span>ما</span>
+                </h2>
+                <p>
+                    ما کی هستیم؟
+                </p>
+            </div>
+            <div class="row">
+                <div class="col-md-6 ">
+                    <div class="img-box">
+                        {% for aba in about %}
+                        {% if forloop.first %}
+                        	<img src="{{aba.image.url}}" alt="">
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-box">
+                        {% for aba in about %}
+                        <h3>
+                            {{ aba.title}}
+                        </h3>
+                        <p>
+                            {{ aba.description|linebreaksbr}}
+                        </p>
+                        {% endfor %}
+                        <a href="{% url 'home:about' %}">
+                            Read More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- end about section -->
+
+
+  {% endblock %}
