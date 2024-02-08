@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class Slider(models.Model):
     image = models.ImageField(upload_to='services')
@@ -55,4 +55,10 @@ class Team(models.Model):
     class Meta:
         verbose_name = 'تیم'
         verbose_name_plural = 'بخش تیم'
+
+
+class EmailSend(models.Model):
+    User = models.ForeignKey(User, on_delete=models.CASCADE())
+    email = models.CharField(max_length=126)
+    
 
