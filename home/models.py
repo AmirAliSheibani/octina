@@ -58,7 +58,7 @@ class Team(models.Model):
 
 
 class EmailSend(models.Model):
-    User = models.ForeignKey(User, on_delete=models.CASCADE())
+    User = models.ForeignKey(User, on_delete=models.CASCADE)
     email = models.CharField(max_length=126)
     
 

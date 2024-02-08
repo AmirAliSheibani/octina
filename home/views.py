@@ -18,6 +18,7 @@ def home(request):
 
 
 def about(request):
+
     context = {}
     about = models.About.objects.all()
     context['about'] = about

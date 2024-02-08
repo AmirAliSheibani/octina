@@ -1,10 +1,11 @@
+from profile import Profile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
-from pricing.models import Profile
+# from pricing.models import Profile
 from .forms import UserRegisterForm, UserLoginForm
-from Attendance_app.form import PositionForm
+# from Attendance_app.form import PositionForm
 from django.urls import reverse
 
 
@@ -13,25 +14,19 @@ def UserRegisterView(request):
         return redirect(reverse("home:home"))
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
-        form2 = PositionForm(request.POST)
-        if form.is_valid() and form2.is_valid():
+        if form.is_valid():
             username = form.cleaned_data.get('username')
             email = form.cleaned_data.get('Email')
             password = form.cleaned_data.get('password2')
             user = User.objects.create_user(username=username, email=email, password=password)
             login(request, user)
             form.save()
-            position_id = form2.cleaned_data['positions']
-            profile = Profile.objects.create(user=request.user)
-            profile.position_id = position_id
-            profile.save()
             return redirect(reverse('home:home'))
 
     else:
 
         form = UserRegisterForm()
-        form2 = PositionForm()
-    return render(request, 'user_app/UserRegister.html', {'form': form, 'form2': form2})
+    return render(request, 'user_app/UserRegister.html', {'form': form})
 
 def UserLoginView(request):
     if request.user.is_authenticated:
