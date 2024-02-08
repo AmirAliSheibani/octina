@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+
+
 class Slider(models.Model):
     image = models.ImageField(upload_to='services')
     title = models.CharField(max_length=65)
@@ -58,7 +61,9 @@ class Team(models.Model):
 
 
 class EmailSend(models.Model):
-    User = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     email = models.CharField(max_length=126)
-    
+
+
+
 

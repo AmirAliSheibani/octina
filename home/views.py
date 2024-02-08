@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from . import models
+from .form import EmailSendingForm
+
 
 def home(request):
     context = {}
@@ -44,3 +46,5 @@ def why(request):
     whyUS = models.WhyUs.objects.all()
     context['whyUS'] = whyUS
     return render(request, 'home/why.html', context)
+
+

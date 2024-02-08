@@ -11,6 +11,10 @@ class AdminSlider(admin.ModelAdmin):
 class AdminService(admin.ModelAdmin):
     list_display = ['title']
 
+@admin.register(models.EmailSend)
+class AdminService(admin.ModelAdmin):
+    list_display = ['user', 'email']
+
 
 @admin.register(models.About)
 class AdminAbout(admin.ModelAdmin):

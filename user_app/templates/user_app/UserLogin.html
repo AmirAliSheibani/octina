@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Login Form | CodingLab</title>
+     <title>ورود به سایت</title>
     <link rel="stylesheet" href="{% static 'css/css1.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
   </head>
@@ -13,7 +13,7 @@
     <div class="container">
 
       <div class="wrapper">
-        <div class="title"><span>Login Form</span></div>
+        <div class="title"><span>فرم ورود به سایت</span></div>
         <form method="post">
             {% csrf_token %}
             {{ form.errors }}
@@ -25,11 +25,12 @@
             <i class="fas fa-lock"></i>
             {{ form.password }}
           </div>
-          <div class="pass"><a href="{% url 'user:register' %}">Forgot password?</a></div>
+          <div class="pass"><a href="{% url 'user:register' %}">پسوردت رو فراموش کردی؟</a></div>
           <div class="row button">
             <input type="submit" value="Login">
           </div>
-          <div class="signup-link">Not a member? <a href="{% url 'user:register' %}">Signup now</a></div>
+          <div class="signup-link">عضو نشدی؟ <a href="{% url 'user:register' %}">الان عضو شو</a></div>
+            <div class="signup-link">برو به <a href="{% url 'home:home' %}">صفحه اصلی</a></div>
         </form>
       </div>
     </div>
