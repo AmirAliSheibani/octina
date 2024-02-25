@@ -81,6 +81,15 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-3 info_col ">
+                {% if request.user.is_authenticated %}
+                    {% if request.user.verified_email == False %}
+                        <form method="post" action="{% url 'user:send_email' request.user.email %}">
+                    {% csrf_token %}
+                    <button type="submit">
+اکانت خود را وریفای کنید
+                    </button>
+                </form>
+                       {% else %}
                 <h4>
                     Subscribe
                 </h4>
@@ -91,6 +100,19 @@
                         Subscribe
                     </button>
                 </form>
+                        {% endif %}
+                    {% else %}
+                    <h4>
+                    Subscribe
+                </h4>
+                <form method="post" action="{% url 'user:login' %}">
+                    {% csrf_token %}
+                    <button type="submit">
+                        برای فرستادن ایمیل اول لاگین کنید
+                    </button>
+                </form>
+                {% endif %}
+
             </div>
         </div>
     </div>

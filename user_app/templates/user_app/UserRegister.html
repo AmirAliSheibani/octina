@@ -6,7 +6,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> ثبت نام</title>
-    <link rel="stylesheet" href="{% static 'css/css3.css' %}">
+    <link rel="stylesheet" href="{% static 'css/gh.css' %}">
+      <style>
+
+
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
    </head>
 <body>
   <div class="wrapper">
@@ -31,11 +41,11 @@
         {{ form.password2 }}
       </div>
       <div class="input-box button">
-        <input type="submit" value="Register Now">
+        <input type="submit" value="ثبت نام">
       </div>
       <div class="text">
         <h3>از قبل حساب کاربری دارید؟ <a href="{% url 'user:login' %}">ورود به سایت</a></h3>
-          <div class="signup-link">برو به <a href="{% url 'home:home' %}">صفحه اصلی</a></div>
+          <div class="signup-link">برو به <a href="{% url 'Attendance:home' %}">صفحه اصلی</a></div>
       </div>
     </form>
   </div>

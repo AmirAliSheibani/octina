@@ -1,13 +1,13 @@
 from django.db import models
-from django.contrib.auth.models import User
-
-
+# from django.contrib.auth.models import User
+from pricing.models import CustomUser
+User = CustomUser
 
 
 class Slider(models.Model):
     image = models.ImageField(upload_to='services')
     title = models.CharField(max_length=65)
-    description = models.TextField(max_length=200)
+    description = models.TextField(max_length=400)
 
     class Meta:
         verbose_name = 'اسلاید'
@@ -17,7 +17,7 @@ class Slider(models.Model):
 class Service(models.Model):
     image = models.ImageField(upload_to='services')
     title = models.CharField(max_length=65)
-    description = models.TextField(max_length=200)
+    description = models.TextField(max_length=300)
 
     class Meta:
         verbose_name = 'خدمت'

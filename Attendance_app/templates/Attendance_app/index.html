@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance System</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
+</head>
+<body>
+
+
+<div class="container">
+    <h1>Attendance System</h1>
+    <h2>{{ request.user }}</h2>
+    <h4>{{ position }}</h4>
+    <form method="post" action="{% url 'Attendance:start' %}">
+        {% csrf_token %}
+
+        <button type="submit">Start</button>
+        <p></p>
+        <a href="{% url 'user:logout' %}">
+            <button type="button">Logout</button>
+        </a>
+        <a href="{% url 'Attendance:result_list' request.user.id %}">
+            <button type="button">result list</button>
+        </a>
+        {% if request.user.is_staff %}
+            <a href="{% url 'Attendance:user_list' request.user.id %}">
+            <button type="button">user list</button>
+            </a>
+            <a href="/admin">
+            <button type="button">admin panel</button>
+            </a>
+        {% endif %}
+    </form>
+</div>
+</body>
+</html>

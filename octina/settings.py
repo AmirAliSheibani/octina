@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os.path
 from pathlib import Path
-
+AUTH_USER_MODEL = 'pricing.CustomUser'
+PROMETHEUS_EXPORT_MIGRATIONS = False
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,9 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # 'django_recaptcha',
+
     #my_apps
     'home.apps.HomeConfig',
     'user_app.apps.UserAppConfig',
+    'Attendance_app.apps.AttendanceAppConfig',
+    'pricing.apps.PricingConfig',
 
 ]
 
@@ -82,11 +87,14 @@ WSGI_APPLICATION = 'octina.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'octina_db',
+        'USER': 'root',
+        'PASSWORD': 'mrbombermanrapy7545',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -134,3 +142,14 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'octinaweb@gmail.com'
+EMAIL_HOST_PASSWORD = 'xjvu njex rxqp usfp'
+
+#
+# RECAPTCHA_PUBLIC_KEY = 'MyRecaptchaKey123'
+# RECAPTCHA_PRIVATE_KEY = 'MyRecaptchaPrivateKey456'
+

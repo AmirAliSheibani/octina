@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance System</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+    function updateDuration() {
+        $.ajax({
+            url: "{% url 'Attendance:update_duration' %}",
+            success: function(data) {
+                var duration = data.duration_formatted;
+                $('#working-hours').text(duration);
+            }
+        });
+    }
+
+    // Update the duration every second (1000 milliseconds)
+    setInterval(updateDuration, 1000);
+});
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Attendance System</h1>
+        <p>Working time: <span id="working-hours">0 hours, 0 hours, 0 seconds</span></p>
+        <form method="POST" action="{% url 'Attendance:procces_result' pk %}">
+            {% csrf_token %}
+            <button class="button" type="submit">End</button>
+        </form>
+    </div>
+</body>
+</html>

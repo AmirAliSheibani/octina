@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
+
+    <style>
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Alternating Row Colors */
+        tr:nth-child(even) {
+            background-color: #e1f5fe;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+    <h2>{{ user }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Start</th>
+                    <th scope="col">End</th>
+                    <th scope="col">Job Time</th>
+                    <th scope="col">Created Date</th>
+                    <th scope="col">detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in object %}
+
+                    <tr>
+
+                    <td>{{ obj.start }}</td>
+                    <td>{{ obj.end }}</td>
+                    <td>{{ obj.job_time|slice:":10" }}</td>
+                    <td>{{ obj.created_date }}</td>
+                    <td> <a href="{% url 'Attendance:result_detail' user.id obj.id %}">more</a></td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    <form method="POST" action="{% url 'Attendance:start' %}">
+            {% csrf_token %}
+            <a href="{% url 'Attendance:home' %}"><button type="button">back to home</button></a>
+           <button type="submit">Start</button>
+
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

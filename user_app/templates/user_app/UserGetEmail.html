@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دریافت ایمیل</title>
+    <link rel="stylesheet" href="{% static 'css/45.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet"/>
+    <style>
+    @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+    body {
+        font-family: 'Vazir', sans-serif;
+
+        text-align: right;
+    }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="wrapper">
+        <div class="title"><span>فرم دریافت ایمیل</span></div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="error-message">
+                {{ form.non_field_errors }}
+            </div>
+            <div class="row">
+                <i class="fas fa-user"></i>
+                {{ form.username }}
+            </div>
+            <div class="row">
+                <i class="fas fa-user"></i>
+                {{ form.Email }}
+            </div>
+
+            <div class="pass"><a href="{% url 'user:login' %}">پسوردت رو داری؟</a></div>
+            <div class="row button">
+                <input type="submit" value="برو">
+            </div>
+            <div class="signup-link">عضو نشدی؟ <a href="{% url 'user:register' %}">الان عضو شو</a></div>
+            <div class="signup-link">برو به <a href="{% url 'home:home' %}">صفحه اصلی</a></div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

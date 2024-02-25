@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<!-- Coding By CodingNepal - codingnepalweb.com -->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>چک کردن ایمیل</title>
+    <link rel="stylesheet" href="{% static 'css/gh.css' %}">
+      <style>
+    @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+    body {
+        font-family: 'Vazir', sans-serif;
+
+
+    }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+   </head>
+<body>
+  <div class="wrapper">
+    <h2> {{ request.user.email|truncatechars:7 }}  اعتبار سنجی ایمیل </h2>
+
+    <form method="post">
+        {% csrf_token %}
+    {{ form.code.errors }}
+      <div class="input-box">
+          {{ form.code }}
+      </div>
+      <div class="input-box button">
+        <input type="submit" value="برو">
+      </div>
+      <div class="text">
+      </div>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+{% load filter_tag %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance System</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
+    <style>
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007bff;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* Alternating Row Colors */
+        tr:nth-child(even) {
+            background-color: #e1f5fe;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Attendance System</h1>
+    <h2>{{ user }}</h2>
+    <p>Working : <span id="working-hours">{{ job_time }}</span></p>
+    <p>Start: <span id="working-hours">{{ start }}</span></p>
+    <p>End: <span id="working-hours">{{ end }}</span></p>
+
+    <table>
+        <thead>
+       <h2>past</h2>
+        <tr>
+            <th>Start</th>
+            <th>End</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for start, end in zipped_times %}
+            <tr>
+                <td>{{ start }}</td>
+                <td>{{ end }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <form method="POST" action="{% url 'Attendance:start' %}">
+        {% csrf_token %}
+        <a href="{% url 'Attendance:home' %}">
+            <button type="button">back to home</button>
+        </a>
+        <button type="submit">Start</button>
+        <a href="{% url 'Attendance:result_list' request.user.id %}">
+            <button type="button">result list</button>
+        </a>
+    </form>
+</div>
+</body>
+</html>

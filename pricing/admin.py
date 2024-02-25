@@ -1,0 +1,403 @@
+from django.conf import settings
+from django.contrib import admin, messages
+from django.contrib.admin.options import IS_POPUP_VAR
+from django.contrib.admin.utils import unquote
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.admin import sensitive_post_parameters_m, csrf_protect_m
+from django.contrib.auth.forms import (
+    AdminPasswordChangeForm,
+    UserChangeForm,
+    UserCreationForm,
+)
+from django.contrib.auth.models import Group, User
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.db import router, transaction
+from django.http import Http404, HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.utils.html import escape
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters
+from django.contrib import admin
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm, AdminPasswordChangeForm
+from django.urls import path
+from .models import CustomUser
+from . import models
+from django import forms
+from django.utils.translation import gettext_lazy as _
+
+
+# class PositionsForm(forms.ModelForm):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         if not self.instance or not self.instance.created_by.is_superuser:
+#             self.fields['created_by'].queryset = models.User.objects.filter(id=self.instance.created_by.id)
+#
+# class IncomeForm(forms.ModelForm):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         if not self.instance or not self.instance.created_by.is_superuser:
+#             self.fields['USer'].queryset = models.User.objects.filter(id=self.instance.created_by.id)
+#             self.fields['position'].queryset = models.User.objects.filter(id=self.instance.created_by.id)
+#             self.fields['created_by'].queryset = models.User.objects.filter(id=self.instance.created_by.id)
+#
+# class ProfileForm(forms.ModelForm):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         if not request.user.is_superuser:
+#             if db_field.name == 'USer':
+#                 kwargs["queryset"] = models.User.objects.filter(created_by=request.user)
+#                 return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+@admin.register(models.Income)
+class IncomeAdmin(admin.ModelAdmin):
+    list_display = ['USer', 'position', 'job_time']
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if not request.user.is_superuser:
+            fields = [field for field in fields if field != 'created_by']
+        return fields
+
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if not request.user.is_superuser:
+            if db_field.name == 'USer':
+                kwargs["queryset"] = models.CustomUser.objects.filter(created_who=request.user)
+                return super().formfield_for_foreignkey(db_field, request, **kwargs)
+            if db_field.name == 'position':
+                kwargs["queryset"] = models.Positions.objects.filter(created_by=request.user)
+                return super().formfield_for_foreignkey(db_field, request, **kwargs)
+        else:
+            return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser:
+            return qs.filter(created_by=request.user)
+        return qs
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+@admin.register(models.Positions)
+class PositionsAdmin(admin.ModelAdmin):
+    list_display = ['positions', 'position_income']
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if not request.user.is_superuser:
+            fields = [field for field in fields if field != 'created_by']
+        return fields
+
+
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser:
+            return qs.filter(created_by=request.user)
+        return qs
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            user = request.user
+            if not user.is_superuser:
+                user_profile_count = models.Positions.objects.filter(created_by=user).count()
+                user_limit = 10  # Set the desired limit here
+
+                if user_profile_count >= user_limit:
+                    raise ValidationError("You have reached the record creation limit.")
+
+            obj.created_by = user
+
+        super().save_model(request, obj, form, change)
+
+@admin.register(models.Profile)
+class ProfileAdmin(admin.ModelAdmin):
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if not request.user.is_superuser:
+            fields = [field for field in fields if field != 'created_by']
+        return fields
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if not request.user.is_superuser:
+            if db_field.name == 'user':
+                kwargs["queryset"] = models.CustomUser.objects.filter(created_who=request.user)
+                return super().formfield_for_foreignkey(db_field, request, **kwargs)
+            if db_field.name == 'profile_position':
+                kwargs["queryset"] = models.Positions.objects.filter(created_by=request.user)
+                return super().formfield_for_foreignkey(db_field, request, **kwargs)
+        else:
+            return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Only for new objects
+
+            user = request.user
+            if not user.is_superuser:
+                user_profile_count = models.Profile.objects.filter(created_by=user).count()
+                user_limit = 10  # Set the desired limit here
+
+                if user_profile_count >= user_limit:
+                    raise ValidationError("You have reached the record creation limit.")
+
+            obj.created_by = user
+
+        super().save_model(request, obj, form, change)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser:
+            return qs.filter(created_by=request.user)
+        return qs
+
+    list_display = ['user', 'profile_position']
+
+
+class CustomUserAdmin(admin.ModelAdmin):
+    add_form_template = "admin/auth/user/add_form.html"
+    change_user_password_template = None
+    fieldsets = (
+        (None, {"fields": ("username", "password")}),
+        (_("Personal info"), {"fields": ("first_name", "last_name", "email", 'created_who',)}),
+        (
+            _("Permissions"),
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "user_permissions",
+                    'subscription_Date',
+                    'verified_email',
+
+                ),
+            },
+        ),
+        (_("Important dates"), {"fields": ("last_login", "date_joined")}),
+    )
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "password1", "password2"),
+            },
+        ),
+    )
+    list_display = ("username", "email", "first_name", "last_name", "is_staff")
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+    search_fields = ("username", "first_name", "last_name", "email")
+    ordering = ("username",)
+    filter_horizontal = (
+        "groups",
+        "user_permissions",
+    )
+    form = UserChangeForm
+    add_form = UserCreationForm
+    change_password_form = AdminPasswordChangeForm
+    list_display = ("username", "email", "first_name", "last_name", "is_staff")
+    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+    search_fields = ("username", "first_name", "last_name", "email")
+    ordering = ("username",)
+    filter_horizontal = (
+        "groups",
+        "user_permissions",
+    )
+
+    def get_fieldsets(self, request, obj=None):
+
+        if not request.user.is_superuser:
+            if not obj:
+                return self.add_fieldsets
+            fieldsets = [
+
+                (None, {"fields": ("username", "password")}),
+                (_("Personal info"), {"fields": ("first_name", "last_name", "email")})
+            ]
+            return fieldsets
+        if not obj:
+            return self.add_fieldsets
+        return super().get_fieldsets(request, obj)
+
+
+    def save_model(self, request, obj, form, change):
+        if not change:  # Only set created_who for new objects
+            user = request.user
+            if not user.is_superuser:
+                user_profile_count = models.CustomUser.objects.filter(created_who=user).count()
+                user_limit = 10  # Set the desired limit here
+
+                if user_profile_count >= user_limit:
+                    raise ValidationError("You have reached the record creation limit.")
+            obj.created_who = user
+            obj.subscription_Date = user.subscription_Date
+        super().save_model(request, obj, form, change)
+
+    def has_change_permission(self, request, obj=None):
+        if obj and obj.subscription_Date and obj.subscription_Date <= timezone.now().date():
+            obj.is_active = False
+        return super().has_change_permission(request, obj)
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+        Use special form during user creation
+        """
+        defaults = {}
+        if obj is None:
+            defaults["form"] = self.add_form
+        defaults.update(kwargs)
+        return super().get_form(request, obj, **defaults)
+
+    def get_urls(self):
+        return [
+            path(
+                "<id>/password/",
+                self.admin_site.admin_view(self.user_change_password),
+                name="auth_user_password_change",
+            ),
+        ] + super().get_urls()
+
+    # RemovedInDjango60Warning: when the deprecation ends, replace with:
+    # def lookup_allowed(self, lookup, value, request):
+    def lookup_allowed(self, lookup, value, request=None):
+        # Don't allow lookups involving passwords.
+        return not lookup.startswith("password") and super().lookup_allowed(
+            lookup, value, request
+        )
+
+    @sensitive_post_parameters_m
+    @csrf_protect_m
+    def add_view(self, request, form_url="", extra_context=None):
+        with transaction.atomic(using=router.db_for_write(self.model)):
+            return self._add_view(request, form_url, extra_context)
+
+    def _add_view(self, request, form_url="", extra_context=None):
+        # It's an error for a user to have add permission but NOT change
+        # permission for users. If we allowed such users to add users, they
+        # could create superusers, which would mean they would essentially have
+        # the permission to change users. To avoid the problem entirely, we
+        # disallow users from adding users if they don't have change
+        # permission.
+        if not self.has_change_permission(request):
+            if self.has_add_permission(request) and settings.DEBUG:
+                # Raise Http404 in debug mode so that the user gets a helpful
+                # error message.
+                raise Http404(
+                    'Your user does not have the "Change user" permission. In '
+                    "order to add users, Django requires that your user "
+                    'account have both the "Add user" and "Change user" '
+                    "permissions set."
+                )
+            raise PermissionDenied
+        if extra_context is None:
+            extra_context = {}
+        username_field = self.opts.get_field(self.model.USERNAME_FIELD)
+        defaults = {
+            "auto_populated_fields": (),
+            "username_help_text": username_field.help_text,
+        }
+        extra_context.update(defaults)
+        return super().add_view(request, form_url, extra_context)
+
+    @sensitive_post_parameters_m
+    def user_change_password(self, request, id, form_url=""):
+        user = self.get_object(request, unquote(id))
+        if not self.has_change_permission(request, user):
+            raise PermissionDenied
+        if user is None:
+            raise Http404(
+                _("%(name)s object with primary key %(key)r does not exist.")
+                % {
+                    "name": self.opts.verbose_name,
+                    "key": escape(id),
+                }
+            )
+        if request.method == "POST":
+            form = self.change_password_form(user, request.POST)
+            if form.is_valid():
+                form.save()
+                change_message = self.construct_change_message(request, form, None)
+                self.log_change(request, user, change_message)
+                msg = gettext("Password changed successfully.")
+                messages.success(request, msg)
+                update_session_auth_hash(request, form.user)
+                return HttpResponseRedirect(
+                    reverse(
+                        "%s:%s_%s_change"
+                        % (
+                            self.admin_site.name,
+                            user._meta.app_label,
+                            user._meta.model_name,
+                        ),
+                        args=(user.pk,),
+                    )
+                )
+        else:
+            form = self.change_password_form(user)
+
+        fieldsets = [(None, {"fields": list(form.base_fields)})]
+        admin_form = admin.helpers.AdminForm(form, fieldsets, {})
+
+        context = {
+            "title": _("Change password: %s") % escape(user.get_username()),
+            "adminForm": admin_form,
+            "form_url": form_url,
+            "form": form,
+            "is_popup": (IS_POPUP_VAR in request.POST or IS_POPUP_VAR in request.GET),
+            "is_popup_var": IS_POPUP_VAR,
+            "add": True,
+            "change": False,
+            "has_delete_permission": False,
+            "has_change_permission": True,
+            "has_absolute_url": False,
+            "opts": self.opts,
+            "original": user,
+            "save_as": False,
+            "show_save": True,
+            **self.admin_site.each_context(request),
+        }
+
+        request.current_app = self.admin_site.name
+
+        return TemplateResponse(
+            request,
+            self.change_user_password_template
+            or "admin/auth/user/change_password.html",
+            context,
+        )
+
+    def response_add(self, request, obj, post_url_continue=None):
+        """
+        Determine the HttpResponse for the add_view stage. It mostly defers to
+        its superclass implementation but is customized because the User model
+        has a slightly different workflow.
+        """
+        # We should allow further modification of the user just added i.e. the
+        # 'Save' button should behave like the 'Save and continue editing'
+        # button except in two scenarios:
+        # * The user has pressed the 'Save and add another' button
+        # * We are adding a user in a popup
+        if "_addanother" not in request.POST and IS_POPUP_VAR not in request.POST:
+            request.POST = request.POST.copy()
+            request.POST["_continue"] = 1
+        return super().response_add(request, obj, post_url_continue)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser:
+            return qs.filter(created_who=request.user)
+        return qs
+
+admin.site.register(CustomUser, CustomUserAdmin)

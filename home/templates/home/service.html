@@ -3,7 +3,26 @@
 {% block class %}sub_page{% endblock %}
 {% block content %}
 </div>
+<style>
+    .col-md-4  {
+        transition: background-color 0.3s ease;
+    }
 
+    .col-md-4 :hover {
+        background-color: #aeb8ff;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .col-md-4 :hover .img-box img {
+        animation: fadeIn 0.5s forwards;
+    }
+
+    /* سی اس اس ها را پنهان می‌کنیم */
+</style>
   <!-- service section -->
 
   <section class="service_section layout_padding">
