@@ -69,7 +69,7 @@ class IncomeAdmin(admin.ModelAdmin):
                 kwargs["queryset"] = models.CustomUser.objects.filter(created_who=request.user)
                 return super().formfield_for_foreignkey(db_field, request, **kwargs)
             if db_field.name == 'position':
-                kwargs["queryset"] = models.Positions.objects.filter(created_by=request.user)
+                kwargs["queryset"] = models.Profile.objects.filter(created_by=request.user)
                 return super().formfield_for_foreignkey(db_field, request, **kwargs)
         else:
             return super().formfield_for_foreignkey(db_field, request, **kwargs)

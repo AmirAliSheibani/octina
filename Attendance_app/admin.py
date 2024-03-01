@@ -3,7 +3,12 @@ from django.contrib import admin
 from .models import AttendanceUser
 from pricing.models import CustomUser
 User = CustomUser
+from django.contrib.admin import AdminSite
 
+class MyAdminSite(AdminSite):
+    site_header = 'مدیریت اُکتینا'
+
+admin_site = MyAdminSite(name='myadmin')
 # from django import forms
 #
 # class AttendanceUserForm(forms.ModelForm):

@@ -5,12 +5,27 @@
 <head>
     <title>Attendance System</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
+
     <style>
+
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+
+
         /* Table Styling */
         table {
             width: 100%;
+            font-family: 'Shabnam', sans-serif;
             border-collapse: collapse;
-            font-family: Arial, sans-serif;
             color: #333;
         }
 
@@ -24,6 +39,7 @@
             background-color: #007bff;
             font-weight: bold;
             color: #fff;
+            font-family: 'Shabnam', sans-serif;
         }
 
         /* Alternating Row Colors */
@@ -32,22 +48,22 @@
         }
     </style>
 </head>
-<body>
-<div class="container">
-    <h1>Attendance System</h1>
+<body><div class="container">
+    <h1> حضور و غیاب اُکتینا</h1>
     <h2>{{ user }}</h2>
-    <p>Working : <span id="working-hours">{{ job_time }}</span></p>
-    <p>Start: <span id="working-hours">{{ start }}</span></p>
-    <p>End: <span id="working-hours">{{ end }}</span></p>
-
+    <p>مدت زمان کار کردن: <span id="working-hours">{{ job_time }}</span></p>
+    <p>ورود: <span id="working-hours">{{ start }}</span></p>
+    <p>خروج: <span id="working-hours">{{ end }}</span></p>
+    <p>درآمد ماه جاری: <span id="working-hours">{{income.User_income}}</span></p>
     <table>
         <thead>
-       <h2>past</h2>
+       <h2>ورود و خروج های قبلی</h2>
         <tr>
-            <th>Start</th>
-            <th>End</th>
+            <th>ورود</th>
+            <th>خروج</th>
         </tr>
         </thead>
+
         <tbody>
         {% for start, end in zipped_times %}
             <tr>
@@ -60,11 +76,11 @@
     <form method="POST" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
         <a href="{% url 'Attendance:home' %}">
-            <button type="button">back to home</button>
+            <button type="button">بازگشت به خانه</button>
         </a>
-        <button type="submit">Start</button>
-        <a href="{% url 'Attendance:result_list' request.user.id %}">
-            <button type="button">result list</button>
+        <button type="submit">شروع</button>
+        <a href="{% url 'Attendance:result_list' request.user.id month%}">
+            <button type="button">لیست نتایج</button>
         </a>
     </form>
 </div>

@@ -9,4 +9,5 @@ urlpatterns = [
     path('service/', views.service, name='service'),
     path('team/', views.team, name='team'),
     path('why/', views.why, name='why'),
+    path('mores/<int:pk>', views.slidermore, name='slidermore'),
 ]

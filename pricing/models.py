@@ -53,7 +53,7 @@ class Income(models.Model):
     position = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=True, null=True, related_name='poSition')
     created_date = models.DateField(auto_created=True, null=True)
     job_time = models.DurationField(default=timedelta(0), blank=True)
-    User_income = models.IntegerField(default=0)
+    User_income = models.FloatField(default=0, )
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_income', blank=True,
                                    null=True)
 

@@ -12,7 +12,14 @@ from pricing.models import Profile, User, CustomUser, Income
 from .form import PositionForm
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
+# exel
 
+import openpyxl
+from openpyxl.styles import Font, PatternFill
+from openpyxl.utils import get_column_letter
+
+from django.http import HttpResponse
+from django.db.models import Q
 
 @login_required
 def restricted_view(request):
@@ -31,13 +38,64 @@ def restricted_view(request):
 
 class AttendanceListView(CustomizedRquirementLogin, ListView):
     model = AttendanceUser
-    paginate_by = 30
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         pk = self.kwargs['pk']
-        context["object"] = AttendanceUser.objects.filter(user_id=pk)
-        context['user'] = CustomUser.objects.get(id=pk)
+        month = self.kwargs['month']
+        MONTH_NAMES = {
+            1: 'فروردین',
+            2: 'اردیبهشت',
+            3: 'خرداد',
+            4: 'تیر',
+            5: 'مرداد',
+            6: 'شهریور',
+            7: 'مهر',
+            8: 'آبان',
+            9: 'آذر',
+            10: 'دی',
+            11: 'بهمن',
+            12: 'اسفند',
+        }
+
+        context['months'] = MONTH_NAMES
+
+        try:
+            att = AttendanceUser.objects.filter(user_id=pk, created_date__month=month)
+            context['user'] = CustomUser.objects.get(id=pk)
+            at = att.last()
+            at_month = at.created_date.month
+            try:
+                income = Income.objects.get(USer=at.user, created_date__month=at_month)
+
+            except Income.DoesNotExist:
+                profile = Profile.objects.get(user=at.user)
+                income = Income.objects.create(created_date=at.created_date, User=at.user,
+                                               position=profile, job_time=at.job_time)
+                income.User_income = profile.position_income * (income.job_time.total_seconds() / 3600)
+                income.created_by = self.request.user.created_who
+                income.save()
+
+            objects = att
+            inc = income.position.profile_position.position_income
+            results = []
+            for obj in objects:
+                result = inc * (obj.job_time.total_seconds() / 3600)
+                results.append(str(result)[:6])
+
+            # Pass the objects and results to the template context
+
+            context["object"] = zip(att, results)
+            context['income'] = income
+            context['month'] = month
+        except:
+            context["object"] = None
+            context['user'] = CustomUser.objects.get(id=pk)
+
+            context['income'] = None
+            context['month'] = month
+
+
         return context
 
     # def get_fieldsets(self, request, obj=None):
@@ -52,35 +110,225 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
     #         ]
     #         return fieldsets
 
-
 @login_required
-def staff_user_list(request, pk):
+def download_excel_user(request, pk, month):
+
+    user = CustomUser.objects.get(id=pk)
+    positions = Profile.objects.get(user=user)
+    attendances = AttendanceUser.objects.filter(user=user, created_date__month=month)
+    income = Income.objects.get(USer=user, created_date__month=month)
+    MONTH_NAMES = {
+        1: 'فروردین',
+        2: 'اردیبهشت',
+        3: 'خرداد',
+        4: 'تیر',
+        5: 'مرداد',
+        6: 'شهریور',
+        7: 'مهر',
+        8: 'آبان',
+        9: 'آذر',
+        10: 'دی',
+        11: 'بهمن',
+        12: 'اسفند',
+    }
+
+    # Create an Excel workbook and sheet
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+
+    # Set month name
+    month_name = MONTH_NAMES.get(month)
+    sheet["A1"] = f"Month: {month_name}"
+    sheet.merge_cells("A1:F1")
+    sheet["A1"].font = Font(bold=True)
+
+    # Set table headers
+    headers = ["First Name", "Last Name", "Position", "Total Working Time", "Price", "Total Price"]
+    for col_num, header in enumerate(headers, 1):
+        col_letter = get_column_letter(col_num)
+        cell = sheet[f"{col_letter}2"]
+        cell.value = header
+        cell.font = Font(bold=True)
+
+
+    # Write table data
+    row_num = 3
+    for attendance in attendances:
+        sheet[f"A{row_num}"] = user.username
+        sheet[f"B{row_num}"] = user.last_name
+        sheet[f"C{row_num}"] = positions.profile_position.positions  # Extract the position attribute
+        sheet[f"D{row_num}"] = str(attendance.job_time)[:10]
+        inc = income.position.profile_position.position_income * (attendance.job_time.total_seconds() / 3600)
+        sheet[f"E{row_num}"] = inc
+        sheet[f"F{row_num}"] = income.User_income
+        row_num += 1
+
+
+    # Set response content type
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    # Provide a filename for the Excel file
+    response["Content-Disposition"] = f"attachment; filename={user.username}_info.xlsx"
+
+    # Save the workbook to the response
+    workbook.save(response)
+    return response
+
+def staff_user_list(request, pk, month):
+    MONTH_NAMES = {
+        1: 'فروردین',
+        2: 'اردیبهشت',
+        3: 'خرداد',
+        4: 'تیر',
+        5: 'مرداد',
+        6: 'شهریور',
+        7: 'مهر',
+        8: 'آبان',
+        9: 'آذر',
+        10: 'دی',
+        11: 'بهمن',
+        12: 'اسفند',
+    }
+
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
         positions = Profile.objects.filter(created_by=request.user)
-        attendances = AttendanceUser.objects.filter(user__in=users)
-        income = Income.objects.filter(USer__in=users)
-        return render(request, 'Attendance_app/AdminUserLlist.html',
-                      {'object': zip(users, positions, attendances, income)})
+        attendances = AttendanceUser.objects.filter(user__in=users, created_date__month=month)
+        income = Income.objects.filter(USer__in=users, created_date__month=month)
 
-    users = CustomUser.objects.all()
-    positions = Profile.objects.all()
-    attendances = AttendanceUser.objects.filter(user__in=users)
-    income = Income.objects.filter(USer__in=users)
-    return render(request, 'Attendance_app/AdminUserLlist.html', {'object': zip(users, positions, attendances, income)})
+    else:
+        users = CustomUser.objects.all()
+        positions = Profile.objects.all()
+        attendances = AttendanceUser.objects.filter(user__in=users, created_date__month=month)
+        income = Income.objects.filter(USer__in=users, created_date__month=month)
+
+    no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
 
 
-import re
+    # Filter by last name alphabets
+    last_name_filter = request.GET.get('last_name_filter')
+    if last_name_filter:
+        users = users.filter(last_name__startswith=last_name_filter)
+
+    # Filter by job time
+    job_time_filter = request.GET.get('job_time_filter')
+    if job_time_filter:
+        if job_time_filter == 'smaller':
+            income = income.order_by('job_time')
+        elif job_time_filter == 'greater':
+            income = income.order_by('-job_time')
+
+    # Filter by income
+    income_filter = request.GET.get('income_filter')
+    if income_filter:
+        if income_filter == 'smaller':
+            income = income.order_by('User_income')
+        elif income_filter == 'greater':
+            income = income.order_by('-User_income')
+
+    return render(request, 'Attendance_app/AdminUserLlist.html',
+                  {'object': zip(users, positions, attendances, income),'checkincome':no_income_users, 'noIncome': zip(no_income_users, positions),
+                   'months': MONTH_NAMES, 'month': month})
 
 
 @login_required
+def download_excel(request, pk, month):
+    if not request.user.is_superuser:
+        users = CustomUser.objects.filter(created_who=request.user)
+        positions = Profile.objects.filter(created_by=request.user)
+        attendances = AttendanceUser.objects.filter(user__in=users, created_date__month=month)
+        income = Income.objects.filter(USer__in=users, created_date__month=month)
+    else:
+        users = CustomUser.objects.all()
+        positions = Profile.objects.all()
+        attendances = AttendanceUser.objects.filter(user__in=users, created_date__month=month)
+        income = Income.objects.filter(USer__in=users, created_date__month=month)
+
+    no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
+
+    # Create an Excel workbook and sheet
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    MONTH_NAMES = {
+        1: 'فروردین',
+        2: 'اردیبهشت',
+        3: 'خرداد',
+        4: 'تیر',
+        5: 'مرداد',
+        6: 'شهریور',
+        7: 'مهر',
+        8: 'آبان',
+        9: 'آذر',
+        10: 'دی',
+        11: 'بهمن',
+        12: 'اسفند',
+    }
+
+    # Set month name
+    month_name = MONTH_NAMES.get(month)
+    sheet["A1"] = f"Month: {month_name}"
+    sheet.merge_cells("A1:E1")
+    sheet["A1"].font = Font(bold=True)
+
+
+    # Set table headers
+    headers = ["First Name", "Last Name", "Position", "Total Working Time", "Total Price"]
+    for col_num, header in enumerate(headers, 1):
+        col_letter = get_column_letter(col_num)
+        cell = sheet[f"{col_letter}2"]
+        cell.value = header
+        cell.font = Font(bold=True)
+
+    # Write table data
+    row_num = 3
+    for user, position, attendance, user_income in zip(users, positions, attendances, income):
+        sheet[f"A{row_num}"] = user.username
+        sheet[f"B{row_num}"] = user.last_name
+        sheet[f"C{row_num}"] = position.profile_position.positions  # Extract the position attribute
+        sheet[f"D{row_num}"] = str(attendance.job_time)[:10]
+        sheet[f"E{row_num}"] = user_income.User_income
+        row_num += 1
+
+    # Apply styles
+    red_fill = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")
+    for user, position in zip(no_income_users, positions ):
+        sheet[f"A{row_num}"] = user.username
+        sheet[f"B{row_num}"] = user.last_name
+        sheet[f"C{row_num}"] = position.profile_position.positions
+        sheet[f"A{row_num}"].fill = red_fill
+        sheet[f"B{row_num}"].fill = red_fill
+        sheet[f"C{row_num}"].fill = red_fill
+        row_num += 1
+
+    # Set response content type
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    # Provide a filename for the Excel file
+    response["Content-Disposition"] = f"attachment; filename={request.user.username}_users.xlsx"
+
+    # Save the workbook to the response
+    workbook.save(response)
+
+    return response
+import re
+@login_required
 def result_detail(request, pk):
-    result = AttendanceUser.objects.get(id=pk)
+    at = AttendanceUser.objects.get(id=pk)
+    at_month = at.created_date.month
     starts = []
     ends = []
+    try:
+        income = Income.objects.get(USer=at.user, created_date__month=at_month)
+        print('from try of result_detail')
+    except:
+        income = Income.objects.create(created_date=at.created_date, USer=at.user,
+                                       position=Profile.objects.get(user=at.user), job_time=at.job_time)
+        income.User_income = income.position.profile_position.position_income * (
+                income.job_time.total_seconds() / 3600)
+        print(request.user.is_staff)
+        income.created_by = request.user.created_who
+        income.save()
 
-    pattern = r"start=(\d{2}:\d{2}), end=(\d{2}:\d{2})"
-    matches = re.findall(pattern, result.last_info)
+    pattern = r"start=(\d{2}:\d{2}:\d{2}), end=(\d{2}:\d{2}:\d{2})"
+    matches = re.findall(pattern, at.last_info)
 
     for match in matches:
         start, end = match
@@ -89,13 +337,23 @@ def result_detail(request, pk):
 
     zipped_times = zip(starts, ends)
 
-    return render(request, 'Attendance_app/result.html', {'zipped_times': zipped_times})
+    return render(request, 'Attendance_app/result.html', {'zipped_times': zipped_times, 'income': income})
 
 
 @login_required
 def create_attendance_view(request):
     position = Profile.objects.get(user=request.user)
-    return render(request, 'Attendance_app/index.html', {'position': position})
+    month = timezone.now().month
+    print(month)
+    try:
+        income = Income.objects.get(USer=request.user, created_date__month=month).User_income
+        print(income)
+        print(1)
+    except:
+        income = 'خالی'
+        print(1)
+
+    return render(request, 'Attendance_app/index.html', {'position': position, 'income': income, 'month': month})
 
 
 @login_required
@@ -115,8 +373,8 @@ def start_attendance_view(request):
             # instead of creating a new record, it will be taken and updated:
             at = AttendanceUser.objects.get(user=request.user, created_date=date)
             # for access to the start and end before start working again
-            if not str(at.end)[0:5] in at.last_info:
-                at.last_info += f" \n start={str(at.start)[0:5]}, end={str(at.end)[0:5]}*"
+            if not str(at.end)[0:8] in at.last_info:
+                at.last_info += f" \n start={str(at.start)[0:8]}, end={str(at.end)[0:8]}*"
             print(start)
 
             at.start = start
@@ -176,7 +434,7 @@ def process_result_view(request, pk):
     attend = get_object_or_404(AttendanceUser, user=request.user, token=pk)
     # To ensure
     if not attend.in_progress:
-        return redirect("Attendance:result_list")
+        return redirect(reverse("Attendance:result_list", kwargs={"pk": request.user.id}))
 
     attend.in_progress = False
     attend.end = datetime.now().time()
@@ -200,20 +458,21 @@ class ShowResult(TemplateView):
         context = super().get_context_data(**kwargs)
         request = self.request
 
-
-
         try:
+
             pk = self.kwargs['pk']
+            print(1)
             id = self.kwargs['user']
             attend = get_object_or_404(AttendanceUser, user_id=id, id=pk)
         except:
             token = self.request.session['token']
-            id = self.kwargs['user']
-            attend = get_object_or_404(AttendanceUser, user_id=id,
-                                       token=token)  # token=pk if there is no session
 
+            attend = get_object_or_404(AttendanceUser, user=request.user,
+                                       token=token)  # token=pk if there is no session
+        month = timezone.now().month
+        context['month'] = month
         context['object'] = attend
-        context['user'] = CustomUser.objects.get(id=id)
+        context['user'] = CustomUser.objects.get(id=request.user.id)
 
         # get attend.end and start in datetime type
         end_datetime = attend.end
@@ -221,13 +480,14 @@ class ShowResult(TemplateView):
         job_time = str(attend.job_time)
 
         # Format the datetime objects
-        end = end_datetime.strftime("%H:%M:%S %p")
-        start = start_datetime.strftime("%H:%M:%S %p")
+        end1 = end_datetime.strftime("%H:%M:%S %p")
+        start2 = start_datetime.strftime("%H:%M:%S %p")
 
         starts = []
         ends = []
 
-        pattern = r"start=(\d{2}:\d{2}), end=(\d{2}:\d{2})"
+        pattern = r"start=(\d{2}:\d{2}:\d{2}), end=(\d{2}:\d{2}:\d{2})"
+
         matches = re.findall(pattern, attend.last_info)
 
         for match in matches:
@@ -236,9 +496,12 @@ class ShowResult(TemplateView):
             ends.append(end)
 
         zipped_times = zip(starts, ends)
+        at_month = attend.created_date.month
+        income = Income.objects.get(USer=attend.user, created_date__month=at_month)
 
-        context['end'] = end
-        context['start'] = start
+        context['income'] = income
+        context['end'] = end1
+        context['start'] = start2
         context['job_time'] = job_time
         context['zipped_times'] = zipped_times
         return context

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # 'django_recaptcha',
+    'django.contrib.humanize',
 
     #my_apps
     'home.apps.HomeConfig',

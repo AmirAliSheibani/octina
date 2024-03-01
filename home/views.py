@@ -17,6 +17,15 @@ def home(request):
     context['team'] = team
     return render(request, 'home/index.html', context)
 
+def slidermore(request,pk):
+    context = {}
+
+    slider = models.Slider.objects.get(id=pk)
+
+    context['object'] = slider
+
+    return render(request, 'home/readmore.html', context)
+
 
 def about(request):
 

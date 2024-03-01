@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,11 +9,25 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
 
     <style>
+
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+
+
         /* Table Styling */
         table {
             width: 100%;
+            font-family: 'Shabnam', sans-serif;
             border-collapse: collapse;
-            font-family: Arial, sans-serif;
             color: #333;
         }
 
@@ -26,51 +41,97 @@
             background-color: #007bff;
             font-weight: bold;
             color: #fff;
+            font-family: 'Shabnam', sans-serif;
         }
 
         /* Alternating Row Colors */
         tr:nth-child(even) {
             background-color: #e1f5fe;
         }
+
+        .month-navigation {
+            display: flex;
+            align-items: center;
+        }
+
+
+
+
     </style>
 </head>
 <body>
 
-    <div class="container">
+<div class="container">
     <h2>{{ user }}</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th scope="col">Start</th>
-                    <th scope="col">End</th>
-                    <th scope="col">Job Time</th>
-                    <th scope="col">Created Date</th>
-                    <th scope="col">detail</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for obj in object %}
 
-                    <tr>
+    <h4>میزان درآمد در این ماه:<span>{% if income %}
+        {{ income.User_income }}
+        {% else %}
+        خالی
+        {% endif %}
+    </span></h4>
 
-                    <td>{{ obj.start }}</td>
-                    <td>{{ obj.end }}</td>
-                    <td>{{ obj.job_time|slice:":10" }}</td>
-                    <td>{{ obj.created_date }}</td>
-                    <td> <a href="{% url 'Attendance:result_detail' user.id obj.id %}">more</a></td>
-                </tr>
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">شروع کار</th>
+            <th scope="col">پایان کار</th>
+            <th scope="col">مدت زمان کار</th>
+            <th scope="col">تاریخ ایجاد</th>
+            <th scope="col">درآمد بدست آمده</th>
+            <th scope="col">جزئیات</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if object %}
 
-                {% endfor %}
-            </tbody>
-        </table>
+
+        {% for obj, inc  in object %}
+
+            <tr>
+
+                <td>{{ obj.start }}</td>
+                <td>{{ obj.end }}</td>
+                <td>{{ obj.job_time|slice:":10" }}</td>
+                <td>{{ obj.created_date }}</td>
+                <td>{{ inc}} </td>
+                <td><a href="{% url 'Attendance:result_detail' user.id obj.id %}">بیشتر</a></td>
+
+            </tr>
+ {% endfor %}
+        {% else %}
+            <tr>
+<h2>اطلاعات نا موجود</h2>
+
+            </tr>
+            {% endif %}
+
+        </tbody>
+    </table>
     <form method="POST" action="{% url 'Attendance:start' %}">
-            {% csrf_token %}
-            <a href="{% url 'Attendance:home' %}"><button type="button">back to home</button></a>
-           <button type="submit">Start</button>
+        {% csrf_token %}
+        <a href="{% url 'Attendance:home' %}">
+            <button type="button">بازگشت به خانه</button>
+        </a>
+        <a href="{% url 'Attendance:download_excel_user' request.user.id month %}">
+            <button type="button">مشاهده در اکسل</button>
+        </a>
+        <button type="submit">شروع</button>
+    </form>
 
-        </form>
+<br>
+    <div class="month-navigation">
+        {% for month_num, month_name in months.items %}
+            {% if month_num == month %}
+                <span class="btn btn-primary">{{ month_name }}</span>
+            {% else %}
+                <a href="{% url 'Attendance:result_list' pk=user.id month=month_num %}"
+                   class="btn btn-outline-primary">{{ month_name }}</a>
+            {% endif %}
+        {% endfor %}
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

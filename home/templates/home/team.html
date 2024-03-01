@@ -30,21 +30,31 @@
                                 </p>
                             </div>
                             <div class="social_box">
+                                {% if t.facebook %}
                                 <a href="{{ t.facebook }}">
                                     <i class="fa fa-facebook" aria-hidden="true"></i>
                                 </a>
+                                {% endif %}
+                                {% if t.x %}
                                 <a href="{{ t.x }}">
                                     <i class="fa fa-twitter" aria-hidden="true"></i>
                                 </a>
+                             {% endif %}
+                            {% if t.linkedin %}
                                 <a href="{{t.linkedin}}">
                                     <i class="fa fa-linkedin" aria-hidden="true"></i>
                                 </a>
+                             {% endif %}
+                            {% if t.instagram %}
                                 <a href="{{t.instagram}}">
                                     <i class="fa fa-instagram" aria-hidden="true"></i>
                                 </a>
+                             {% endif %}
+                            {% if t.youtube %}
                                 <a href="{{ t.youtube }}">
                                     <i class="fa fa-youtube-play" aria-hidden="true"></i>
                                 </a>
+                             {% endif %}
                             </div>
                         </div>
                     </div>

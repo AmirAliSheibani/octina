@@ -4,6 +4,13 @@
 <head>
     <title>Attendance System</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
+    <style>
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+        </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -24,8 +31,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Attendance System</h1>
-        <p>Working time: <span id="working-hours">0 hours, 0 hours, 0 seconds</span></p>
+        <h1> حضور و غیاب اُکتینا</h1>
+        <p>درحال کار: <span id="working-hours">درحال بارگیری</span></p>
         <form method="POST" action="{% url 'Attendance:procces_result' pk %}">
             {% csrf_token %}
             <button class="button" type="submit">End</button>

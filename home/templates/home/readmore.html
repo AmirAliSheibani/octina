@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block class %}sub_page{% endblock %}
+{% block content %}
+    </div>
+<style>
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .contai {
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .video-contai {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .video-contai video {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .text-contai {
+            flex: 1;
+            padding: 20px;
+        }
+
+
+
+        /* طرح‌بندی برای صفحه‌ی کوچکتر */
+        @media (max-width: 600px) {
+            .contai {
+                flex-direction: column;
+                border-radius: 0;
+            }
+
+            .video-contai video {
+                max-width: 100%;
+            }
+        }
+    </style>
+ <div class="contai">
+        <div class="video-contai">
+            <video src="{{ object.video.url }}" controls>
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        <div class="text-contai">
+            <h1>{{ object.title }}</h1>
+            <p>{{ object.description }}</p>
+        </div>
+    </div>
+{% endblock %}

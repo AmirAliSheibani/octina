@@ -1,6 +1,7 @@
 from django.db import models
 # from django.contrib.auth.models import User
 from pricing.models import CustomUser
+from django.core.validators import FileExtensionValidator
 User = CustomUser
 
 
@@ -8,6 +9,7 @@ class Slider(models.Model):
     image = models.ImageField(upload_to='services')
     title = models.CharField(max_length=65)
     description = models.TextField(max_length=400)
+    video = models.FileField(upload_to='videos/slider', null=True, blank=True, validators=[FileExtensionValidator(['mp4', 'avi', 'mov'])])
 
     class Meta:
         verbose_name = 'اسلاید'
@@ -18,6 +20,8 @@ class Service(models.Model):
     image = models.ImageField(upload_to='services')
     title = models.CharField(max_length=65)
     description = models.TextField(max_length=300)
+    video = models.FileField(upload_to='videos/slider', null=True, blank=True,
+                             validators=[FileExtensionValidator(['mp4', 'avi', 'mov'])])
 
     class Meta:
         verbose_name = 'خدمت'
@@ -28,6 +32,8 @@ class About(models.Model):
     image = models.ImageField(upload_to='About')
     title = models.CharField(max_length=65)
     description = models.TextField()
+    video = models.FileField(upload_to='videos/slider', null=True, blank=True,
+                             validators=[FileExtensionValidator(['mp4', 'avi', 'mov'])])
 
     class Meta:
         verbose_name = 'درباره ما'
@@ -38,6 +44,8 @@ class WhyUs(models.Model):
     image = models.ImageField(upload_to='WhyUs')
     title = models.CharField(max_length=65)
     description = models.TextField()
+    video = models.FileField(upload_to='videos/slider', null=True, blank=True,
+                             validators=[FileExtensionValidator(['mp4', 'avi', 'mov'])])
 
     class Meta:
         verbose_name = 'چرا ما'

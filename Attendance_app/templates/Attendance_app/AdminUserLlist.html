@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,11 +9,25 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
 
     <style>
+
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+
+
         /* Table Styling */
         table {
             width: 100%;
+            font-family: 'Shabnam', sans-serif;
             border-collapse: collapse;
-            font-family: Arial, sans-serif;
             color: #333;
         }
 
@@ -26,51 +41,174 @@
             background-color: #007bff;
             font-weight: bold;
             color: #fff;
+            font-family: 'Shabnam', sans-serif;
         }
 
         /* Alternating Row Colors */
         tr:nth-child(even) {
             background-color: #e1f5fe;
         }
+
+        .month-navigation {
+            display: flex;
+            align-items: center;
+        }
+
+        .header {
+            background-color: #006bff;
+            color: #e1f5fe;
+            padding: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-form {
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-form select {
+            margin-left: 5px;
+        }
+
+        .filter-form label {
+            color: inherit;
+            margin-right: 5px;
+        }
+
     </style>
 </head>
 <body>
+<div class="header">
+    <div class="filter-form">
+        <form method="GET">
+            <label for="last_name_filter">جست و جو با نام خانوادگی:</label>
+            <input type="text" id="last_name_filter" name="last_name_filter" value="{{ request.GET.last_name_filter }}">
+            <button type="submit">اعمال</button>
+        </form>
+    </div>
 
-    <div class="container">
-        <table>
-            <thead>
-                <tr>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
-                    <th scope="col">Position</th>
-                    <th scope="col">Total Working Time</th>
-                    <th scope="col">Total Price</th>
-                    <th scope="col">Detail</th>
-                </tr>
-            </thead>
-            <tbody>
-             {% for user, position, attendance, income in object %}
+    <div class="filter-form">
+        <form method="GET">
+            <label for="job_time_filter">نمایش به ترتیب زمان کار:</label>
+            <select id="job_time_filter" name="job_time_filter">
+                <option value="">همه</option>
+                <option value="greater" {% if request.GET.job_time_filter == "greater" %}selected{% endif %}>بیشترین
+                    زمان کار
+                </option>
+                <option value="smaller" {% if request.GET.job_time_filter == "smaller" %}selected{% endif %}>کمترین زمان
+                    کار
+                </option>
+            </select>
+            <button type="submit">اعمال</button>
+        </form>
+    </div>
+
+    <div class="filter-form">
+        <form method="GET">
+            <label for="income_filter">نمایش به ترتیب درآمد:</label>
+            <select id="income_filter" name="income_filter">
+                <option value="">همه</option>
+                <option value="greater" {% if request.GET.income_filter == "greater" %}selected{% endif %}>بیشترین
+                    درآمد
+                </option>
+                <option value="smaller" {% if request.GET.income_filter == "smaller" %}selected{% endif %}>کمترین
+                    درآمد
+                </option>
+            </select>
+            <button type="submit">اعمال</button>
+        </form>
+    </div>
+</div>
+
+<div class="container">
+
+
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">نام کاربری</th>
+            <th scope="col">نام خانوادگی</th>
+            <th scope="col">سمت</th>
+            <th scope="col">مجموع زمان کار</th>
+            <th scope="col">مجموع درآمد ماه جاری</th>
+            <th scope="col">جزئیات</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user, position, attendance, income in object %}
             <tr>
                 <td>{{ user }}</td>
                 <td>{{ user.last_name }}</td>
                 <td>{{ position.profile_position }}</td>
                 <td>{{ attendance.job_time|slice:":10" }}</td>
                 <td>{{ income.User_income }}</td>
-                <td><a href="{% url 'Attendance:result_list' user.id %}">more</a></td>
+                <td><a href="{% url 'Attendance:result_list' user.id attendance.created_date.month %}">بیشتر</a></td>
             </tr>
-            {% endfor %}
+        {% endfor %}
 
+        </tbody>
+    </table>
+
+
+
+    {% if checkincome %}
+        <Br><Br><Br><Br>
+        <h5>بدون فعالیت</h5>
+        <table>
+            <thead>
+            <tr>
+
+                <th scope="col">نام کاربری</th>
+                <th scope="col">نام خانوادگی</th>
+                <th scope="col">سمت</th>
+                <th scope="col">جزئیات</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user, positions in noIncome %}
+                <tr>
+                    <td style="color: red">{{ user }}</td>
+                    <td style="color: red">{{ user.last_name }}</td>
+                    <td style="color: red">{{ positions.profile_position }}</td>
+                    <td style="color: red"><a href="{% url 'Attendance:result_list' user.id month %}">بیشتر</a></td>
+                </tr>
+            {% endfor %}
 
             </tbody>
         </table>
+    {% endif %}
+
+
+
     <form method="POST" action="{% url 'Attendance:start' %}">
-            {% csrf_token %}
-            <a href="{% url 'Attendance:home' %}"><button type="button">Back to Home</button></a>
-           <button type="submit">Start</button>
+        {% csrf_token %}
+        <a href="{% url 'Attendance:home' %}">
+            <button type="button">بازگشت به خانه</button>
+        </a>
+        <button type="submit">شروع</button>
+        <a href="{% url 'Attendance:download_excel' user.id month %}">
+            <button type="button">مشاهده در اکسل</button>
+        </a>
+        <button type="submit">شروع</button>
 
-        </form>
+    </form>
+
+    <br>
+    <div class="month-navigation">
+        {% for month_num, month_name in months.items %}
+            {% if month_num == month %}
+                <span class="btn btn-primary">{{ month_name }}</span>
+            {% else %}
+                <a href="{% url 'Attendance:user_list' pk=user.id month=month_num %}"
+                   class="btn btn-outline-primary">{{ month_name }}</a>
+            {% endif %}
+        {% endfor %}
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

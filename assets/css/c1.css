@@ -7,9 +7,12 @@ form {
     text-align: center;
     margin-top: 30px;
 }
+
 body {
     background-color: #f2f2f2;
-    font-family: Arial, sans-serif;
+    font-family: 'Shabnam', sans-serif;
+    direction: rtl;
+    text-align: right;
 }
 
 .container {
@@ -23,27 +26,32 @@ body {
 }
 
 h1 {
+    font-family: 'Shabnam', sans-serif;
     color: #007bff;
     text-align: center;
     margin-bottom: 20px;
 }
 
 h2 {
+    font-family: 'Shabnam', sans-serif;
     color: #555;
     text-align: center;
     margin-bottom: 10px;
 }
 
 p {
+    font-family: 'Shabnam', sans-serif;
     color: #777;
     margin-bottom: 5px;
 }
 
 span {
+    font-family: 'Shabnam', sans-serif;
     font-weight: bold;
 }
 
 button {
+    font-family: 'Shabnam', sans-serif;
     background-color: #007bff;
     color: white;
     border: none;
@@ -61,6 +69,7 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
 th {
 
     font-weight: bold;
@@ -94,11 +103,13 @@ tbody tr:hover {
     background-color: #0056b3;
     border-color: #0056b3;
     font-size: 16px;
+    font-family: 'Shabnam', sans-serif;
 }
 
 .table tbody tr td {
 
     font-size: 14px;
+    font-family: 'Shabnam', sans-serif;
 }
 
 .table tbody tr:hover {

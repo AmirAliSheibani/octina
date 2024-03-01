@@ -14,7 +14,6 @@ def process_pricing(request, pk):
     # current_month = datetime.now().month
 
 
-
     try:
         income = Income.objects.get(USer=at.user, created_date__month=at_month)
 
@@ -30,11 +29,13 @@ def process_pricing(request, pk):
                     income.job_time.total_seconds() / 3600)
         print(request.user.is_staff)
         income.created_by = request.user.created_who
+
         income.save()
 
     request.session['token'] = pk
-    return redirect(reverse('Attendance:result'))
 
+
+    return redirect(reverse('Attendance:result'))
 
 
 
