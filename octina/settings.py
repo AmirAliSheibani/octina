@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # 'django_recaptcha',
     'django.contrib.humanize',
+    'jalali_date',
 
     #my_apps
     'home.apps.HomeConfig',
@@ -60,6 +61,32 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# default settings (optional)
+JALALI_DATE_DEFAULTS = {
+   # if change it to true then all dates of the list_display will convert to the Jalali.
+   'LIST_DISPLAY_AUTO_CONVERT': False,
+   'Strftime': {
+        'date': '%y/%m/%d',
+        'datetime': '%H:%M:%S _ %y/%m/%d',
+    },
+    'Static': {
+        'js': [
+            # loading datepicker
+            'admin/js/django_jalali.min.js',
+            # OR
+            # 'admin/jquery.ui.datepicker.jalali/scripts/jquery.ui.core.js',
+            # 'admin/jquery.ui.datepicker.jalali/scripts/calendar.js',
+            # 'admin/jquery.ui.datepicker.jalali/scripts/jquery.ui.datepicker-cc.js',
+            # 'admin/jquery.ui.datepicker.jalali/scripts/jquery.ui.datepicker-cc-fa.js',
+            # 'admin/js/main.js',
+        ],
+        'css': {
+            'all': [
+                'admin/jquery.ui.datepicker.jalali/themes/base/jquery-ui.min.css',
+            ]
+        }
+    },
+}
 ROOT_URLCONF = 'octina.urls'
 
 TEMPLATES = [
@@ -121,7 +148,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'fa-ir'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
 
@@ -154,3 +181,6 @@ EMAIL_HOST_PASSWORD = 'xjvu njex rxqp usfp'
 # RECAPTCHA_PUBLIC_KEY = 'MyRecaptchaKey123'
 # RECAPTCHA_PRIVATE_KEY = 'MyRecaptchaPrivateKey456'
 
+LANGUAGE_CODE = 'fa-ir'
+import locale
+locale.setlocale(locale.LC_ALL, "fa_IR.UTF-8")

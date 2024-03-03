@@ -38,3 +38,4 @@ class AttendanceUserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(AttendanceUser, AttendanceUserAdmin)
+

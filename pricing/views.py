@@ -7,7 +7,6 @@ from pricing.models import Income, Profile, CustomUser
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
 
-
 def process_pricing(request, pk):
     at = AttendanceUser.objects.get(user=request.user, token=pk)
     at_month = at.created_date.month
@@ -15,7 +14,7 @@ def process_pricing(request, pk):
 
 
     try:
-        income = Income.objects.get(USer=at.user, created_date__month=at_month)
+        income = Income.objects.get(USer=at.user, month=at_month)
 
         income.job_time = at.job_time
         income.User_income = income.position.profile_position.position_income * (income.job_time.total_seconds() / 3600)

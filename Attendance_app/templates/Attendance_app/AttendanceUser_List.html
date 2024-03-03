@@ -86,13 +86,13 @@
         {% if object %}
 
 
-        {% for obj, inc  in object %}
+        {% for obj, inc, job_time  in object %}
 
             <tr>
 
                 <td>{{ obj.start }}</td>
                 <td>{{ obj.end }}</td>
-                <td>{{ obj.job_time|slice:":10" }}</td>
+                <td>{{ job_time }}</td>
                 <td>{{ obj.created_date }}</td>
                 <td>{{ inc}} </td>
                 <td><a href="{% url 'Attendance:result_detail' user.id obj.id %}">بیشتر</a></td>
