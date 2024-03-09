@@ -225,14 +225,18 @@ def staff_user_list(request, pk, month):
 
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
-        positions = Profile.objects.filter(created_by=request.user)
+        # positions = Profile.objects.filter(created_by=request.user)
+        profile_position = getattr(users, 'possit', None).profile_position if hasattr(users, 'possit') else None
+        positions = str(profile_position) if profile_position else ''
         income = Income.objects.filter(USer__in=users, month=month).order_by('User_income')
         no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
         attendances = AttendanceUser.objects.filter(user__in=users, month=month)
 
     else:
         users = CustomUser.objects.filter(created_who__isnull=False).order_by('username')
-        positions = Profile.objects.all()
+        # positions = Profile.objects.all()
+        profile_position = getattr(users, 'possit', None).profile_position if hasattr(users, 'possit') else None
+        positions = str(profile_position) if profile_position else ''
         income = Income.objects.filter(USer__in=users, month=month).order_by('User_income')
         no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
         attendances = AttendanceUser.objects.filter(user__in=users, month=month)
@@ -246,13 +250,19 @@ def staff_user_list(request, pk, month):
             job_time.append(job.replace("day", "روز")[:14])
         else:
             job_time.append(job[:7])
-
     data = []
     for income_entry in income:
         user = income_entry.USer
         attendance = attendances.filter(user=user).first()
-        data.append((user, positions.get(user=user), attendance, income_entry))
 
+        data.append((user, positions, attendance, income_entry))
+    no_income_data = []
+    for user in no_income_users:
+        profile_position = getattr(no_income_users, 'possit', None).profile_position if hasattr(no_income_users,
+                                                                                                'possit') else None
+        position = str(profile_position) if profile_position else ''
+
+        no_income_data.append((user, position))
     last_name_filter = request.GET.get('last_name_filter')
     job_time_filter = request.GET.get('job_time_filter')
     income_filter = request.GET.get('income_filter')
@@ -274,7 +284,7 @@ def staff_user_list(request, pk, month):
 
     return render(request, 'Attendance_app/AdminUserLlist.html',
                   {'object': data, 'checkincome': no_income_users,
-                   'noIncome': zip(no_income_users, positions),
+                   'noIncome': no_income_data,
                    'months': MONTH_NAMES, 'month': month})
 
 
@@ -282,22 +292,23 @@ def staff_user_list(request, pk, month):
 def download_excel(request, pk, month):
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
-        positions = Profile.objects.filter(created_by=request.user)
+        # positions = Profile.objects.filter(created_by=request.user)
         attendances = AttendanceUser.objects.filter(user__in=users, month=month)
         income = Income.objects.filter(USer__in=users, month=month)
     else:
-        users = CustomUser.objects.all()
-        positions = Profile.objects.all()
+        users = CustomUser.objects.filter(created_who__isnull=False).order_by('username')
+        # positions = Profile.objects.all()
         attendances = AttendanceUser.objects.filter(user__in=users, month=month)
         income = Income.objects.filter(USer__in=users, month=month)
 
     no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
-    for user in users:
-        try:
-
-            att = attendances.get(user=user)
-        except:
-            users = users.exclude(pk=user.pk)
+    # for user in users:
+    #     try:
+    #         att = attendances.get(user=user)
+    #     except:
+    #         users = users.exclude(pk=user.pk)
+    profile_position = getattr(users, 'possit', None).profile_position if hasattr(users, 'possit') else None
+    positions = str(profile_position) if profile_position else ''
 
     # Create an Excel workbook and sheet
     workbook = openpyxl.Workbook()
@@ -331,9 +342,10 @@ def download_excel(request, pk, month):
         cell.value = header
         cell.font = Font(bold=True)
     job_time = []
-    objects = attendances
+    # مرتب‌سازی لیست attendances بر اساس نام کاربر
+    # attendances = sorted(attendances, key=lambda a: a.user.username)
 
-    for obj in objects:
+    for obj in attendances:
         job = str(obj.job_time)
         if 'day' in job:
             job_time.append(job.replace("day", "روز")[:14])
@@ -342,29 +354,33 @@ def download_excel(request, pk, month):
     # Write table data
     row_num = 3
 
-    users = sorted(users, key=lambda u: u.username)
-
-    # مرتب‌سازی لیست attendances بر اساس نام کاربر
-    attendances = sorted(attendances, key=lambda a: a.user.username)
-
-    # مرتب‌سازی لیست income بر اساس نام کاربر
-    income = sorted(income, key=lambda i: i.USer.username)
+    # users = sorted(users, key=lambda u: u.username)
+    # # مرتب‌سازی لیست income بر اساس نام کاربر
+    # income = sorted(income, key=lambda i: i.USer.username)
     # Write table data
     row_num = 3
-    for user, position, attendance, user_income, job_time in zip(users, positions, attendances, income, job_time):
+    data = []
+    for income_entry in income:
+        user = income_entry.USer
+
+        data.append((user, income_entry))
+
+    for (user, user_income), w in zip(data, job_time):
         sheet[f"A{row_num}"] = user.username
         sheet[f"B{row_num}"] = user.last_name
-        sheet[f"C{row_num}"] = position.profile_position.positions  # Extract the position attribute
-        sheet[f"D{row_num}"] = str(job_time)
-        sheet[f"E{row_num}"] = user_income.User_income
+        profile_position = getattr(user, 'possit', None).profile_position if hasattr(user, 'possit') else None
+        sheet[f"C{row_num}"] = str(profile_position) if profile_position else ''
+        sheet[f"D{row_num}"] = str(w)
+        sheet[f"E{row_num}"] = str(user_income.User_income)
         row_num += 1
 
     # Apply styles
     red_fill = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")
-    for user, position in zip(no_income_users, positions):
+    for user in no_income_users:
         sheet[f"A{row_num}"] = user.username
         sheet[f"B{row_num}"] = user.last_name
-        sheet[f"C{row_num}"] = position.profile_position.positions
+        profile_position = getattr(user, 'possit', None).profile_position if hasattr(user, 'possit') else None
+        sheet[f"C{row_num}"] = str(profile_position) if profile_position else ''
         sheet[f"A{row_num}"].fill = red_fill
         sheet[f"B{row_num}"].fill = red_fill
         sheet[f"C{row_num}"].fill = red_fill

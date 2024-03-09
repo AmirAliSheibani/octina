@@ -53,7 +53,7 @@ class Subscriptions(models.Model):
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='possit')
     profile_position = models.ForeignKey(Positions, on_delete=models.SET_NULL, null=True, related_name='poss')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_Profile', blank=True,
                                    null=True)
