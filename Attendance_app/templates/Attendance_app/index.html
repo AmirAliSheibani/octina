@@ -40,15 +40,15 @@
             <button type="button">لیست نتایج</button>
         </a>
         {% if request.user.is_staff %}
-            <a href="{% url 'Attendance:user_list' request.user.id month%}">
+            <a href="{% url 'Attendance:user_list' request.user.id month %}">
                 <button type="button">لیست کاربران</button>
             </a>
-            <a href="/admin">
+            <a href="/admin" target="_blank">
                 <button type="button">پنل مدیریت</button>
             </a>
         {% endif %}
-    <p></p>
-     <a href="{% url 'home:home' %}">
+        <p></p>
+        <a href="{% url 'home:home' %}">
             <button type="button"> بازگشت به سایت</button>
         </a>
     </form>

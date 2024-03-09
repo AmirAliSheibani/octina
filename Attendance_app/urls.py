@@ -14,6 +14,6 @@ urlpatterns = [
     path('userlist/<int:pk>/<int:month>/', views.staff_user_list, name='user_list'),
     path('download_excel/<int:pk>/<int:month>/', views.download_excel, name='download_excel'),
     path('download_excel_user/<int:pk>/<int:month>/', views.download_excel_user, name='download_excel_user'),
-    path('', views.restricted_view, name='redirected_view')
+    path('/', views.restricted_view, name='redirected_view')
 ]
 

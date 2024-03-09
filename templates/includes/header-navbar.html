@@ -54,10 +54,10 @@
                     {% endif %}
                     {% if request.user.is_staff %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'Attendance:home' %}"> <i class="fa fa-user" aria-hidden="true"></i>اپلیکیشن ورود و خروج</a>
+                            <a class="nav-link" href="{% url 'Attendance:redirected_view' %}"> <i class="fa fa-user" aria-hidden="true"></i>اپلیکیشن ورود و خروج</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/admin"> <i class="fa fa-user" aria-hidden="true"></i>ادمین پنل</a>
+                            <a class="nav-link" target="_blank" href="/admin"> <i class="fa fa-user" aria-hidden="true"></i>ادمین پنل</a>
                         </li>
  {% endif %}
                     {% if not request.user.is_staff and request.user.created_who %}

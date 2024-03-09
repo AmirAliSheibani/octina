@@ -31,10 +31,10 @@ def restricted_view(request):
     now = timezone.now().date()
     jalali_date = jdatetime.date.fromgregorian(date=now)
 
-    # Access the Jalali year, month, and day
-    jalali_year = jalali_date.year
-    jalali_month = jalali_date.month
-    jalali_day = jalali_date.day
+    # # Access the Jalali year, month, and day
+    # jalali_year = jalali_date.year
+    # jalali_month = jalali_date.month
+    # jalali_day = jalali_date.day
 
     # Check if the subscription date is today or in the past
     if user.subscription_Date and user.subscription_Date <= jalali_date:
@@ -44,7 +44,14 @@ def restricted_view(request):
 
         # Redirect or display an appropriate message to the user
         return HttpResponse("Your subscription has expired. Please contact support.")
-    return redirect('Attendance:home')
+    try:
+        # in_progress=True:
+        # user is still working
+        at = AttendanceUser.objects.get(user=user, in_progress=True)
+        # print("at = AttendanceUser.objects.get(user=request.user, in_progress=True)")
+        return redirect(reverse('Attendance:start'))
+    except AttendanceUser.DoesNotExist:
+        return redirect('Attendance:home')
 
 
 class AttendanceListView(CustomizedRquirementLogin, ListView):
@@ -95,12 +102,12 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
             results = []
             for obj in objects:
                 result = inc * (obj.job_time.total_seconds() / 3600)
-                results.append(str(result)[:6])
+                results.append(round(result, 4))
                 job = str(obj.job_time)
                 if 'day' in job:
                     job_time.append(job.replace("day", "روز")[:14])
                 else:
-                    job_time.append(job.replace("day", "روز")[:7])
+                    job_time.append(job[:7])
 
             # Pass the objects and results to the template context
 
@@ -168,16 +175,25 @@ def download_excel_user(request, pk, month):
         cell = sheet[f"{col_letter}2"]
         cell.value = header
         cell.font = Font(bold=True)
+    job_time = []
+    objects = attendances
 
+    for obj in objects:
+        job = str(obj.job_time)
+        if 'day' in job:
+            job_time.append(job.replace("day", "روز")[:14])
+        else:
+            job_time.append(job[:7])
     # Write table data
     row_num = 3
-    for attendance in attendances:
+    objects = zip(attendances, job_time)
+    for attendance, job_tim in objects:
         sheet[f"A{row_num}"] = user.username
         sheet[f"B{row_num}"] = user.last_name
         sheet[f"C{row_num}"] = positions.profile_position.positions  # Extract the position attribute
-        sheet[f"D{row_num}"] = str(attendance.job_time)[:10]
+        sheet[f"D{row_num}"] = job_tim
         inc = income.position.profile_position.position_income * (attendance.job_time.total_seconds() / 3600)
-        sheet[f"E{row_num}"] = inc
+        sheet[f"E{row_num}"] = round(inc, 4)
         sheet[f"F{row_num}"] = income.User_income
         row_num += 1
 
@@ -210,55 +226,51 @@ def staff_user_list(request, pk, month):
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
         positions = Profile.objects.filter(created_by=request.user)
+        income = Income.objects.filter(USer__in=users, month=month).order_by('User_income')
+        no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
         attendances = AttendanceUser.objects.filter(user__in=users, month=month)
-        income = Income.objects.filter(USer__in=users, month=month)
 
     else:
-        users = CustomUser.objects.filter(created_who__isnull=False)
+        users = CustomUser.objects.filter(created_who__isnull=False).order_by('username')
         positions = Profile.objects.all()
+        income = Income.objects.filter(USer__in=users, month=month).order_by('User_income')
+        no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
         attendances = AttendanceUser.objects.filter(user__in=users, month=month)
-        income = Income.objects.filter(USer__in=users, month=month)
 
+    job_time = []
+    objects = attendances
 
+    for obj in objects:
+        job = str(obj.job_time)
+        if 'day' in job:
+            job_time.append(job.replace("day", "روز")[:14])
+        else:
+            job_time.append(job[:7])
 
-    no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
-    for user in users:
-        try:
-            att = attendances.get(user=user)
-        except:
-            users = users.exclude(pk=user.pk)
-
-
-    users = sorted(users, key=lambda u: u.username)
-
-    # مرتب‌سازی لیست attendances بر اساس نام کاربر
-    attendances = sorted(attendances, key=lambda a: a.user.username)
-
-    # مرتب‌سازی لیست income بر اساس نام کاربر
-    income = sorted(income, key=lambda i: i.USer.username)
-
-    # ایجاد لیستی از تاپل‌ها با ترتیب مرتب شده
-
+    data = []
+    for income_entry in income:
+        user = income_entry.USer
+        attendance = attendances.filter(user=user).first()
+        data.append((user, positions.get(user=user), attendance, income_entry))
 
     last_name_filter = request.GET.get('last_name_filter')
     job_time_filter = request.GET.get('job_time_filter')
     income_filter = request.GET.get('income_filter')
 
     if last_name_filter:
-        users = [user for user in users if user.last_name.startswith(last_name_filter)]
+        data = [entry for entry in data if entry[0].last_name.startswith(last_name_filter)]
 
     if job_time_filter:
         if job_time_filter == 'smaller':
-            income = sorted(income, key=lambda i: i.job_time)
+            data = sorted(data, key=lambda entry: entry[3].job_time)
         elif job_time_filter == 'greater':
-            income = sorted(income, key=lambda i: i.job_time, reverse=True)
+            data = sorted(data, key=lambda entry: entry[3].job_time, reverse=True)
 
     if income_filter:
         if income_filter == 'smaller':
-            income = sorted(income, key=lambda i: i.User_income)
+            data = sorted(data, key=lambda entry: entry[3].User_income)
         elif income_filter == 'greater':
-            income = sorted(income, key=lambda i: i.User_income, reverse=True)
-    data = list(zip(users, positions, attendances, income))
+            data = sorted(data, key=lambda entry: entry[3].User_income, reverse=True)
 
     return render(request, 'Attendance_app/AdminUserLlist.html',
                   {'object': data, 'checkincome': no_income_users,
@@ -280,6 +292,12 @@ def download_excel(request, pk, month):
         income = Income.objects.filter(USer__in=users, month=month)
 
     no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
+    for user in users:
+        try:
+
+            att = attendances.get(user=user)
+        except:
+            users = users.exclude(pk=user.pk)
 
     # Create an Excel workbook and sheet
     workbook = openpyxl.Workbook()
@@ -312,14 +330,32 @@ def download_excel(request, pk, month):
         cell = sheet[f"{col_letter}2"]
         cell.value = header
         cell.font = Font(bold=True)
+    job_time = []
+    objects = attendances
 
+    for obj in objects:
+        job = str(obj.job_time)
+        if 'day' in job:
+            job_time.append(job.replace("day", "روز")[:14])
+        else:
+            job_time.append(job[:7])
     # Write table data
     row_num = 3
-    for user, position, attendance, user_income in zip(users, positions, attendances, income):
+
+    users = sorted(users, key=lambda u: u.username)
+
+    # مرتب‌سازی لیست attendances بر اساس نام کاربر
+    attendances = sorted(attendances, key=lambda a: a.user.username)
+
+    # مرتب‌سازی لیست income بر اساس نام کاربر
+    income = sorted(income, key=lambda i: i.USer.username)
+    # Write table data
+    row_num = 3
+    for user, position, attendance, user_income, job_time in zip(users, positions, attendances, income, job_time):
         sheet[f"A{row_num}"] = user.username
         sheet[f"B{row_num}"] = user.last_name
         sheet[f"C{row_num}"] = position.profile_position.positions  # Extract the position attribute
-        sheet[f"D{row_num}"] = str(attendance.job_time)[:10]
+        sheet[f"D{row_num}"] = str(job_time)
         sheet[f"E{row_num}"] = user_income.User_income
         row_num += 1
 
@@ -440,7 +476,7 @@ def update_duration_view(request):
         attend.end = datetime.now().time()
         # Calculate the duration of working time
         job_time = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
-
+        profile = Profile.objects.get(user_id=request.user)
         # Calculate the number of hours elapsed since the record was created
         if attend.created_date < datetime.now().date():
             date_hours = datetime.now().date() - attend.created_date
@@ -448,28 +484,29 @@ def update_duration_view(request):
                 attend.save()
                 job_time = timedelta(seconds=job_time.total_seconds())
 
+                inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
                 attend.job_time += job_time  # Convert to timedelta object
+
                 duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
                 duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
-                return JsonResponse({'duration_formatted': duration_formatted})
+                return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
             else:
                 # Add 24 hours for each day that has passed
                 job_time += timedelta(days=date_hours.days)
                 attend.save()
                 job_time = timedelta(seconds=job_time.total_seconds())
                 attend.job_time += job_time  # Convert to timedelta object
-
+                inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
                 duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
                 duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
-                return JsonResponse({'duration_formatted': duration_formatted})
+                return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
         else:
             attend.save()
             job_time = timedelta(seconds=job_time.total_seconds())
             attend.job_time += job_time  # Convert to timedelta object
-
+            inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
             duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-            duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
-            return JsonResponse({'duration_formatted': duration_formatted})
+            return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
     except AttendanceUser.DoesNotExist:
         return JsonResponse({'duration_formatted': '0:00:00'})
 
@@ -550,10 +587,12 @@ class ShowResult(TemplateView):
         at_month = attend.created_date.month
 
         income = Income.objects.get(USer=attend.user, month=at_month)
-
+        job_time = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
+        inc = round(income.position.profile_position.position_income * (job_time.total_seconds() / 3600), 4)
         context['income'] = income
         context['end'] = end1
         context['start'] = start2
         context['job_time'] = job_time
         context['zipped_times'] = zipped_times
+        context['inc'] = inc
         return context

@@ -18,12 +18,18 @@
         </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+    $(document).ready(function() {
     function updateDuration() {
         $.ajax({
             url: "{% url 'Attendance:update_duration' %}",
             success: function(data) {
                 var duration = data.duration_formatted;
+                var inc = data.inc;
+
+                // Use the 'inc' value in the desired location in the HTML
+                $('#income').text('درآمد بدست آمده امروز: ' + inc)
+
+                // Update the duration
                 $('#working-hours').text(duration);
             }
         });
@@ -32,6 +38,7 @@
     // Update the duration every second (1000 milliseconds)
     setInterval(updateDuration, 1000);
 });
+
     </script>
 </head>
 <body>
@@ -39,6 +46,7 @@
         <h1> حضور و غیاب اُکتینا</h1>
         <p>درحال کار: <span id="working-hours">درحال بارگیری</span></p>
         <h6>میتوانید از این صفحه خارج شوید </h6>
+       <h4 id="income">درآمد بدست آمده: {{ inc }}</h4>
         <form method="POST" action="{% url 'Attendance:procces_result' pk %}">
             {% csrf_token %}
             <button class="button" type="submit">اتمام کار</button>

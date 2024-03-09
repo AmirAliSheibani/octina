@@ -185,7 +185,7 @@
 
     <form method="POST" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
-        <a href="{% url 'Attendance:home' %}">
+        <a href="{% url 'Attendance:redirected_view' %}">
             <button type="button">بازگشت به خانه</button>
         </a>
         <button type="submit">شروع</button>

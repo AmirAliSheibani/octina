@@ -55,9 +55,11 @@
     <p>ورود: <span id="working-hours">{{ start }}</span></p>
     <p>خروج: <span id="working-hours">{{ end }}</span></p>
     <p>درآمد ماه جاری: <span id="working-hours">{{income.User_income}}</span></p>
+    <p>درآمد بدست آمده: <span id="working-hours">{{inc}}</span></p>
+
     <table>
         <thead>
-       <h2>ورود و خروج های قبلی</h2>
+       <h2> ورود و خروج های قبلی (امروز)</h2>
         <tr>
             <th>ورود</th>
             <th>خروج</th>
@@ -69,13 +71,14 @@
             <tr>
                 <td>{{ start }}</td>
                 <td>{{ end }}</td>
+
             </tr>
         {% endfor %}
         </tbody>
     </table>
     <form method="POST" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
-        <a href="{% url 'Attendance:home' %}">
+        <a href="{% url 'Attendance:redirected_view' %}">
             <button type="button">بازگشت به خانه</button>
         </a>
         <button type="submit">شروع</button>

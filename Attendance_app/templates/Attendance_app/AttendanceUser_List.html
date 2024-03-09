@@ -87,9 +87,7 @@
 
 
         {% for obj, inc, job_time  in object %}
-
             <tr>
-
                 <td>{{ obj.start }}</td>
                 <td>{{ obj.end }}</td>
                 <td>{{ job_time }}</td>
@@ -110,7 +108,7 @@
     </table>
     <form method="POST" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
-        <a href="{% url 'Attendance:home' %}">
+        <a href="{% url 'Attendance:redirected_view' %}">
             <button type="button">بازگشت به خانه</button>
         </a>
         <a href="{% url 'Attendance:download_excel_user' request.user.id month %}">
