@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--
+ @license
+ Copyright 2019 Google LLC. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+-->
+<html>
+<head>
+    <style>
+        #map {
+            height: 1500px; /* ارتفاع نقشه */
+            width: 100%; /* عرض نقشه */
+            margin-bottom: 20px; /* فاصله بین نقشه و دکمه‌ها */
+        }
+
+        .custom-map-control {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .custom-map-control-button {
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 30px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .custom-map-control-button:hover {
+            background-color: #0056b3;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .custom-map-control {
+                top: auto;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+    <title>Geolocation</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+</head>
+<body>
+<div id="map"></div>
+<button id="submitLocationButton" class="custom-map-control-button" style="display: none;">
+    ثبت
+</button>
+<input type="hidden" id="latitude" name="latitude">
+<input type="hidden" id="longitude" name="longitude">
+<script>
+    /**
+     * @license
+     * Copyright 2019 Google LLC. All Rights Reserved.
+     * SPDX-License-Identifier: Apache-2.0
+     */
+        // Note: This example requires that you consent to location sharing when
+        // prompted by your browser. If you see the error "The Geolocation service
+        // failed.", it means you probably did not give permission for the browser to
+        // locate you.
+    let map, infoWindow;
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: {lat: 32.4279, lng: 53.6880},
+            zoom: 6,
+        });
+        infoWindow = new google.maps.InfoWindow();
+
+        // Add a click event listener to the map
+        map.addListener("click", (event) => {
+            const position = event.latLng;
+            infoWindow.setPosition(position);
+            infoWindow.setContent("مکان شما");
+            infoWindow.open(map);
+
+
+            const submitLocationButton = document.getElementById("submitLocationButton");
+            submitLocationButton.style.display = "block"; // Show the submit button
+
+
+            // Update the hidden inputs with the clicked location's latitude and longitude
+            const latitudeInput = document.getElementById("latitude");
+            const longitudeInput = document.getElementById("longitude");
+            latitudeInput.value = position.lat();
+            longitudeInput.value = position.lng();
+        });
+
+        const locationButton = document.createElement("button");
+
+        locationButton.textContent = "حرکت به مکان فعلی";
+        locationButton.classList.add("custom-map-control-button");
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(
+            locationButton
+        );
+
+        locationButton.addEventListener("click", () => {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+
+                        infoWindow.setPosition(pos);
+                        infoWindow.setContent("مکان فعلی شما");
+                        infoWindow.open(map);
+                        map.setCenter(pos);
+                        map.setZoom(18);
+                        const submitLocationButton = document.getElementById("submitLocationButton");
+                        submitLocationButton.style.display = "block"; // Show the submit button
+                    },
+                    () => {
+                        handleLocationError(true, infoWindow, map.getCenter());
+                    }
+                );
+            } else {
+                // Browser doesn't support Geolocation
+                handleLocationError(false, infoWindow, map.getCenter());
+            }
+        });
+
+        const submitLocationButton = document.getElementById(
+            "submitLocationButton"
+        );
+        submitLocationButton.addEventListener("click", () => {
+            const currentPosition = infoWindow.getPosition();
+            const latitude = currentPosition.lat();
+            const longitude = currentPosition.lng();
+
+            // Create a form and append latitude and longitude data
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = '{% url 'Attendance:process_staff_location' %}';
+
+            const latitudeInput = document.createElement("input");
+            latitudeInput.type = "hidden";
+            latitudeInput.name = "latitude";
+            latitudeInput.value = latitude;
+            form.appendChild(latitudeInput);
+
+            const longitudeInput = document.createElement("input");
+            longitudeInput.type = "hidden";
+            longitudeInput.name = "longitude";
+            longitudeInput.value = longitude;
+            form.appendChild(longitudeInput);
+
+            // Append the form to the document and submit it
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
+
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(
+            browserHasGeolocation
+                ? "Error: The Geolocation service failed."
+                : "Error: Your browser doesn't support geolocation."
+        );
+        infoWindow.open(map);
+    }
+
+    window.initMap = initMap;
+
+</script>
+<script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmFYr4NE83ksJrSYdPK3fu8X1vKJ_8rgI&callback=initMap&v=weekly&solution_channel=GMP_CCS_geolocation_v1"
+        defer
+></script>
+</body>
+</html>

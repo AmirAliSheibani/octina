@@ -31,6 +31,14 @@ from jalali_date import date2jalali
 #         if value is None:
 #             return value
 #         return value.to_gregorian()
+
+class Location(models.Model):
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    active = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_Location', blank=True,
+                                   null=True)
+
 class Positions(models.Model):
     positions = models.CharField(max_length=100)
     position_income = models.IntegerField()

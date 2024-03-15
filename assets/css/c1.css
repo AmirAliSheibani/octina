@@ -69,51 +69,34 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+ /* Table Styling */
+        table {
+            width: 100%;
+            font-family: 'Shabnam', sans-serif;
+            border-collapse: collapse;
+            color: #333;
+        }
 
-th {
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
 
-    font-weight: bold;
-    font-style: italic;
-    background-color: #0056b3;
+        th {
+            background-color: #007bff;
+            font-weight: bold;
+            color: #fff;
+            font-family: 'Shabnam', sans-serif;
+        }
 
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+        /* Alternating Row Colors */
+        tr:nth-child(even) {
+            background-color: #e1f5fe;
+        }
 
-tbody tr:nth-child(even) {
-
-    background-color: #f8f9fa;
-}
-
-tbody tr:hover {
-
-    background-color: #e9ecef;
-}
-
-.table {
-
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.table thead th {
-
-    color: #000;
-    background-color: #0056b3;
-    border-color: #0056b3;
-    font-size: 16px;
-    font-family: 'Shabnam', sans-serif;
-}
-
-.table tbody tr td {
-
-    font-size: 14px;
-    font-family: 'Shabnam', sans-serif;
-}
-
-.table tbody tr:hover {
-
-    background-color: #f2f2f2;
-}
+        .month-navigation {
+            display: flex;
+            align-items: center;
+        }
 

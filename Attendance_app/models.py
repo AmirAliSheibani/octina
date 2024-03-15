@@ -19,10 +19,11 @@ class AttendanceUser(models.Model):
     start = models.TimeField(auto_now=False, null=True, blank=True)
     end = models.TimeField(auto_now=False, null=True, blank=True)
     job_time = models.DurationField(default=timedelta(0), blank=True)
-    token = models.CharField(max_length=1000, default=user)
-    last_info = models.TextField(max_length=1000, default=' +', null=True, blank=True)
+    token = models.CharField(max_length=100, default=user)
+    last_info = models.TextField(max_length=500, default=' +', null=True, blank=True)
     in_progress = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, default=1, related_name='created_by_AttendanceUser')
+    confirmation = models.BooleanField(default=None, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Only set the month if the object is being created

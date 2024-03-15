@@ -56,12 +56,12 @@ from django.utils.translation import gettext_lazy as _
 @admin.register(models.Income)
 class IncomeAdmin(admin.ModelAdmin):
     list_display = ['USer', 'position', 'job_time']
+
     def get_fields(self, request, obj=None):
         fields = super().get_fields(request, obj)
         if not request.user.is_superuser:
             fields = [field for field in fields if field != 'created_by']
         return fields
-
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if not request.user.is_superuser:
@@ -74,7 +74,6 @@ class IncomeAdmin(admin.ModelAdmin):
         else:
             return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if not request.user.is_superuser:
@@ -86,6 +85,7 @@ class IncomeAdmin(admin.ModelAdmin):
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
 
+
 @admin.register(models.Positions)
 class PositionsAdmin(admin.ModelAdmin):
     list_display = ['positions', 'position_income']
@@ -95,8 +95,6 @@ class PositionsAdmin(admin.ModelAdmin):
         if not request.user.is_superuser:
             fields = [field for field in fields if field != 'created_by']
         return fields
-
-
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -118,6 +116,38 @@ class PositionsAdmin(admin.ModelAdmin):
 
         super().save_model(request, obj, form, change)
 
+
+@admin.register(models.Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ['latitude', 'longitude']
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if not request.user.is_superuser:
+            fields = [field for field in fields if field != 'created_by']
+        return fields
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser:
+            return qs.filter(created_by=request.user)
+        return qs
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            user = request.user
+            if not user.is_superuser:
+                user_profile_count = models.Positions.objects.filter(created_by=user).count()
+                user_limit = 10  # Set the desired limit here
+
+                if user_profile_count >= user_limit:
+                    raise ValidationError("You have reached the record creation limit.")
+
+            obj.created_by = user
+
+        super().save_model(request, obj, form, change)
+
+
 @admin.register(models.Profile)
 class ProfileAdmin(admin.ModelAdmin):
 
@@ -137,8 +167,6 @@ class ProfileAdmin(admin.ModelAdmin):
                 return super().formfield_for_foreignkey(db_field, request, **kwargs)
         else:
             return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-
 
     def save_model(self, request, obj, form, change):
         if not change:  # Only for new objects
@@ -230,7 +258,6 @@ class CustomUserAdmin(admin.ModelAdmin):
         if not obj:
             return self.add_fieldsets
         return super().get_fieldsets(request, obj)
-
 
     def save_model(self, request, obj, form, change):
         if not change:  # Only set created_who for new objects
@@ -399,5 +426,6 @@ class CustomUserAdmin(admin.ModelAdmin):
         if not request.user.is_superuser:
             return qs.filter(created_who=request.user)
         return qs
+
 
 admin.site.register(CustomUser, CustomUserAdmin)

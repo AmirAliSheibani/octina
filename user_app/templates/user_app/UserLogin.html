@@ -35,6 +35,7 @@
     <div class="wrapper">
         <div class="title"><span>فرم ورود به سایت</span></div>
         <form method="post">
+
             {% if messages %}
                 <ul class="messages">
                     {% for message in messages %}
@@ -42,7 +43,7 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            {% csrf_token %}
+
             <div class="error-message">
                 {{ form.non_field_errors }}
             </div>
@@ -60,6 +61,7 @@
             </div>
             <div class="signup-link">عضو نشدی؟ <a href="{% url 'user:register' %}">الان عضو شو</a></div>
             <div class="signup-link">برو به <a href="{% url 'home:home' %}">صفحه اصلی</a></div>
+        {% csrf_token %}
         </form>
     </div>
 </div>

@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>سیستم حضور غیاب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
     <style>
 
@@ -13,6 +14,7 @@
 
         body {
             font-family: 'Shabnam', sans-serif;
+            height: 100%;
             direction: rtl;
             text-align: right;
         }
@@ -52,6 +54,10 @@
             <button type="button"> بازگشت به سایت</button>
         </a>
     </form>
+    {% if no_confirmation_users %}
+        <P style="color: darkred">هشدار!</P>
+    <P>    	شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a href="{% url 'Attendance:no_confirmation_check' %}" >کلیک کنید<a/></P>
+    {% endif %}
 </div>
 </body>
 </html>

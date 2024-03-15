@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
 
     <style>
+<style>
 
 
         @font-face {
@@ -65,75 +66,47 @@
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h2>{{ user }}</h2>
-
-    <h4>میزان درآمد در این ماه:<span>{% if income %}
-        {{ income.User_income }}
-        {% else %}
-        خالی
-        {% endif %}
-    </span></h4>
+<p>با انتخاب "رد کردن"، تمامی گزارشات حضور و غیاب  کاربر  در آن تاریخ حذف خواهند شد.</p>
     <div class="table-responsive">
     <table>
         <thead>
         <tr>
-            <th scope="col">شروع کار</th>
-            <th scope="col">پایان کار</th>
-            <th scope="col">مدت زمان کار</th>
-            <th scope="col">تاریخ ایجاد</th>
-            <th scope="col">درآمد بدست آمده</th>
+            <th scope="col">نام کاربری</th>
+            <th scope="col">نام خانوادگی</th>
+            <th scope="col">مدت زمان کار کردن</th>
+            <th scope="col">تاریخ</th>
+            <th scope="col">تأیید</th>
+            <th scope="col">رد کردن</th>
             <th scope="col">جزئیات</th>
         </tr>
         </thead>
         <tbody>
-        {% if object %}
-
-
-        {% for obj, inc, job_time  in object %}
+        {% for no_confirmation in no_confirmation %}
             <tr>
-                <td>{{ obj.start }}</td>
-                <td>{{ obj.end }}</td>
-                <td>{{ job_time }}</td>
-                <td>{{ obj.created_date }}</td>
-                <td>{{ inc}} </td>
-                <td><a href="{% url 'Attendance:result_detail' user.id obj.id %}">بیشتر</a></td>
-
+                <td>{{ no_confirmation.user }}</td>
+                <td>{{ no_confirmation.user.last_name }}</td>
+                <td>{{ no_confirmation.job_time|slice:":10" }}</td>
+                <td>{{ no_confirmation.created_date }}</td>
+                <td><a href="{% url 'Attendance:confirm' no_confirmation.id %}"><button class="confirm-button">تأیید</button></a></td>
+                <td><a href="{% url 'Attendance:reject' no_confirmation.id %}"><button class="reject-button">رد کردن</button></a></td>
+                <td><a href="{% url 'Attendance:result_list' no_confirmation.user.id no_confirmation.created_date.month %}">بیشتر</a></td>
             </tr>
- {% endfor %}
-        {% else %}
-            <tr>
-<h2>اطلاعات نا موجود</h2>
-
-            </tr>
-            {% endif %}
+        {% endfor %}
 
         </tbody>
     </table>
-        </div>
+    </div>
+
     <form method="POST" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
         <a href="{% url 'Attendance:redirected_view' %}">
             <button type="button">بازگشت به خانه</button>
         </a>
-        <a href="{% url 'Attendance:download_excel_user' request.user.id month %}">
-            <button type="button">مشاهده در اکسل</button>
-        </a>
         <button type="submit">شروع</button>
-    </form>
 
-<br>    <div class="month-navigation">
-        {% for month_num, month_name in months.items %}
-            {% if month_num == month %}
-                <span class="btn btn-primary">{{ month_name }}</span>
-            {% else %}
-                <a href="{% url 'Attendance:result_list' pk=user.id month=month_num %}"
-                   class="btn btn-outline-primary">{{ month_name }}</a>
-            {% endif %}
-        {% endfor %}
-    </div>
-</div>
+    </form>
+    <br>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

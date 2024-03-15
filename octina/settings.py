@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-d6ymb^^zjr2_d*p2$s(^_t89)25vzz-1%n*q!$638nayld6ujn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -112,15 +112,25 @@ WSGI_APPLICATION = 'octina.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# # mysql
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'octina_db',
+#         'USER': 'root',
+#         'PASSWORD': 'mrbombermanrapy7545',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#     }
+# }
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'octina_db',
-        'USER': 'root',
-        'PASSWORD': 'mrbombermanrapy7545',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'USER': 'bomberman',
+        'PASSWORD': '7545bombermanrapy2099',
+        'PORT': '5432',
     }
 }
 
@@ -177,10 +187,11 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'octinaweb@gmail.com'
 EMAIL_HOST_PASSWORD = 'xjvu njex rxqp usfp'
 
-#
+
 # RECAPTCHA_PUBLIC_KEY = 'MyRecaptchaKey123'
 # RECAPTCHA_PRIVATE_KEY = 'MyRecaptchaPrivateKey456'
 
 LANGUAGE_CODE = 'fa-ir'
 import locale
 locale.setlocale(locale.LC_ALL, "fa_IR.UTF-8")
+CSRF_TRUSTED_ORIGINS = ['https://0e41-85-185-35-182.ngrok-free.app', 'https://*.127.0.0.1']

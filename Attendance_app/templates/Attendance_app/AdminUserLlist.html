@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
@@ -20,15 +20,16 @@
             font-family: 'Shabnam', sans-serif;
             direction: rtl;
             text-align: right;
+
         }
 
-
-        /* Table Styling */
+ /* Table Styling */
         table {
             width: 100%;
             font-family: 'Shabnam', sans-serif;
             border-collapse: collapse;
             color: #333;
+            overflow-x: auto;
         }
 
         th, td {
@@ -52,15 +53,24 @@
         .month-navigation {
             display: flex;
             align-items: center;
+            overflow-x: auto;
         }
+         .container {
+            padding: 20px;
+        }
+         .table-responsive {
+            overflow-x: auto;
+        }
+
 
         .header {
             background-color: #006bff;
             color: #e1f5fe;
+            overflow-x: auto;
             padding: 5px;
             margin-bottom: 10px;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-evenly;
             align-items: center;
         }
 
@@ -70,12 +80,15 @@
         }
 
         .filter-form select {
-            margin-left: 5px;
+            margin-left: 8px;
         }
 
         .filter-form label {
             color: inherit;
-            margin-right: 5px;
+            margin-right: 8px;
+        }
+         .table-responsive {
+            overflow-x: auto;
         }
 
     </style>
@@ -85,7 +98,7 @@
     <div class="filter-form">
         <form method="GET">
             <label for="last_name_filter">جست و جو با نام خانوادگی:</label>
-            <input type="text" id="last_name_filter" name="last_name_filter" value="{{ request.GET.last_name_filter }}">
+            <input type="text" id="last_name_filter" name="last_name_filter" value="{{ request.GET.last_name_filter }}" size="16px">
             <button type="submit">اعمال</button>
         </form>
     </div>
@@ -125,7 +138,7 @@
 
 <div class="container">
 
-
+   <div class="table-responsive">
     <table>
         <thead>
         <tr>
@@ -145,12 +158,13 @@
                 <td>{{ position.profile_position }}</td>
                 <td>{{ attendance.job_time|slice:":10" }}</td>
                 <td>{{ income.User_income }}</td>
-                <td><a href="{% url 'Attendance:result_list' user.id attendance.created_date.month %}">بیشتر</a></td>
+                <td><a href="{% url 'Attendance:result_list' user.id 12 %}">بیشتر</a></td>
             </tr>
         {% endfor %}
 
         </tbody>
     </table>
+   </div>
 
 
 

@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance System</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
 
@@ -59,7 +60,7 @@
 
     <table>
         <thead>
-       <h2> ورود و خروج های قبلی (امروز)</h2>
+       <h2> ورود و خروج های قبلی ({{ date }})</h2>
         <tr>
             <th>ورود</th>
             <th>خروج</th>

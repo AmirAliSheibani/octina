@@ -14,6 +14,15 @@ urlpatterns = [
     path('userlist/<int:pk>/<int:month>/', views.staff_user_list, name='user_list'),
     path('download_excel/<int:pk>/<int:month>/', views.download_excel, name='download_excel'),
     path('download_excel_user/<int:pk>/<int:month>/', views.download_excel_user, name='download_excel_user'),
-    path('/', views.restricted_view, name='redirected_view')
+    path('set_location/', views.get_staff_location, name='get_staff_location'),
+    path('set_your_location/', views.get_user_location, name='get_user_location'),
+    path('procceslocation/', views.process_staff_location, name='process_staff_location'),
+    path('procces_userlocation/', views.process_user_location, name='process_user_location'),
+    path('no_confirmation_users/', views.no_confirmation_check, name='no_confirmation_check'),
+    path('confirm/<int:pk>/', views.accept_confirmation, name='confirm'),
+    path('reject/<int:pk>/', views.not_accepted_confirmation, name='reject'),
+    path('ignore_location/', views.ignore_location, name='ignore_location'),
+
+    path('', views.restricted_view, name='redirected_view')
 ]
 

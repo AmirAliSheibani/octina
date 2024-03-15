@@ -5,14 +5,16 @@ import jdatetime
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.urls import reverse
 from datetime import datetime, timedelta
+from geopy.distance import geodesic
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
 from .models import AttendanceUser
 from .mixin import CustomizedRquirementLogin
 from django.contrib.auth.decorators import login_required
-from pricing.models import Profile, User, CustomUser, Income
+from pricing.models import Profile, User, CustomUser, Income, Location
 from .form import PositionForm
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
 from django.utils import timezone
 # exel
 
@@ -22,6 +24,77 @@ from openpyxl.utils import get_column_letter
 
 from django.http import HttpResponse
 from django.db.models import Q
+from django.db.models import Q
+
+
+def get_staff_location(request):
+    return render(request, 'Attendance_app/staff_location.html')
+
+
+def get_user_location(request):
+    return render(request, 'Attendance_app/user_location.html')
+
+
+@csrf_exempt
+def process_user_location(request):
+    if request.method == 'POST':
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        user = request.user
+
+        # موقعیت مرجع
+        location = Location.objects.get(created_by=request.user.created_who, active=True)
+        reference_latitude = location.latitude
+        reference_longitude = location.longitude
+        #
+        # # موقعیت جدید
+        # new_latitude = 35.123456789
+        # new_longitude = 51.987654321
+        #
+        # # محاسبه فاصله بین دو موقعیت
+        distance = geodesic((reference_latitude, reference_longitude), (latitude, longitude)).meters
+        #
+        # بررسی آیا فاصله کمتر از 50 متر است
+        date = datetime.now().date()
+        at = AttendanceUser.objects.get(user=user, created_date=date)
+        start = datetime.now().time()
+        if distance < 50:
+            print("موقعیت در فاصله کمتر از 50 متر است")
+            at.confirmation = True
+            at.start = start
+            at.save()
+        else:
+            print("موقعیت در فاصله بیشتر از 50 متر است")
+            at.confirmation = False
+            at.start = start
+            at.save()
+        print(f'{latitude},{longitude}')
+        return redirect(reverse('Attendance:start'))
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+def ignore_location(request):
+    user = request.user
+    date = datetime.now().date()
+    at = AttendanceUser.objects.get(user=user, created_date=date)
+    start = datetime.now().time()
+    at.confirmation = False
+    at.start = start
+    at.save()
+    return redirect(reverse('Attendance:start'))
+
+
+@csrf_exempt
+def process_staff_location(request):
+    if request.method == 'POST':
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        user = request.user
+        location = Location.objects.create(longitude=longitude, latitude=latitude, created_by=user, active=True)
+        # return HttpResponse(f'{latitude},{longitude}')
+        return redirect(reverse('Attendance:redirected_view'))
+    else:
+        return HttpResponseNotAllowed(['POST'])
 
 
 @login_required
@@ -30,7 +103,6 @@ def restricted_view(request):
 
     now = timezone.now().date()
     jalali_date = jdatetime.date.fromgregorian(date=now)
-
     # # Access the Jalali year, month, and day
     # jalali_year = jalali_date.year
     # jalali_month = jalali_date.month
@@ -208,6 +280,8 @@ def download_excel_user(request, pk, month):
 
 
 def staff_user_list(request, pk, month):
+    if not request.user.is_staff:
+        return redirect(reverse('Attendance:redirected_view'))
     MONTH_NAMES = {
         1: 'فروردین',
         2: 'اردیبهشت',
@@ -231,7 +305,6 @@ def staff_user_list(request, pk, month):
         income = Income.objects.filter(USer__in=users, month=month).order_by('User_income')
         no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
         attendances = AttendanceUser.objects.filter(user__in=users, month=month)
-
     else:
         users = CustomUser.objects.filter(created_who__isnull=False).order_by('username')
         # positions = Profile.objects.all()
@@ -243,6 +316,13 @@ def staff_user_list(request, pk, month):
 
     job_time = []
     objects = attendances
+    if users is None:
+        return HttpResponse('شما هیچ یوزری برای نمایش ندارید!')
+    if income is None:
+        return HttpResponse('یوزر های شما هیچ درآمدی نداشتند!')
+
+    if objects is None:
+        return HttpResponse('یوزر های شما هیچ ورود و خروجی نداشتند!')
 
     for obj in objects:
         job = str(obj.job_time)
@@ -288,8 +368,37 @@ def staff_user_list(request, pk, month):
                    'months': MONTH_NAMES, 'month': month})
 
 
+def no_confirmation_check(request):
+    if request.user.is_staff:
+        users = CustomUser.objects.filter(created_who=request.user)
+        no_confirmation = AttendanceUser.objects.filter(
+            Q(user__in=users) & (Q(confirmation=False) | Q(confirmation=None)))
+        return render(request, 'Attendance_app/confirmation_user.html', {'no_confirmation': no_confirmation})
+    else:
+        return redirect(reverse('Attendance:redirected_view'))
+
+
+def accept_confirmation(request, pk):
+    if not request.user.is_staff:
+        return redirect(reverse('Attendance:redirected_view'))
+    at = AttendanceUser.objects.get(pk=pk)
+    at.confirmation = True
+    at.save()
+    return redirect(reverse('Attendance:no_confirmation_check'))
+
+
+def not_accepted_confirmation(request, pk):
+    if not request.user.is_staff:
+        return redirect(reverse('Attendance:redirected_view'))
+    at = AttendanceUser.objects.get(pk=pk)
+    at.delete()
+    return redirect(reverse('Attendance:no_confirmation_check'))
+
+
 @login_required
 def download_excel(request, pk, month):
+    if not request.user.is_staff:
+        return redirect(reverse('Attendance:redirected_view'))
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
         # positions = Profile.objects.filter(created_by=request.user)
@@ -445,26 +554,44 @@ def create_attendance_view(request):
     except:
         income = 'خالی'
         print(1)
+    at = None
+    if request.user.is_staff:
+        users = CustomUser.objects.filter(created_who=request.user)
+        at = AttendanceUser.objects.filter(
+            Q(user__in=users) & (Q(confirmation=False) | Q(confirmation=None)))
 
-    return render(request, 'Attendance_app/index.html', {'position': position, 'income': income, 'month': month})
+    return render(request, 'Attendance_app/index.html',
+                  {'position': position, 'income': income, 'month': month, 'no_confirmation_users': at})
 
 
 @login_required
 def start_attendance_view(request):
+    try:
+        location = Location.objects.get(created_by=request.user.created_who, active=True)
+        print('location = True')
+    except Location.DoesNotExist:
+        location = False
+        print('location = False')
     start = datetime.now().time()
     date = datetime.now().date()
+    confirmation = False
     try:
         # in_progress=True:
         # user is still working
         at = AttendanceUser.objects.get(user=request.user, in_progress=True)
 
         # print("at = AttendanceUser.objects.get(user=request.user, in_progress=True)")
-        return render(request, 'Attendance_app/start.html', {'started': at.start, 'pk': at.token})
+        return render(request, 'Attendance_app/start.html', {'started': at.start, 'pk': at.token, 'at':at})
     except AttendanceUser.DoesNotExist:
+
         try:
             # If the user starts working twice or more in one day,
             # instead of creating a new record, it will be taken and updated:
             at = AttendanceUser.objects.get(user=request.user, created_date=date)
+            if at.confirmation is None:
+                if location:
+                    return redirect(reverse('Attendance:get_user_location'))
+
             # for access to the start and end before start working again
             if not str(at.end)[0:8] in at.last_info:
                 at.last_info += f" \n start={str(at.start)[0:8]}, end={str(at.end)[0:8]}*"
@@ -475,15 +602,19 @@ def start_attendance_view(request):
             at.in_progress = True
             at.save()
             # print("at = AttendanceUser.objects.get(user=request.user, created_date=date)")
-            return render(request, 'Attendance_app/start.html', {'started': start, 'pk': at.token})
+            return render(request, 'Attendance_app/start.html', {'started': start, 'pk': at.token, 'at':at})
         except AttendanceUser.DoesNotExist:
 
-            at = AttendanceUser.objects.create(user=request.user, created_date=date, start=start, )
+            at = AttendanceUser.objects.create(user=request.user, created_date=date, )
             at.in_progress = True
             at.token = uuid.uuid4()
+            at.start = start
             at.save()
+            if location:
+                return redirect(reverse('Attendance:get_user_location'))
+
             # print("at = AttendanceUser.objects.create(user=request.user, created_date=date, start=start,)")
-            return render(request, 'Attendance_app/start.html', {'started': start, 'pk': at.token})
+            return render(request, 'Attendance_app/start.html', {'started': start, 'pk': at.token, 'at':at})
 
 
 def update_duration_view(request):
@@ -611,4 +742,5 @@ class ShowResult(TemplateView):
         context['job_time'] = job_time
         context['zipped_times'] = zipped_times
         context['inc'] = inc
+        context['date'] = attend.created_date
         return context

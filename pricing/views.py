@@ -16,7 +16,7 @@ def process_pricing(request, pk):
     try:
         income = Income.objects.get(USer=at.user, month=at_month)
         job_time = datetime.combine(datetime.min, at.end) - datetime.combine(datetime.min, at.start)
-        inc = round(income.position.profile_position.position_income * (job_time.total_seconds() / 3600), 4)
+        inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
         income.job_time += at.job_time
         print(at.job_time, "at.job_time")
         print(income.job_time, 'income.job_time')

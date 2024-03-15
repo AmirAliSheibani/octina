@@ -2,10 +2,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance System</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
     <style>
-@font-face {
+        @font-face {
             font-family: 'Shabnam';
             src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
         }
@@ -15,42 +16,46 @@
             direction: rtl;
             text-align: right;
         }
-        </style>
+    </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-    $(document).ready(function() {
-    function updateDuration() {
-        $.ajax({
-            url: "{% url 'Attendance:update_duration' %}",
-            success: function(data) {
-                var duration = data.duration_formatted;
-                var inc = data.inc;
+        $(document).ready(function () {
+            function updateDuration() {
+                $.ajax({
+                    url: "{% url 'Attendance:update_duration' %}",
+                    success: function (data) {
+                        var duration = data.duration_formatted;
+                        var inc = data.inc;
 
-                // Use the 'inc' value in the desired location in the HTML
-                $('#income').text('درآمد بدست آمده امروز: ' + inc)
+                        // Use the 'inc' value in the desired location in the HTML
+                        $('#income').text('درآمد بدست آمده امروز: ' + inc)
 
-                // Update the duration
-                $('#working-hours').text(duration);
+                        // Update the duration
+                        $('#working-hours').text(duration);
+                    }
+                });
             }
-        });
-    }
 
-    // Update the duration every second (1000 milliseconds)
-    setInterval(updateDuration, 1000);
-});
+            // Update the duration every second (1000 milliseconds)
+            setInterval(updateDuration, 1000);
+        });
 
     </script>
 </head>
 <body>
-    <div class="container">
-        <h1> حضور و غیاب اُکتینا</h1>
-        <p>درحال کار: <span id="working-hours">درحال بارگیری</span></p>
-        <h6>میتوانید از این صفحه خارج شوید </h6>
-       <h4 id="income">درآمد بدست آمده: {{ inc }}</h4>
-        <form method="POST" action="{% url 'Attendance:procces_result' pk %}">
-            {% csrf_token %}
-            <button class="button" type="submit">اتمام کار</button>
-        </form>
-    </div>
+<div class="container">
+    <h1> حضور و غیاب اُکتینا</h1>
+    <p>درحال کار: <span id="working-hours">درحال بارگیری</span></p>
+    {% if at.confirmation == False %}
+        <h5 style="color: red">
+            نیاز به تایید توسط مدیر به علت عدم دریافت موقعیت مکانی: در صورت عدم تایید، ورود و خروج و درآمد بدست آمده از سابقه شما حذف خواهد شد.</h5>
+    {% endif %}
+    <h6>میتوانید از این صفحه خارج شوید </h6>
+    <h4 id="income">درآمد بدست آمده: {{ inc }}</h4>
+    <form method="POST" action="{% url 'Attendance:procces_result' pk %}">
+        {% csrf_token %}
+        <button class="button" type="submit">اتمام کار</button>
+    </form>
+</div>
 </body>
 </html>

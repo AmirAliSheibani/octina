@@ -1,9 +1,20 @@
 from django.contrib import admin
 # from django.contrib.auth.models import User
 from .models import AttendanceUser
-from pricing.models import CustomUser
+from pricing.models import CustomUser, Income
+
 User = CustomUser
 from django.contrib.admin import AdminSite
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+
+@receiver(pre_delete, sender=AttendanceUser)
+def pre_delete_callback(sender, instance, **kwargs):
+    at = instance
+    income = Income.objects.get(month=at.month, USer=at.user)
+    inc = income.position.profile_position.position_income * (at.job_time.total_seconds() / 3600)
+    income.User_income -= inc
+    income.save()
 
 class MyAdminSite(AdminSite):
     site_header = 'مدیریت اُکتینا'
@@ -18,8 +29,8 @@ admin_site = MyAdminSite(name='myadmin')
 #             self.fields['created_by'].queryset = User.objects.filter(id=self.instance.created_by.id)
 
 class AttendanceUserAdmin(admin.ModelAdmin):
-    fields = ('user', 'created_date', 'start', 'end', 'job_time', 'token', 'last_info', 'in_progress')
-    list_display = ['user', 'created_date', 'start', 'end', 'job_time', 'in_progress']
+    fields = ('user', 'created_date', 'start', 'end', 'job_time', 'token', 'last_info', 'in_progress', 'confirmation')
+    list_display = ['user', 'created_date', 'start', 'end', 'job_time', 'in_progress', 'confirmation']
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if not request.user.is_superuser:
