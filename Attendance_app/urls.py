@@ -9,7 +9,7 @@ urlpatterns = [
     path('resultlist/<int:pk>/<int:month>/', views.AttendanceListView.as_view(), name='result_list'),
     path('procces/<str:pk>/', views.process_result_view, name='procces_result'),
     path('result/', views.ShowResult.as_view(), name='result'),
-    path('update-duration/', views.update_duration_view, name='update_duration'),
+    # path('update-duration/', views.update_duration_view, name='update_duration'),
     path('resultdetail/<int:user>/<int:pk>', views.ShowResult.as_view(), name='result_detail'),
     path('userlist/<int:pk>/<int:month>/', views.staff_user_list, name='user_list'),
     path('download_excel/<int:pk>/<int:month>/', views.download_excel, name='download_excel'),
@@ -22,7 +22,7 @@ urlpatterns = [
     path('confirm/<int:pk>/', views.accept_confirmation, name='confirm'),
     path('reject/<int:pk>/', views.not_accepted_confirmation, name='reject'),
     path('ignore_location/', views.ignore_location, name='ignore_location'),
-
+    path('info_users/<int:month>', views.in_progress_users, name='info_users'),
     path('', views.restricted_view, name='redirected_view')
 ]
 

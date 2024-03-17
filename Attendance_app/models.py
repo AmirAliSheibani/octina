@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from datetime import timezone
-from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
 User = settings.AUTH_USER_MODEL
@@ -30,10 +29,5 @@ class AttendanceUser(models.Model):
             self.month = date2jalali(timezone.now().date()).month
         super().save(*args, **kwargs)
 
-
-
-
-
-
-
-
+    def __str__(self):
+        return f"{self.job_time}"

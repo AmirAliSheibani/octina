@@ -2,6 +2,8 @@ import math
 import uuid
 
 import jdatetime
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.urls import reverse
 from datetime import datetime, timedelta
@@ -72,6 +74,7 @@ def process_user_location(request):
         return redirect(reverse('Attendance:start'))
     else:
         return HttpResponseNotAllowed(['POST'])
+
 
 def ignore_location(request):
     user = request.user
@@ -300,16 +303,12 @@ def staff_user_list(request, pk, month):
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
         # positions = Profile.objects.filter(created_by=request.user)
-        profile_position = getattr(users, 'possit', None).profile_position if hasattr(users, 'possit') else None
-        positions = str(profile_position) if profile_position else ''
         income = Income.objects.filter(USer__in=users, month=month).order_by('User_income')
         no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
         attendances = AttendanceUser.objects.filter(user__in=users, month=month)
     else:
         users = CustomUser.objects.filter(created_who__isnull=False).order_by('username')
         # positions = Profile.objects.all()
-        profile_position = getattr(users, 'possit', None).profile_position if hasattr(users, 'possit') else None
-        positions = str(profile_position) if profile_position else ''
         income = Income.objects.filter(USer__in=users, month=month).order_by('User_income')
         no_income_users = users.exclude(id__in=income.values_list('USer_id', flat=True))
         attendances = AttendanceUser.objects.filter(user__in=users, month=month)
@@ -335,14 +334,7 @@ def staff_user_list(request, pk, month):
         user = income_entry.USer
         attendance = attendances.filter(user=user).first()
 
-        data.append((user, positions, attendance, income_entry))
-    no_income_data = []
-    for user in no_income_users:
-        profile_position = getattr(no_income_users, 'possit', None).profile_position if hasattr(no_income_users,
-                                                                                                'possit') else None
-        position = str(profile_position) if profile_position else ''
-
-        no_income_data.append((user, position))
+        data.append((user, attendance, income_entry))
     last_name_filter = request.GET.get('last_name_filter')
     job_time_filter = request.GET.get('job_time_filter')
     income_filter = request.GET.get('income_filter')
@@ -364,7 +356,7 @@ def staff_user_list(request, pk, month):
 
     return render(request, 'Attendance_app/AdminUserLlist.html',
                   {'object': data, 'checkincome': no_income_users,
-                   'noIncome': no_income_data,
+                   'noIncome': no_income_users,
                    'months': MONTH_NAMES, 'month': month})
 
 
@@ -540,28 +532,88 @@ def result_detail(request, pk):
     return render(request, 'Attendance_app/result.html', {'zipped_times': zipped_times, 'income': income})
 
 
+# index
 @login_required
 def create_attendance_view(request):
     position = Profile.objects.get(user=request.user)
     now = timezone.now()
     month = jdatetime.date.fromgregorian(date=now.date()).month
     # month = timezone.now().month
-    print(month)
+
     try:
         income = Income.objects.get(USer=request.user, month=month).User_income
-        print(income)
-        print(1)
+
     except:
         income = 'خالی'
-        print(1)
+
     at = None
     if request.user.is_staff:
+        print(11121)
+        in_progress_users = []
+        non_progress_users = []
         users = CustomUser.objects.filter(created_who=request.user)
         at = AttendanceUser.objects.filter(
             Q(user__in=users) & (Q(confirmation=False) | Q(confirmation=None)))
+        attendance_users = AttendanceUser.objects.filter(user__in=users)
+        for attendance in attendance_users:
+            print("attendance in attendance_users")
+
+            if attendance.in_progress:
+                if attendance.user not in in_progress_users and attendance.user not in non_progress_users:
+                    in_progress_users.append(attendance.user)
+                    print("in_progress_users.append(attendance.user)")
+            else:
+                if attendance.user not in in_progress_users and attendance.user not in non_progress_users:
+                    print("non_progress_users.append(attendance.user)")
+                    non_progress_users.append(attendance.user)
+
+        non_progress_users += users.exclude(username__in=in_progress_users).exclude(username__in=non_progress_users)
+
+        return render(request, 'Attendance_app/index.html',
+                      {'position': position, 'income': income, 'month': month, 'no_confirmation_users': at,
+                       "in_progress_users": in_progress_users, "non_progress_users": non_progress_users,
+                       "users": users})
 
     return render(request, 'Attendance_app/index.html',
-                  {'position': position, 'income': income, 'month': month, 'no_confirmation_users': at})
+                  {'position': position, 'income': income, 'month': month})
+
+
+def in_progress_users(request, month):
+    if request.user.is_staff:
+        MONTH_NAMES = {
+            1: 'فروردین',
+            2: 'اردیبهشت',
+            3: 'خرداد',
+            4: 'تیر',
+            5: 'مرداد',
+            6: 'شهریور',
+            7: 'مهر',
+            8: 'آبان',
+            9: 'آذر',
+            10: 'دی',
+            11: 'بهمن',
+            12: 'اسفند',
+        }
+        in_progress_users = []
+        non_progress_users = []
+        users = CustomUser.objects.filter(created_who=request.user)
+
+        attendance_users = AttendanceUser.objects.filter(user__in=users)
+        for attendance in attendance_users:
+            print("attendance in attendance_users")
+            if attendance.in_progress:
+                if attendance.user not in in_progress_users and attendance.user not in non_progress_users:
+                    in_progress_users.append(attendance.user)
+                    print("in_progress_users.append(attendance.user)")
+            else:
+                if attendance.user not in in_progress_users and attendance.user not in non_progress_users:
+                    print("non_progress_users.append(attendance.user)")
+                    non_progress_users.append(attendance.user)
+
+        non_progress_users += users.exclude(username__in=in_progress_users).exclude(username__in=non_progress_users)
+        return render(request, 'Attendance_app/in_progress_users.html',
+                      {'in_progress_users': in_progress_users, 'non_progress_users': non_progress_users, 'month':month})
+    return redirect(reverse('Attendance:redirected_view'))
 
 
 @login_required
@@ -575,13 +627,25 @@ def start_attendance_view(request):
     start = datetime.now().time()
     date = datetime.now().date()
     confirmation = False
+    user_id = request.user.id
+
+    # ارسال شناسه کاربر به کانسومر
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'group_name',  # نام گروه مورد نظر خود را قرار دهید
+        {
+            'type': 'send_user_id',
+            'user_id': user_id,
+        }
+    )
+
     try:
         # in_progress=True:
         # user is still working
         at = AttendanceUser.objects.get(user=request.user, in_progress=True)
 
         # print("at = AttendanceUser.objects.get(user=request.user, in_progress=True)")
-        return render(request, 'Attendance_app/start.html', {'started': at.start, 'pk': at.token, 'at':at})
+        return render(request, 'Attendance_app/start.html', {'started': at.start, 'pk': at.token, 'at': at})
     except AttendanceUser.DoesNotExist:
 
         try:
@@ -602,7 +666,7 @@ def start_attendance_view(request):
             at.in_progress = True
             at.save()
             # print("at = AttendanceUser.objects.get(user=request.user, created_date=date)")
-            return render(request, 'Attendance_app/start.html', {'started': start, 'pk': at.token, 'at':at})
+            return render(request, 'Attendance_app/start.html', {'started': start, 'pk': at.token, 'at': at})
         except AttendanceUser.DoesNotExist:
 
             at = AttendanceUser.objects.create(user=request.user, created_date=date, )
@@ -614,48 +678,48 @@ def start_attendance_view(request):
                 return redirect(reverse('Attendance:get_user_location'))
 
             # print("at = AttendanceUser.objects.create(user=request.user, created_date=date, start=start,)")
-            return render(request, 'Attendance_app/start.html', {'started': start, 'pk': at.token, 'at':at})
+            return render(request, 'Attendance_app/start.html', {'started': start, 'pk': at.token, 'at': at})
 
 
-def update_duration_view(request):
-    try:
-        attend = get_object_or_404(AttendanceUser, user=request.user, in_progress=True)
-        attend.end = datetime.now().time()
-        # Calculate the duration of working time
-        job_time = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
-        profile = Profile.objects.get(user_id=request.user)
-        # Calculate the number of hours elapsed since the record was created
-        if attend.created_date < datetime.now().date():
-            date_hours = datetime.now().date() - attend.created_date
-            if job_time.days == date_hours.days:
-                attend.save()
-                job_time = timedelta(seconds=job_time.total_seconds())
-
-                inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
-                attend.job_time += job_time  # Convert to timedelta object
-
-                duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-                duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
-                return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
-            else:
-                # Add 24 hours for each day that has passed
-                job_time += timedelta(days=date_hours.days)
-                attend.save()
-                job_time = timedelta(seconds=job_time.total_seconds())
-                attend.job_time += job_time  # Convert to timedelta object
-                inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
-                duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-                duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
-                return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
-        else:
-            attend.save()
-            job_time = timedelta(seconds=job_time.total_seconds())
-            attend.job_time += job_time  # Convert to timedelta object
-            inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
-            duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-            return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
-    except AttendanceUser.DoesNotExist:
-        return JsonResponse({'duration_formatted': '0:00:00'})
+# def update_duration_view(request):
+#     try:
+#         attend = get_object_or_404(AttendanceUser, user=request.user, in_progress=True)
+#         attend.end = datetime.now().time()
+#         # Calculate the duration of working time
+#         job_time = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
+#         profile = Profile.objects.get(user_id=request.user)
+#         # Calculate the number of hours elapsed since the record was created
+#         if attend.created_date < datetime.now().date():
+#             date_hours = datetime.now().date() - attend.created_date
+#             if job_time.days == date_hours.days:
+#                 attend.save()
+#                 job_time = timedelta(seconds=job_time.total_seconds())
+#
+#                 inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
+#                 attend.job_time += job_time  # Convert to timedelta object
+#
+#                 duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
+#                 duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
+#                 return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
+#             else:
+#                 # Add 24 hours for each day that has passed
+#                 job_time += timedelta(days=date_hours.days)
+#                 attend.save()
+#                 job_time = timedelta(seconds=job_time.total_seconds())
+#                 attend.job_time += job_time  # Convert to timedelta object
+#                 inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
+#                 duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
+#                 duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
+#                 return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
+#         else:
+#             attend.save()
+#             job_time = timedelta(seconds=job_time.total_seconds())
+#             attend.job_time += job_time  # Convert to timedelta object
+#             inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
+#             duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
+#             return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
+#     except AttendanceUser.DoesNotExist:
+#         return JsonResponse({'duration_formatted': '0:00:00'})
 
 
 @login_required

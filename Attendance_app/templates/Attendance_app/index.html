@@ -4,7 +4,7 @@
 <head>
     <title>سیستم حضور غیاب</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/c1.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
     <style>
 
         @font-face {
@@ -19,8 +19,35 @@
             text-align: right;
         }
 
+
     </style>
 </head>
+<!-- اضافه کردن کتابخانه jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('.box').each(function(index) {
+            var refreshButton = $('<button class="refresh-button">↻</button>');
+            $(this).append(refreshButton);
+
+            refreshButton.click(function() {
+                refreshBox(index);
+            });
+        });
+
+        function refreshBox(index) {
+            var box = $('.box').eq(index);
+            var boxCount = box.find('.box-count');
+
+            // رفرش کردن صفحه
+            location.reload();
+        }
+    });
+
+
+</script>
+</script>
 <body>
 
 
@@ -31,7 +58,10 @@
     <h5>درآمد ماه جاری: {{ income }}</h5>
     <form method="post" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
-
+    {% if no_confirmation_users %}
+        <P style="color: darkred">هشدار!</P>
+    <P>    	شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a href="{% url 'Attendance:no_confirmation_check' %}" >کلیک کنید<a/></P>
+    {% endif %}
         <button type="submit">شروع کار</button>
         <p></p>
 
@@ -53,11 +83,21 @@
         <a href="{% url 'home:home' %}">
             <button type="button"> بازگشت به سایت</button>
         </a>
+
     </form>
-    {% if no_confirmation_users %}
-        <P style="color: darkred">هشدار!</P>
-    <P>    	شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a href="{% url 'Attendance:no_confirmation_check' %}" >کلیک کنید<a/></P>
-    {% endif %}
+   <div class="boxes">
+        <div class="box green">
+            <p class="box-text">حاضرین</p>
+            <p class="box-count">{{ in_progress_users|length }}</p>
+        </div>
+        <div class="box red">
+            <p class="box-text">غایبین</p>
+            <p class="box-count">{{ non_progress_users|length }}</p>
+        </div>
+        <div class="box light-blue">
+            <p class="box-text">تعداد پرسنل</p>
+            <p class="box-count">{{ users|length }}</p>
+        </div>
 </div>
 </body>
 </html>

@@ -27,17 +27,19 @@ SECRET_KEY = 'django-insecure-d6ymb^^zjr2_d*p2$s(^_t89)25vzz-1%n*q!$638nayld6ujn
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+# ASGI_APPLICATION = 'octina.routing.application'
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
 
     # 'django_recaptcha',
     'django.contrib.humanize',
@@ -48,8 +50,8 @@ INSTALLED_APPS = [
     'user_app.apps.UserAppConfig',
     'Attendance_app.apps.AttendanceAppConfig',
     'pricing.apps.PricingConfig',
-
 ]
+ASGI_APPLICATION = "octina.asgi.application"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -107,7 +109,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'octina.wsgi.application'
+
 
 
 # Database
@@ -195,3 +197,8 @@ LANGUAGE_CODE = 'fa-ir'
 import locale
 locale.setlocale(locale.LC_ALL, "fa_IR.UTF-8")
 CSRF_TRUSTED_ORIGINS = ['https://0e41-85-185-35-182.ngrok-free.app', 'https://*.127.0.0.1']
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}

@@ -1,0 +1,203 @@
+#working-hours {
+    font-weight: bold;
+
+}
+
+form {
+    text-align: center;
+    margin-top: 30px;
+}
+
+body {
+    background-color: #F3F3F3;
+    font-family: 'Shabnam', sans-serif;
+    direction: rtl;
+    text-align: right;
+}
+
+.container {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-family: 'Shabnam', sans-serif;
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-family: 'Shabnam', sans-serif;
+    color: #555;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+p {
+    font-family: 'Shabnam', sans-serif;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+span {
+    font-family: 'Shabnam', sans-serif;
+    font-weight: bold;
+}
+
+button {
+    font-family: 'Shabnam', sans-serif;
+    background-color: #5356FF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    font-family: 'Shabnam', sans-serif;
+    border-collapse: collapse;
+    color: #333;
+    overflow-x: auto;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #0A6EBD;
+    font-weight: bold;
+    color: #fff;
+    font-family: 'Shabnam', sans-serif;
+}
+
+/* Alternating Row Colors */
+tr:nth-child(even) {
+    background-color: #e1f5fe;
+}
+
+.month-navigation {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+}
+
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+
+.header {
+    background-color: #008DDA;
+    color: #e1f5fe;
+    overflow-x: auto;
+    padding: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.filter-form {
+    display: flex;
+    align-items: center;
+}
+
+.filter-form select {
+    margin-left: 8px;
+}
+
+.filter-form label {
+    color: inherit;
+    margin-right: 8px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+
+.boxes {
+    display: flex;
+}
+
+.box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    margin: 10px;
+    flex: 1;
+}
+
+.green {
+    background-color: #96C291;
+    color: white;
+}
+
+.red {
+    background-color: #FFB7B7;
+    color: white;
+}
+
+.light-blue {
+    background-color: #4CB9E7;
+    color: #2196F3;
+}
+
+.box-text {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.box-count {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.refresh-button {
+        position: absolute;
+        top: 5px; /* فاصله بالا از نوار باکس */
+        left: 5px; /* فاصله چپ از نوار باکس */
+        width: 20px; /* عرض دکمه رفرش */
+        height: 20px; /* ارتفاع دکمه رفرش */
+        padding: 0;
+        background-color: transparent;
+        border: none;
+        font-size: 14px; /* اندازه فونت دکمه رفرش */
+        transition: background-color 0.3s ease; /* انتقال آرام ترنزیشن رنگ زمینه */
+    }
+
+    .refresh-button:hover {
+        background-color: rgba(255, 255, 255, 0.5); /* رنگ بک‌گراند با کم رنگی هنگام هاور */
+    }
