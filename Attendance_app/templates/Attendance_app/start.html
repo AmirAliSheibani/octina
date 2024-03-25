@@ -52,8 +52,15 @@
             نیاز به تایید توسط مدیر به علت عدم دریافت موقعیت مکانی: در صورت عدم تایید، ورود و خروج و درآمد بدست آمده از
             سابقه شما حذف خواهد شد.</h5>
     {% endif %}
+    {% if overtime %}
+    	<h5 style="color: gold">در حال حاضر شما بیشتر از ساعت کاری کار میکنید و درآمد بصورت اضافه حقوق میباشد</h5>
+    {% endif %}
+
+    {% if holiday %}
+    	<h5 style="color: gold"> در حال حاضر امروز روز تعطیل است و درآمد بصورت اضافه حقوق میباشد </h5>
+        {% endif %}
     <h6>میتوانید از این صفحه خارج شوید </h6>
-    <h4 id="income">درآمد بدست آمده: {{ inc }}</h4>
+    <h4 >درآمد بدست آمده: <span id="income">{{ inc }}</span> </h4>
     <form method="POST" action="{% url 'Attendance:procces_result' pk %}">
         {% csrf_token %}
         <button class="button" type="submit">اتمام کار</button>

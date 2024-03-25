@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>سیستم حضور غیاب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <style>
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            height: 100%;
+            direction: rtl;
+            text-align: right;
+        }
+
+
+    </style>
+</head>
+<!-- اضافه کردن کتابخانه jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<body>
+
+
+<div class="container">
+    <h1>ساخت سمت کاری</h1>
+    <form method="post" class="position-form">
+    {% csrf_token %}
+
+  <div class="form-textbox ">
+    <label for="{{ form.user.id_for_label }}">user:</label>
+    {{ form.user }}
+  </div>
+
+ <div class="form-textbox ">
+    <label for="{{ form.profile_position.id_for_label }}">position:</label>
+    {{ form.profile_position }}
+  </div>
+  <button type="submit">Save</button>
+</form>
+</div>
+</body>
+</html>

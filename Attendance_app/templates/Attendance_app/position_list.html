@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>سیستم حضور غیاب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <style>
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            height: 100%;
+            direction: rtl;
+            text-align: right;
+        }
+
+
+    </style>
+</head>
+<!-- اضافه کردن کتابخانه jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<body>
+
+
+<div class="container">
+    {% for poss in position %}
+    {{ poss.positions }} نام سمت
+        <br>
+        {{ poss.position_income }}درآمد سمت
+        <br>
+
+        {{ poss.overtime_position_income }} درآمد مازاد (اضافه کاری)
+        <br>
+        {% for work_day in poss.work_days.all %}
+        	{{ work_day }}
+        {% endfor %}
+        {% for shift_work in poss.shift_work.all %}
+            <br>
+        	{{ shift_work.work_start_time }} شروع ساعت کاری
+        <br>
+        {{ shift_work.work_end_time }} پایان ساعت کاری
+        <br>
+        {% endfor %}
+
+        <hr>
+
+    {% endfor %}
+
+
+</div>
+</body>
+</html>

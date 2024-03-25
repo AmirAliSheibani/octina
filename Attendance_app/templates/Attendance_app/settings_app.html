@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>سیستم حضور غیاب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <style>
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            height: 100%;
+            direction: rtl;
+            text-align: right;
+        }
+
+
+    </style>
+</head>
+<!-- اضافه کردن کتابخانه jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('.box').each(function (index) {
+            var refreshButton = $('<button class="refresh-button">↻</button>');
+            $(this).append(refreshButton);
+
+            refreshButton.click(function () {
+                refreshBox(index);
+            });
+        });
+
+        function refreshBox(index) {
+            var box = $('.box').eq(index);
+            var boxCount = box.find('.box-count');
+
+            // رفرش کردن صفحه
+            location.reload();
+        }
+    });
+
+
+</script>
+<body>
+
+
+<div class="container">
+    <h1> تنظیمات حضور و غیاب اُکتینا</h1>
+    <h2>{{ request.user }}</h2>
+    {% if no_confirmation_users %}
+        <P style="color: darkred">هشدار!</P>
+        <P> شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a
+                href="{% url 'Attendance:no_confirmation_check' %}">کلیک کنید<a/></P>
+    {% endif %}
+    <a href="{% url 'Attendance:user_list' request.user.id month %}">
+        <button type="button">لیست کاربران</button>
+    </a>
+    <a href="/admin" target="_blank">
+        <button type="button">پنل مدیریت</button>
+    </a>
+    <p></p>
+    <a href="{% url 'Attendance:create_holiday' %}">
+        <button type="button">ساخت روز تعطیل</button>
+    </a>
+    <a href="{% url 'Attendance:create_user' %}">
+        <button type="button">ساخت پرسنل</button>
+    </a>
+    <a href="{% url 'Attendance:create_shift_work' %}">
+        <button type="button">ساخت شیفت کاری</button>
+    </a>
+    <a href="{% url 'Attendance:create_position' %}">
+        <button type="button">ساخت سمت و پوزیشن کاری</button>
+    </a>
+
+    <a href="{% url 'Attendance:create_profile' %}">
+        <button type="button">ساخت پروفایل برای یوزر</button>
+    </a>
+
+    <p></p>
+    <a href="{% url 'Attendance:list_holidays' %}">
+        <button type="button">لیست روز های تعطیل</button>
+    </a>
+    <a href="{% url 'Attendance:list_shift_work' %}">
+        <button type="button">لیست شیفت های کاری</button>
+    </a>
+    <a href="{% url 'Attendance:list_position' %}">
+        <button type="button">لیست سمت ها</button>
+    </a>
+    <a href="{% url 'Attendance:list_profile' %}">
+        <button type="button">لیست پروفایل ها</button>
+    </a>
+    <p></p>
+    <a href="{% url 'Attendance:redirected_view' %}">
+        <button type="button">بازگشت به خانه</button>
+    </a>
+
+
+</div>
+</body>
+</html>

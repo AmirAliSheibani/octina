@@ -88,7 +88,7 @@
                 <td>{{ user.last_name }}</td>
                 <td>{{ user.possit }}</td>
                 <td>{{ user.user_attendance.last.job_time }}</td>
-                <td>{{ user.USer.last.User_income }}</td>
+                <td>{{ user.user.last.user_income }}</td>
                 <td><a href="{% url 'Attendance:result_list' user.id month %}">بیشتر</a></td>
             </tr>
         {% endfor %}

@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>سیستم حضور غیاب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <style>
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            height: 100%;
+            direction: rtl;
+            text-align: right;
+        }
+
+
+    </style>
+</head>
+<!-- اضافه کردن کتابخانه jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<body>
+<div class="container">
+    <h1>ساخت سمت کاری</h1>
+  <form method="post" class="position-form">
+    {% csrf_token %}
+
+    <div class="form-textbox ">
+      <label for="{{ form.positions.id_for_label }}">نام سمت:</label>
+      {{ form.positions }}
+    </div>
+
+    <div class="form-textbox ">
+      <label for="{{ form.position_income.id_for_label }}">درآمد پوزیشن در ساعت:</label>
+      {{ form.position_income }}
+    </div>
+
+    <div class="form-field .m2m-select">
+        <h5 style="color: #1c7430">برای انتخاب چند مورد ctrl یا shift رو نگه دارید</h5>
+      <label for="{{ form.work_days.id_for_label }}">روز های کاری:</label>
+      {{ form.work_days }}
+    </div>
+
+    <div class="form-field .m2m-select">
+      <label for="{{ form.shift_work.id_for_label }}">شیفت های کاری (ساخته شده):</label>
+      {{ form.shift_work }}
+    </div>
+
+    <div class="form-textbox">
+      <label for="{{ form.overtime_position_income.id_for_label }}">درآمد ساعات اضافه کاری:</label>
+      {{ form.overtime_position_income }}
+    </div>
+
+    <button type="submit" class="form-submit-button">Save</button>
+  </form>
+</div>
+
+
+</body>
+</html>

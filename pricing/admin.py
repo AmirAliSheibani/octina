@@ -25,7 +25,7 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.contrib import admin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm, AdminPasswordChangeForm
 from django.urls import path
-from .models import CustomUser
+from .models import CustomUser, VacationType
 from . import models
 from django import forms
 from django.utils.translation import gettext_lazy as _
@@ -52,10 +52,49 @@ from django.utils.translation import gettext_lazy as _
 #             if db_field.name == 'USer':
 #                 kwargs["queryset"] = models.User.objects.filter(created_by=request.user)
 #                 return super().formfield_for_foreignkey(db_field, request, **kwargs)
+@admin.register(models.Holidays)
+class HolidaysAdmin(admin.ModelAdmin):
+    list_display = ['date', 'name']
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(models.Day)
+class DaysAdmin(admin.ModelAdmin):
+    list_display = ['day_of_week']
+
+
+@admin.register(models.VacationType)
+class VacationTypeAdmin(admin.ModelAdmin):
+    list_display = ['name_type', 'Limitation', 'get_income']
+
+
+@admin.register(models.ShiftWork)
+class ShiftWorkAdmin(admin.ModelAdmin):
+    list_display = ['work_start_time', 'work_end_time', ]
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+@admin.register(models.Vacation)
+class VacationAdmin(admin.ModelAdmin):
+    list_display = ['user', 'date', 'vacation_type', 'reason', 'check_by_employer']
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(models.Income)
 class IncomeAdmin(admin.ModelAdmin):
-    list_display = ['USer', 'position', 'job_time']
+    list_display = ['user', 'position', 'job_time']
 
     def get_fields(self, request, obj=None):
         fields = super().get_fields(request, obj)

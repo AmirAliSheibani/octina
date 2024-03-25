@@ -11,9 +11,9 @@ from django.dispatch import receiver
 @receiver(pre_delete, sender=AttendanceUser)
 def pre_delete_callback(sender, instance, **kwargs):
     at = instance
-    income = Income.objects.get(month=at.month, USer=at.user)
+    income = Income.objects.get(month=at.month, user=at.user)
     inc = income.position.profile_position.position_income * (at.job_time.total_seconds() / 3600)
-    income.User_income -= inc
+    income.user_income -= inc
     income.save()
 
 class MyAdminSite(AdminSite):

@@ -5,6 +5,7 @@ app_name = 'Attendance'
 
 urlpatterns = [
     path('homepage/', views.create_attendance_view, name='home'),
+    path('setting/', views.setting_app, name='setting_app'),
     path('start/', views.start_attendance_view, name='start'),
     path('resultlist/<int:pk>/<int:month>/', views.AttendanceListView.as_view(), name='result_list'),
     path('procces/<str:pk>/', views.process_result_view, name='procces_result'),
@@ -23,6 +24,19 @@ urlpatterns = [
     path('reject/<int:pk>/', views.not_accepted_confirmation, name='reject'),
     path('ignore_location/', views.ignore_location, name='ignore_location'),
     path('info_users/<int:month>', views.in_progress_users, name='info_users'),
+    path('create_user/', views.create_user_for_staff, name='create_user'),
+    path('create_shift/', views.create_shift_work, name='create_shift_work'),
+    path('create_position/', views.create_position, name='create_position'),
+    path('create_profile/', views.create_profile, name='create_profile'),
+    path('create_holiday/', views.create_holiday, name='create_holiday'),
+    path('shift_list/', views.list_shift_work, name='list_shift_work'),
+    path('position_list/', views.list_position, name='list_position'),
+    path('holiday_list/', views.list_holidays, name='list_holidays'),
+    path('profile_list/', views.list_profile, name='list_profile'),
+    path('get_vacation/', views.getting_vacation, name='get_vacation'),
+    path('check_vacations/', views.confirmation_vacation, name='check_vacation_confirmation'),
+    path('confirm_vacation/<int:pk>/', views.accepted_vacation, name='accepted_vacation'),
+    path('reject_vacation/<int:pk>/', views.not_accepted_vacation, name='not_accepted_vacation'),
     path('', views.restricted_view, name='redirected_view')
 ]
 

@@ -8,7 +8,7 @@
 <head>
     <style>
         #map {
-            height: 1500px; /* ارتفاع نقشه */
+            height: 1000px; /* ارتفاع نقشه */
             width: 100%; /* عرض نقشه */
             margin-bottom: 20px; /* فاصله بین نقشه و دکمه‌ها */
         }
@@ -70,10 +70,25 @@
 
     function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
+        {% if location %}
+        	center: {lat: {{ location.latitude }}, lng: {{ location.longitude }}},
+            zoom: 18,
+            {% else %}
             center: {lat: 32.4279, lng: 53.6880},
             zoom: 6,
+            {% endif %}
         });
+
+
         infoWindow = new google.maps.InfoWindow();
+            {% if location %}
+        const locationLatLng = { lat: {{ location.latitude }}, lng: {{ location.longitude }} };
+        infoWindow.setPosition(locationLatLng);
+        infoWindow.setContent("مکان ثبت شده");
+        infoWindow.open(map);
+        map.setCenter(locationLatLng);
+        map.setZoom(18);
+    {% endif %}
 
         // Add a click event listener to the map
         map.addListener("click", (event) => {

@@ -26,12 +26,12 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        $('.box').each(function(index) {
+    $(document).ready(function () {
+        $('.box').each(function (index) {
             var refreshButton = $('<button class="refresh-button">↻</button>');
             $(this).append(refreshButton);
 
-            refreshButton.click(function() {
+            refreshButton.click(function () {
                 refreshBox(index);
             });
         });
@@ -47,9 +47,7 @@
 
 
 </script>
-</script>
 <body>
-
 
 <div class="container">
     <h1> حضور و غیاب اُکتینا</h1>
@@ -58,16 +56,31 @@
     <h5>درآمد ماه جاری: {{ income }}</h5>
     <form method="post" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
-    {% if no_confirmation_users %}
-        <P style="color: darkred">هشدار!</P>
-    <P>    	شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a href="{% url 'Attendance:no_confirmation_check' %}" >کلیک کنید<a/></P>
-    {% endif %}
+        {% if location %}
+            <p style="color: green"> لوکیشن شما ثبت شده است!<a href="{% url 'Attendance:get_staff_location' %}"> برای
+                تغییر کلیک کنید </a></p>
+        {% endif %}
+        {% if not_accepted_vacation %}
+            <p> شما تعدادی درخواست مرخصی برسی نشده دارید! برای تایید کردن آنها <a
+                    href="{% url 'Attendance:check_vacation_confirmation' %}">کلیک کنید</a></p>
+        {% endif %}
+        {% if no_confirmation_users %}
+            <P style="color: darkred">هشدار!</P>
+            <p> شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a
+                    href="{% url 'Attendance:no_confirmation_check' %}">کلیک کنید</a></p>
+        {% endif %}
         <button type="submit">شروع کار</button>
+        <a href="{% url 'Attendance:get_vacation' %}">
+            <button type="button">مرخصی</button>
+        </a>
+
         <p></p>
 
         <a href="{% url 'user:logout' %}">
             <button type="button">خروج از اکانت</button>
         </a>
+
+
         <a href="{% url 'Attendance:result_list' request.user.id month %}">
             <button type="button">لیست نتایج</button>
         </a>
@@ -78,14 +91,19 @@
             <a href="/admin" target="_blank">
                 <button type="button">پنل مدیریت</button>
             </a>
+            <a href="{% url 'Attendance:setting_app' %}" target="_blank">
+                <button type="button">تنظیمات حضور غیاب</button>
+            </a>
         {% endif %}
+
         <p></p>
         <a href="{% url 'home:home' %}">
             <button type="button"> بازگشت به سایت</button>
         </a>
 
+
     </form>
-   <div class="boxes">
+    <div class="boxes">
         <div class="box green">
             <p class="box-text">حاضرین</p>
             <p class="box-count">{{ in_progress_users|length }}</p>
@@ -98,6 +116,7 @@
             <p class="box-text">تعداد پرسنل</p>
             <p class="box-count">{{ users|length }}</p>
         </div>
+    </div>
 </div>
 </body>
 </html>

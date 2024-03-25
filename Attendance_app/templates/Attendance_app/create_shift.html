@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>سیستم حضور غیاب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <style>
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            height: 100%;
+            direction: rtl;
+            text-align: right;
+        }
+
+
+    </style>
+</head>
+<!-- اضافه کردن کتابخانه jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<body>
+<div class="container">
+    <h1>ساخت پرسنل</h1>
+        <form method="post" class="work-form form-control" >
+            {% csrf_token %}
+
+            <div class="time-field">
+                <label for="work_start_time">شروع ساعت کاری</label>
+                <input type="time" id="work_start_time" name="work_start_time">
+            </div>
+
+            <div class="time-field">
+                <label for="work_end_time">پایان ساعت کاری</label>
+                <input type="time" id="work_end_time" name="work_end_time">
+            </div>
+        <br>
+            <div class="work-days">
+                <label for="work_days">Work Days:</label>
+                {% for day in form.work_days %}
+                    <div>
+                        <label for="{{ day.id_for_label }}">
+                            <input type="checkbox" name="{{ day.name }}" value="{{ day.value }}"
+                                   id="{{ day.id_for_label }}">
+                            <span>{{ day.choice_label }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit">Create Shift Work</button>
+        </form>
+
+
+</div>
+</body>
+</html>
