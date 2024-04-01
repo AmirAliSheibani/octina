@@ -2,7 +2,7 @@ from django.contrib import admin
 # from django.contrib.auth.models import User
 from .models import AttendanceUser
 from pricing.models import CustomUser, Income
-
+from decimal import Decimal
 User = CustomUser
 from django.contrib.admin import AdminSite
 from django.db.models.signals import pre_delete
@@ -11,10 +11,18 @@ from django.dispatch import receiver
 @receiver(pre_delete, sender=AttendanceUser)
 def pre_delete_callback(sender, instance, **kwargs):
     at = instance
-    income = Income.objects.get(month=at.month, user=at.user)
-    inc = income.position.profile_position.position_income * (at.job_time.total_seconds() / 3600)
-    income.user_income -= inc
-    income.save()
+    try:
+
+        income = Income.objects.get(month=at.month, user=at.user)
+        inc = income.position.profile_position.position_income * (at.job_time.total_seconds() / 3600)
+        arc = income.position.profile_position.overtime_position_income * (at.job_time.total_seconds() / 3600)
+        income.surplus -= Decimal(arc)
+        income.user_income -= Decimal(inc)
+        income.user_income -= Decimal(arc)
+        income.job_time -= at.job_time
+        income.save()
+    except:
+        pass
 
 class MyAdminSite(AdminSite):
     site_header = 'مدیریت اُکتینا'
@@ -29,7 +37,7 @@ admin_site = MyAdminSite(name='myadmin')
 #             self.fields['created_by'].queryset = User.objects.filter(id=self.instance.created_by.id)
 
 class AttendanceUserAdmin(admin.ModelAdmin):
-    fields = ('user', 'created_date', 'start', 'end', 'job_time', 'token', 'last_info', 'in_progress', 'confirmation')
+
     list_display = ['user', 'created_date', 'start', 'end', 'job_time', 'in_progress', 'confirmation']
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

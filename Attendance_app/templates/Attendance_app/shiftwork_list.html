@@ -29,19 +29,38 @@
 
 
 <div class="container">
-    {% for shift in shiftwork %}
-    {{ shift.work_start_time }} شروع ساعت کاری
-        <br>
-        {{ shift.work_end_time }} پایان ساعت کاری
-        <br>
-        {% for work_day in shift.work_days.all %}
-        	{{ work_day }}
-        {% endfor %}
+    <table>
+    {% if shiftwork %}
+  {% for shift in shiftwork %}
+  <tr>
+    <td> شروع ساعت کاری  <hr>{{ shift.work_start_time }}</td>
+    <td>  پایان ساعت کاری  <hr>{{ shift.work_end_time }}</td>
+    <td>
+      {% for work_day in shift.work_days.all %}
+        {{ work_day }},
+      {% endfor %}
+    </td>
+    <td>
+      <a href="{% url 'Attendance:delete_shift_work' shift.id %}">
+        <button type="button">حذف</button>
+      </a>
+      <a href="{% url 'Attendance:update_shift_work' shift.id %}">
+        <button type="button">تغییر</button>
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+        {% else %}
+        <h5> بنظر میرسه که شما هیچ شیفت کاری برای نمایش ندارید!  <a href="{% url 'Attendance:create_shift_work' %}"> برای ساخت شیفت کاری کلیک کنید</a> </h5>
+    {% endif %}
+ <a href="{% url 'Attendance:setting_app' %}">
+            <button type="button">منوی تنظیمات</button>
+        </a>
 
-        <hr>
-
-    {% endfor %}
-
+ <a href="{% url 'Attendance:redirected_view' %}">
+            <button type="button">برگشت به خانه</button>
+        </a>
 
 </div>
 </body>

@@ -7,6 +7,45 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
     <style>
 
+.time-field {
+  position: relative;
+  margin-bottom: 20px;
+    justify-content: center;
+}
+
+.time-field label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.time-field input[type="time"] {
+  width: 200px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f7f7f7;
+  color: #333;
+  font-size: 14px;
+}
+
+.time-field input[type="time"]:focus {
+  outline: none;
+  border-color: #66afe9;
+  box-shadow: 0 0 5px #66afe9;
+}
+
+.time-field::after {
+  content: "\f017";
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  font-family: 'Shabnam', sans-serif;
+  font-weight: 900;
+  font-size: 12px;
+  color: #aaa;
+}
         @font-face {
             font-family: 'Shabnam';
             src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
@@ -36,11 +75,6 @@
             <label for="{{ form.vacation_type.id_for_label }}">vacation_type:</label>
             {{ form.vacation_type }}
         </div>
-
-        <div class="time-field">
-            <label for="work_start_time">شروع ساعت کاری</label>
-            <input type="time" id="time2" name="time2">
-        </div>
         
         <div class="form-textbox ">
             <label for="{{ form.reason.id_for_label }}">reason:</label>
@@ -48,6 +82,10 @@
         </div>
         <button type="submit">Save</button>
     </form>
+    <a href="{% url 'Attendance:redirected_view' %}" target="_blank">
+                <button type="button">بازگشت به خانه</button>
+            </a>
 </div>
+
 </body>
 </html>

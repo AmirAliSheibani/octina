@@ -84,7 +84,7 @@
             <button type="button">بازگشت به خانه</button>
         </a>
         <button type="submit">شروع</button>
-        <a href="{% url 'Attendance:result_list' request.user.id month%}">
+        <a href="{% url 'Attendance:result_list' request.user.id month year%}">
             <button type="button">لیست نتایج</button>
         </a>
     </form>

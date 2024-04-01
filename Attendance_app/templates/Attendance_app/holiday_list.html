@@ -29,16 +29,38 @@
 
 
 <div class="container">
-    {% for holiday in holidays %}
-    {{ holiday.date }} تاریخ
-        <br>
-        {{ holiday.name }}      علت
-        <br>
+    <table>
+        <tr>
+            <th>تاریخ</th>
+            <th>علت</th>
+            <th>حذف</th>
+            <th>تغییر</th>
+        </tr>
+        {% for holiday in holidays %}
+        <tr>
+            <td>{{ holiday.date }}</td>
+            <td>{{ holiday.name }}</td>
+            <td><a href="{% url 'Attendance:delete_holiday' holiday.id %}">
+        <button type="button">حذف</button>
+    </a></td>
+            <td><a href="{% url 'Attendance:update_holiday' holiday.id %}">
+        <button type="button">تغییر</button>
+    </a></td>
+</tr>
+         {% endfor %}
+    </table>
 
-        <hr>
 
-    {% endfor %}
 
+
+
+    <a href="{% url 'Attendance:setting_app' %}">
+        <button type="button">منوی تنظیمات</button>
+    </a>
+
+    <a href="{% url 'Attendance:redirected_view' %}">
+        <button type="button">برگشت به خانه</button>
+    </a>
 
 </div>
 </body>

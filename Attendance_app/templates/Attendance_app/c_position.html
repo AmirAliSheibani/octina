@@ -27,16 +27,22 @@
 <body>
 <div class="container">
     <h1>ساخت سمت کاری</h1>
-  <form method="post" class="position-form">
+    {% if check_Positions %}
+	<p>تعداد پوزیشن های  کاری شما به حد نصاب رسیده است </p>
+        {% else %}
+        <form method="post" class="position-form" >
     {% csrf_token %}
 
     <div class="form-textbox ">
       <label for="{{ form.positions.id_for_label }}">نام سمت:</label>
       {{ form.positions }}
     </div>
-
     <div class="form-textbox ">
-      <label for="{{ form.position_income.id_for_label }}">درآمد پوزیشن در ساعت:</label>
+      <label for="{{ form.monthly.id_for_label }}">درآمد ماهانه (پیشفرض ساعتی):</label>
+      {{ form.monthly }}
+    </div>
+    <div class="form-textbox ">
+      <label for="{{ form.position_income.id_for_label }}">درآمد پوزیشن (ماهانه یا ساعتی):</label>
       {{ form.position_income }}
     </div>
 
@@ -58,6 +64,10 @@
 
     <button type="submit" class="form-submit-button">Save</button>
   </form>
+{% endif %}
+ <a href="{% url 'Attendance:setting_app' %}">
+            <button type="button">منوی تنظیمات</button>
+        </a>
 </div>
 
 

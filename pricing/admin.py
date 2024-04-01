@@ -61,6 +61,9 @@ class HolidaysAdmin(admin.ModelAdmin):
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
 
+@admin.register(models.NoneInProgress)
+class NoneInProgressAdmin(admin.ModelAdmin):
+    list_display = ['created_date']
 
 @admin.register(models.Day)
 class DaysAdmin(admin.ModelAdmin):

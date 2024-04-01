@@ -58,31 +58,33 @@
         <P> شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a
                 href="{% url 'Attendance:no_confirmation_check' %}">کلیک کنید<a/></P>
     {% endif %}
-    <a href="{% url 'Attendance:user_list' request.user.id month %}">
-        <button type="button">لیست کاربران</button>
-    </a>
-    <a href="/admin" target="_blank">
-        <button type="button">پنل مدیریت</button>
-    </a>
-    <p></p>
+{% if profile_users %}
+        <P style="color: darkred">هشدار!</P>
+        <P> شما تعدادی پرسنل ثبت شده بدون ثبت پروفایل دارید! برای ثبت پروفایل برای آنها <a
+                href="{% url 'Attendance:create_profile' %}">کلیک کنید<a/></P>
+    {% endif %}
+
+
     <a href="{% url 'Attendance:create_holiday' %}">
         <button type="button">ساخت روز تعطیل</button>
     </a>
-    <a href="{% url 'Attendance:create_user' %}">
-        <button type="button">ساخت پرسنل</button>
-    </a>
+
     <a href="{% url 'Attendance:create_shift_work' %}">
         <button type="button">ساخت شیفت کاری</button>
     </a>
     <a href="{% url 'Attendance:create_position' %}">
         <button type="button">ساخت سمت و پوزیشن کاری</button>
     </a>
-
+ <a href="{% url 'Attendance:create_user' %}">
+        <button type="button">ساخت پرسنل</button>
+    </a>
     <a href="{% url 'Attendance:create_profile' %}">
-        <button type="button">ساخت پروفایل برای یوزر</button>
+        <button type="button">ساخت پروفایل برای پرسنل</button>
     </a>
 
+
     <p></p>
+
     <a href="{% url 'Attendance:list_holidays' %}">
         <button type="button">لیست روز های تعطیل</button>
     </a>
@@ -92,10 +94,18 @@
     <a href="{% url 'Attendance:list_position' %}">
         <button type="button">لیست سمت ها</button>
     </a>
+<a href="{% url 'Attendance:user_list' request.user.id month year %}">
+        <button type="button">لیست پرسنل</button>
+    </a>
     <a href="{% url 'Attendance:list_profile' %}">
         <button type="button">لیست پروفایل ها</button>
     </a>
+
     <p></p>
+<a href="{% url 'Attendance:get_staff_location' %}">
+        <button type="button">لوکیشن کاری </button>
+    </a>
+<p></p>
     <a href="{% url 'Attendance:redirected_view' %}">
         <button type="button">بازگشت به خانه</button>
     </a>

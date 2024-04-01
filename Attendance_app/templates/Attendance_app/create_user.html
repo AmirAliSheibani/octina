@@ -4,57 +4,80 @@
 <style>input[type="text"],
 input[type="email"],
 input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
 }
 
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus {
-  outline: none;
-  border-color: #007bff;
+    outline: none;
+    border-color: #007bff;
 }
 
 input[type="submit"] {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin-top: 10px;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
 input[type="submit"]:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 .error-message {
-  color: red;
+    color: red;
 }</style>
 <div class="container">
-  <h1>ساخت پرسنل</h1><form method="post">
-    {% csrf_token %}{% for field in form %}
-        <br/>
-  {{ field }}<br/>
-  {% if field.errors %}
-    <div class="error-message">
-      {% for error in field.errors %}
-        {{ error }}
-      {% endfor %}
-    </div>
-  {% endif %}
-{% endfor %}
-<button type="submit">Create user</button>
-</form>
+    <h1>ساخت پرسنل</h1>
+    {% if check_User %}
+        <p>تعداد پرسنل های شما به حد نصاب رسیده است </p>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}{% for field in form %}
+                <br/>
+                {{ field }}<br/>
+                {% if field.errors %}
+                    <div class="error-message">
+                        {% for error in field.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <button type="submit">Create user</button>
+        </form>
+{% if form2 %}
+         <form method="post" class="position-form">
+    {% csrf_token %}
 
+  <div class="form-textbox ">
+    <label for="{{ form2.user.id_for_label }}">user:</label>
+    {{ form2.user }}
+  </div>
+
+ <div class="form-textbox ">
+    <label for="{{ form2.profile_position.id_for_label }}">position:</label>
+    {{ form2.profile_position }}
+  </div>
+  <button type="submit">Save</button>
+</form>
+{% endif %}
+    {% endif %}
+<a href="{% url 'Attendance:setting_app' %}" target="_blank">
+                <button type="button">تنظیمات حضور غیاب</button>
+            </a>
 </div>

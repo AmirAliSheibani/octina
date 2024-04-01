@@ -29,19 +29,30 @@
 
 
 <div class="container">
-    {% for prof in profile %}
-    {{ prof.user }} یوزر نیم
-        <br>
-        {{ prof.user }} یوزر نیم
-        <br>
-        {{ prof.profile_position }} نام سمت
-        <br>
+    <table>
+  {% for prof in profile %}
+  <tr>
+    <td>  نام خانوادگی <hr>{{ prof.user.last_name }} </td>
+    <td>  گروه کاری <hr>{{ prof.profile_position }}</td>
+    <td>
+      <a href="{% url 'Attendance:delete_profile' prof.id %}">
+        <button type="button">حذف</button>
+      </a>
+      <a href="{% url 'Attendance:update_profile' prof.id %}">
+        <button type="button">تغییر</button>
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
 
-        <hr>
+ <a href="{% url 'Attendance:setting_app' %}">
+            <button type="button">منوی تنظیمات</button>
+        </a>
 
-    {% endfor %}
-
-
+ <a href="{% url 'Attendance:redirected_view' %}">
+            <button type="button">برگشت به خانه</button>
+        </a>
 </div>
 </body>
 </html>

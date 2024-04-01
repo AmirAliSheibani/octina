@@ -66,12 +66,9 @@ class VacationType(models.Model):
 class Vacation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='vacations')
     date = models.DateField(auto_now_add=True)
-    time = models.TimeField(auto_now_add=True)
-    time2 = models.TimeField(null=True, blank=True)
     vacation_type = models.ForeignKey(VacationType, on_delete=models.CASCADE, related_name='vacations', null=True)
     reason = models.CharField(max_length=125)
     check_by_employer = models.BooleanField(default=False)
-
 
     def __str__(self):
         return f'{self.vacation_type.name_type}'
@@ -82,11 +79,12 @@ class ShiftWork(models.Model):
     work_end_time = models.TimeField(null=True)
     # Every day, working hours may be different from other days of the week
     work_days = models.ManyToManyField('Day', related_name='Days')
+    name = models.CharField(max_length=70, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_shift_works', blank=True,
                                    null=True)
 
     def __str__(self):
-        return f'{self.work_days.last(), self.work_days.first()} - {self.work_start_time} - {self.work_end_time}'
+        return f'{self.name}'
 
     def save_model(self, request, obj, form, change):
         self.created_by = request.user
@@ -104,6 +102,7 @@ class Positions(models.Model):
     # Also, according to the series of working hours, they must be inside the company,
     # and being inside the company more than those working hours is considered overtime
     overtime_position_income = models.IntegerField(null=True, blank=True)
+    monthly = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_Positions', blank=True,
                                    null=True)
 
@@ -136,7 +135,7 @@ class Subscriptions(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='possit')
-    profile_position = models.ForeignKey(Positions, on_delete=models.SET_NULL, null=True, related_name='poss')
+    profile_position = models.ForeignKey(Positions, on_delete=models.CASCADE, related_name='poss')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_Profile', blank=True,
                                    null=True)
     subscription = models.ForeignKey(Subscriptions, on_delete=models.CASCADE, blank=True, null=True,
@@ -156,6 +155,8 @@ class Income(models.Model):
     position = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=True, null=True, related_name='positions')
     created_date = jmodels.jDateField(auto_created=True, null=True, blank=True)
     month = models.PositiveSmallIntegerField()
+    year = models.PositiveSmallIntegerField(default=None, null=True)
+
     job_time = models.DurationField(default=timezone.timedelta, blank=True)
     user_income = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     surplus = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
@@ -168,6 +169,20 @@ class Income(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:  # Only set the month if the object is being created
             self.month = date2jalali(timezone.now().date()).month
+            self.year = date2jalali(timezone.now().date()).year
+        super().save(*args, **kwargs)
+
+
+class NoneInProgress(models.Model):
+    user = models.ManyToManyField(User, related_name='nonprogres', blank=True)
+    created_date = jmodels.jDateField(auto_created=True, null=True, blank=True)
+    month = models.PositiveSmallIntegerField( null=True)
+    year = models.PositiveSmallIntegerField(default=None, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Only set the month if the object is being created
+            self.month = date2jalali(timezone.now().date()).month
+            self.year = date2jalali(timezone.now().date()).year
         super().save(*args, **kwargs)
 
 

@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from pricing.models import CustomUser, Vacation, VacationType
@@ -8,32 +7,36 @@ from pricing.models import CustomUser, Vacation, VacationType
 # from django_recaptcha.fields import ReCaptchaField
 User = CustomUser
 
+from django import forms
 
-class StaffCreateUser(forms.Form):
-    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'نام کاربری را وارد کنید'}))
-    Email = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'ایمیل پرسنل را وارد کنید'}))
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'نام پرسنل را وارد کنید'}))
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'نام خانوادگی پرسنل را وارد کنید'}))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'رمز عبور را ایجاد کنید'}))
+
+class StaffCreateUser(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'password']
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'نام کاربری را وارد کنید'}),
+            'email': forms.EmailInput(attrs={'placeholder': 'ایمیل پرسنل را وارد کنید'}),
+            'first_name': forms.TextInput(attrs={'placeholder': 'نام پرسنل را وارد کنید'}),
+            'last_name': forms.TextInput(attrs={'placeholder': 'نام خانوادگی پرسنل را وارد کنید'}),
+            'password': forms.PasswordInput(attrs={'placeholder': 'رمز عبور را ایجاد کنید'}),
+        }
+
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'رمز عبور را تأیید کنید'}))
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
-        if User.objects.filter(username=username).exists():
+        current_user = self.instance
+        if User.objects.filter(username=username).exclude(id=current_user.id).exists():
             raise forms.ValidationError('نام کاربری قبلاً استفاده شده است')
         return username
 
-    def clean_Email(self):
-        email = self.cleaned_data.get('Email')
-        if User.objects.filter(email=email).exists():
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        current_user = self.instance
+        if User.objects.filter(email=email).exclude(id=current_user.id).exists():
             raise forms.ValidationError('ایمیل قبلاً استفاده شده است')
         return email
-
-    def clean_password(self):
-        password = self.cleaned_data.get('password')
-        if len(password) < 8:
-            raise forms.ValidationError("رمز عبور باید حداقل ۸ کاراکتر باشد")
-        return password
 
     def clean_password2(self):
         password = self.cleaned_data.get('password')
@@ -67,28 +70,54 @@ class ShiftWorkForm(forms.ModelForm):
 class PositionForm(forms.ModelForm):
     work_days = forms.ModelMultipleChoiceField(
         queryset=Day.objects.all(),
-
     )
-    shift_work = forms.ModelMultipleChoiceField(
-        queryset=ShiftWork.objects.all(),
 
-    )
+    shift_work = forms.ModelMultipleChoiceField(queryset=ShiftWork.objects.none())
 
     class Meta:
         model = Positions
-        fields = ['positions', 'position_income', 'work_days', 'shift_work', 'overtime_position_income']
+        fields = ['positions', 'monthly', 'position_income', 'work_days', 'shift_work', 'overtime_position_income']
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+        self.fields['shift_work'].queryset = ShiftWork.objects.filter(created_by=request.user)
 
 
 class ProfileForm(forms.ModelForm):
+    user = forms.ModelChoiceField(queryset=CustomUser.objects.none())
+    profile_position = forms.ModelChoiceField(queryset=Positions.objects.none())
+
     class Meta:
         model = Profile
         fields = ['user', 'profile_position']
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+        self.fields['user'].queryset = CustomUser.objects.filter(created_who=request.user, possit__isnull=True)
+        self.fields['profile_position'].queryset = Positions.objects.filter(created_by=request.user)
+
+class UpdateProfileForm(forms.ModelForm):
+    user = forms.ModelChoiceField(queryset=CustomUser.objects.none())
+    profile_position = forms.ModelChoiceField(queryset=Positions.objects.none())
+
+    class Meta:
+        model = Profile
+        fields = ['user', 'profile_position']
+
+    def __init__(self, *args, **kwargs):
+        request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+        self.fields['user'].queryset = CustomUser.objects.filter(created_who=request.user)
+        self.fields['profile_position'].queryset = Positions.objects.filter(created_by=request.user)
 
 
 class HolidayForm(forms.ModelForm):
     class Meta:
         model = Holidays
         fields = ['date', 'name']
+
 
 class VacationForm(forms.ModelForm):
     vacation_type = forms.ModelChoiceField(
@@ -98,6 +127,4 @@ class VacationForm(forms.ModelForm):
 
     class Meta:
         model = Vacation
-        fields = ['vacation_type', 'time2', 'reason']
-
-
+        fields = ['vacation_type', 'reason']

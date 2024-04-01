@@ -90,7 +90,7 @@
                 <td>{{ no_confirmation.created_date }}</td>
                 <td><a href="{% url 'Attendance:confirm' no_confirmation.id %}"><button class="confirm-button">تأیید</button></a></td>
                 <td><a href="{% url 'Attendance:reject' no_confirmation.id %}"><button class="reject-button">رد کردن</button></a></td>
-                <td><a href="{% url 'Attendance:result_list' no_confirmation.user.id no_confirmation.created_date.month %}">بیشتر</a></td>
+                <td><a href="{% url 'Attendance:result_list' no_confirmation.user.id no_confirmation.created_date.month  no_confirmation.created_date.year %}">بیشتر</a></td>
             </tr>
         {% endfor %}
 

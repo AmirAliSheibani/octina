@@ -67,8 +67,9 @@
 </head>
 <body>
 <div class="container">
-<p>با انتخاب "رد کردن"، تمامی گزارشات حضور و غیاب  کاربر  در آن تاریخ حذف خواهند شد.</p>
+<p>با انتخاب "حذف". </p>
     <div class="table-responsive">
+    {% if not_accepted_vacation %}
     <table>
         <thead>
         <tr>
@@ -92,16 +93,36 @@
 
         </tbody>
     </table>
-    </div>
 
-    <form method="POST" action="{% url 'Attendance:start' %}">
-        {% csrf_token %}
+        {% else %}
+        <table>
+        <thead>
+        <tr>
+            <th scope="col">نام کاربری</th>
+            <th scope="col">نام خانوادگی</th>
+            <th scope="col">تاریخ</th>
+            <th scope="col">حذف</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for vac in vacation %}
+            <tr>
+                <td>{{ vac.user }}</td>
+                <td>{{ vac.user.last_name }}</td>
+                <td>{{ vac.date }}</td>
+                <td><a href="{% url 'Attendance:not_accepted_vacation' vac.id %}"><button class="reject-button">حذف</button></a></td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+        </table>
+{% endif %}
+</div>
         <a href="{% url 'Attendance:redirected_view' %}">
             <button type="button">بازگشت به خانه</button>
         </a>
-        <button type="submit">شروع</button>
 
-    </form>
     <br>
 </div>
 

@@ -1,3 +1,4 @@
+{% load filter_tag %}
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -27,35 +28,50 @@
 <body>
 <div class="container">
     <h1>ساخت پرسنل</h1>
-        <form method="post" class="work-form form-control" >
-            {% csrf_token %}
+    {% if check_Shift %}
+	<p>تعداد شیفت های  کاری شما به حد نصاب رسیده است </p>
+        {% else %}
+	    <form method="post">
+        {% csrf_token %}
 
-            <div class="time-field">
-                <label for="work_start_time">شروع ساعت کاری</label>
-                <input type="time" id="work_start_time" name="work_start_time">
-            </div>
+        <div class="time-field">
+            <label for="work_start_time">شروع ساعت کاری</label>
+            <input type="time" id="work_start_time" name="work_start_time"
+                    {% if shift %}
+                   value="{{ shift.work_start_time }}"
+                    {% endif %}
+            >
+        </div>
 
-            <div class="time-field">
-                <label for="work_end_time">پایان ساعت کاری</label>
-                <input type="time" id="work_end_time" name="work_end_time">
-            </div>
+        <div class="time-field">
+            <label for="work_end_time">پایان ساعت کاری</label>
+            <input type="time" id="work_end_time" name="work_end_time"
+                    {% if shift %}
+                   value="{{ shift.work_end_time }}"
+                    {% endif %}
+            >
+        </div>
+
         <br>
-            <div class="work-days">
-                <label for="work_days">Work Days:</label>
-                {% for day in form.work_days %}
-                    <div>
-                        <label for="{{ day.id_for_label }}">
-                            <input type="checkbox" name="{{ day.name }}" value="{{ day.value }}"
-                                   id="{{ day.id_for_label }}">
-                            <span>{{ day.choice_label }}</span>
-                        </label>
-                    </div>
-                {% endfor %}
-            </div>
 
-            <button type="submit">Create Shift Work</button>
-        </form>
-
+        <div class="work-days">
+            <label for="work_days">Work Days:</label>
+            {% for day in all_days %}
+                <div>
+                    <label for="{{ day.id_for_label }}">
+                        <input type="checkbox" name="work_days" id="{{ day.id_for_label }}"
+                               value="{{ day.id }}" {% if day in selected_days %}checked{% endif %}>
+                        <span>{{ day }}</span>
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="submit">submit Shift Work</button>
+    </form>
+{% endif %}
+<a href="{% url 'Attendance:setting_app' %}" target="_blank">
+                <button type="button">تنظیمات حضور غیاب</button>
+            </a>
 
 </div>
 </body>
