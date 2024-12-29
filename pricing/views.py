@@ -55,7 +55,7 @@ def process_pricing(request, pk):
             income.save()
 
             if start_shift_time < d.datetime.now().time() < end_shift_time:
-                if income.position.profile_positione.monthly:
+                if income.position.profile_position.monthly:
                     pass
                 else:
                     inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
@@ -65,7 +65,7 @@ def process_pricing(request, pk):
                 income.save()
 
             else:
-                if income.position.profile_positione.monthly:
+                if income.position.profile_position.monthly:
                     pass
                 else:
                     inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
@@ -76,7 +76,7 @@ def process_pricing(request, pk):
                 income.save()
 
         else:
-            if income.position.profile_positione.monthly:
+            if income.position.profile_position.monthly:
                 pass
             else:
                 inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
@@ -97,8 +97,8 @@ def process_pricing(request, pk):
 
         print(request.user.is_staff)
         income.created_by = request.user.created_who
-        if income.position.profile_positione.monthly:
-            income.user_income = income.position.profile_positione.position_income
+        if income.position.profile_position.monthly:
+            income.user_income = income.position.profile_position.position_income
 
 
         job_time = datetime.combine(datetime.min, at.end) - datetime.combine(datetime.min, at.start)
@@ -137,7 +137,7 @@ def process_pricing(request, pk):
             income.save()
 
             if start_shift_time < d.datetime.now().time() < end_shift_time:
-                if income.position.profile_positione.monthly:
+                if income.position.profile_position.monthly:
                     pass
                 else:
                     inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
@@ -146,7 +146,7 @@ def process_pricing(request, pk):
                 print('income.surplus += Decimal(inc) income.user_income += Decimal(inc) ')
                 income.save()
             else:
-                if income.position.profile_positione.monthly:
+                if income.position.profile_position.monthly:
                     pass
                 else:
                     inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
@@ -157,7 +157,7 @@ def process_pricing(request, pk):
                 income.save()
 
         else:
-            if income.position.profile_positione.monthly:
+            if income.position.profile_position.monthly:
                 pass
             else:
                 inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)

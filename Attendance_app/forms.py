@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.admin.widgets import AdminDateWidget
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
@@ -64,7 +65,7 @@ class ShiftWorkForm(forms.ModelForm):
 
     class Meta:
         model = ShiftWork
-        fields = ['work_start_time', 'work_end_time', 'work_days']
+        fields = ['work_start_time', 'work_end_time', 'work_days', 'name']
 
 
 class PositionForm(forms.ModelForm):
@@ -98,6 +99,7 @@ class ProfileForm(forms.ModelForm):
         self.fields['user'].queryset = CustomUser.objects.filter(created_who=request.user, possit__isnull=True)
         self.fields['profile_position'].queryset = Positions.objects.filter(created_by=request.user)
 
+
 class UpdateProfileForm(forms.ModelForm):
     user = forms.ModelChoiceField(queryset=CustomUser.objects.none())
     profile_position = forms.ModelChoiceField(queryset=Positions.objects.none())
@@ -113,10 +115,21 @@ class UpdateProfileForm(forms.ModelForm):
         self.fields['profile_position'].queryset = Positions.objects.filter(created_by=request.user)
 
 
+from django import forms
+from jalali_date.fields import JalaliDateField, SplitJalaliDateTimeField
+from jalali_date.widgets import AdminJalaliDateWidget, AdminSplitJalaliDateTime
+
+
 class HolidayForm(forms.ModelForm):
     class Meta:
         model = Holidays
-        fields = ['date', 'name']
+        fields = ('name', 'date')
+
+    def __init__(self, *args, **kwargs):
+        super(HolidayForm, self).__init__(*args, **kwargs)
+        self.fields['date'] = JalaliDateField(label=('date'),
+                                              widget=AdminJalaliDateWidget
+                                              )
 
 
 class VacationForm(forms.ModelForm):

@@ -1,3 +1,4 @@
+{% load jalali_tags %}
 {% load static %}
 <!DOCTYPE html>
 <html>
@@ -46,5 +47,7 @@
             <button type="button">منوی تنظیمات</button>
         </a>
 </div>
+<link rel="stylesheet" href="{% static 'admin/jquery.ui.datepicker.jalali/themes/base/jquery-ui.min.css' %}">
+		<script src="{% static 'admin/js/django_jalali.min.js' %}"></script>
 </body>
 </html>

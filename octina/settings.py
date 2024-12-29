@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'tempus_dominus',
 
     # 'django_recaptcha',
     'django.contrib.humanize',
@@ -63,6 +63,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# default settings (optional)
 # default settings (optional)
 JALALI_DATE_DEFAULTS = {
    # if change it to true then all dates of the list_display will convert to the Jalali.
@@ -115,26 +116,26 @@ TEMPLATES = [
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 # # mysql
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'octina_db',
-#         'USER': 'root',
-#         'PASSWORD': 'mrbombermanrapy7545',
-#         'HOST': '127.0.0.1',
-#         'PORT': '3306',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': 'octina_db',
-        'USER': 'bomberman',
-        'PASSWORD': '7545bombermanrapy2099',
-        'PORT': '5432',
+        'USER': 'root',
+        'PASSWORD': 'MrBomberManRapy7545@',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'octina_db',
+#         'USER': 'bomberman',
+#         'PASSWORD': '7545bombermanrapy2099',
+#         'PORT': '5432',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

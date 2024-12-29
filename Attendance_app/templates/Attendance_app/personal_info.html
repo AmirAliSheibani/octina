@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>سیستم حضور غیاب</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <style>
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            height: 100%;
+            direction: rtl;
+            text-align: right;
+        }
+
+
+    </style>
+</head>
+<!-- اضافه کردن کتابخانه jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<body>
+
+
+<div class="container">
+    <table>
+        <tr>
+            نوع گروه شغلی
+                <hr>
+                {{ position.positions }}
+            <td>نوع درآمد
+                <hr>
+            {% if position.monthly %}
+            	ماهانه {% else %} ساعتی
+            {% endif %}     </td>
+            <td>درآمد ( {% if position.monthly %} در ماه){% else %} بر ساعت{% endif %} )
+
+                <hr>
+                {{ position.position_income }}</td>
+            <td>درآمد اضافه کاری (ساعتی)
+                <hr>
+                {{ position.overtime_position_income }}</td>
+            <td>روز های کاری
+            <hr>
+
+                {% for work_day in position.work_days.all %}
+                    {{ work_day }},
+                {% endfor %}
+            </td>
+            </tr>
+    {% for shift_work in position.shift_work.all %}
+            <tr>
+
+                    <br>
+                    <br><td>
+                    اطلاعات شیفت کاری</td>
+<td>
+                    {% for work_day in shift_work.work_days.all %}
+
+                        {{ work_day }},
+
+                    {% endfor %}
+</td>
+                    <td>
+                    {{ shift_work.work_start_time }} شروع ساعت کاری<br> </td>
+                    <td>
+                    {{ shift_work.work_end_time }} پایان ساعت کاری<br></td>
+                    <br>
+
+            </tr>
+ {% endfor %}
+        <tr>
+            <td>نام کاربری
+                <hr>
+                {{ income.user }}</td>
+            <td>درآمد ماه جاری
+                <hr>
+                {{ income.user_income }}</td>
+            <td>درآمد اضافه کاری
+                <hr>
+                {{ income.surplus }}</td>
+            <td>مجموع ساعت کاری
+                <hr>
+                {{ income.job_time }}</td>
+
+
+        </tr>
+
+
+    </table>
+    <table>
+        <tr>
+            <br>
+<hr>
+                تعداد مرخصی های تایید شده
+                {{ profile.vacation.all|length }}
+                {% for vac in profile.vacation.all %}
+                    <td>
+
+                        نوع مرخصی:
+                        {{ vac.vacation_type }}<br>
+                    </tr>
+                    <td>
+                        تاریخ مرخصی:
+                        {{ vac.date }}<br>
+                        </tr>
+                    <td>
+                    علت  درخواست: <br>
+                    {{ vac.reason }}
+                    </tr>
+
+                {% endfor %}
+
+        </tr>
+    </table>
+
+
+    <a href="{% url 'Attendance:redirected_view' %}">
+        <button type="button">برگشت به خانه</button>
+    </a>
+</div>
+</body>
+</html>

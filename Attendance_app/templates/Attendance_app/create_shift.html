@@ -27,13 +27,16 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <body>
 <div class="container">
-    <h1>ساخت پرسنل</h1>
+    <h1>ساخت شیفت برای گروه های شغلی</h1>
     {% if check_Shift %}
 	<p>تعداد شیفت های  کاری شما به حد نصاب رسیده است </p>
         {% else %}
 	    <form method="post">
         {% csrf_token %}
-
+    <div class="form-textbox ">
+      <label for="{{ form.name.id_for_label }}">نام شیفت کاری:</label>
+      {{ form.name }}
+    </div>
         <div class="time-field">
             <label for="work_start_time">شروع ساعت کاری</label>
             <input type="time" id="work_start_time" name="work_start_time"

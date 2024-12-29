@@ -56,29 +56,29 @@
     <h5>درآمد ماه جاری: {{ income }}</h5>
     <form method="post" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
-    {% if request.user.is_staff %}
+        {% if request.user.is_staff %}
 
 
-        {% if not location %}
-            <p style="color: red"> لوکیشن شما ثبت نشده است!<a href="{% url 'Attendance:get_staff_location' %}"> برای
-                تغییر کلیک کنید </a></p>
-        {% endif %}
-        {% if not_accepted_vacation %}
-            <p> شما تعدادی درخواست مرخصی برسی نشده دارید! برای تایید کردن آنها <a
-                    href="{% url 'Attendance:check_vacation_confirmation' %}">کلیک کنید</a></p>
-        {% endif %}
-        {% if no_confirmation_users %}
-            <P style="color: darkred">هشدار!</P>
-            <p> شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a
-                    href="{% url 'Attendance:no_confirmation_check' %}">کلیک کنید</a></p>
-        {% endif %}
+            {% if not location %}
+                <p style="color: red"> لوکیشن شما ثبت نشده است!<a href="{% url 'Attendance:get_staff_location' %}"> برای
+                    تغییر کلیک کنید </a></p>
+            {% endif %}
+            {% if not_accepted_vacation %}
+                <p> شما تعدادی درخواست مرخصی برسی نشده دارید! برای تایید کردن آنها <a
+                        href="{% url 'Attendance:check_vacation_confirmation' %}">کلیک کنید</a></p>
+            {% endif %}
+            {% if no_confirmation_users %}
+                <P style="color: darkred">هشدار!</P>
+                <p> شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a
+                        href="{% url 'Attendance:no_confirmation_check' %}">کلیک کنید</a></p>
+            {% endif %}
 
-        {% if filter_non_progress %}
-        <P style="color: darkred">هشدار!</P>
-            <p> شما تعدادی پرسنل غایب در روز های اخیر دارید! برای بررسی  <a
-                    href="{% url 'Attendance:non_progress' month year %}">کلیک کنید</a></p>
+            {% if filter_non_progress %}
+                <P style="color: darkred">هشدار!</P>
+                <p> شما تعدادی پرسنل غایب در روز های اخیر دارید! برای بررسی <a
+                        href="{% url 'Attendance:non_progress' month year %}">کلیک کنید</a></p>
+            {% endif %}
         {% endif %}
-    {% endif %}
         <button type="submit">شروع کار</button>
         <a href="{% url 'Attendance:get_vacation' %}">
             <button type="button">مرخصی</button>
@@ -111,31 +111,39 @@
 
 
     </form>
-{% if request.user.is_staff %}
+    {% if request.user.is_staff %}
 
 
-    <div class="boxes">
+        <div class="boxes">
 
-        <div class="box green">
-            <a href="{% url 'Attendance:info_users'  month year %}" style="text-decoration: none;">
-                <p class="box-text">حاضرین</p>
-            <p class="box-count">{{ in_progress_users|length }}</p>
-            </a>
-
-        </div>
-        <div class="box red">
-            <a href="{% url 'Attendance:info_users'  month year %}" style="text-decoration: none;">
-            <p class="box-text">غایبین</p>
-            <p class="box-count">{{ non_progress_users.user.all|length }}</p>
+            <div class="box green">
+                <a href="{% url 'Attendance:info_users'  month year %}" style="text-decoration: none;">
+                    <p class="box-text">حاضرین</p>
+                    <p class="box-count">{{ in_progress_users|length }}</p>
                 </a>
-        </div>
 
-        <div class="box light-blue">
-            <p class="box-text">تعداد پرسنل</p>
-            <p class="box-count">{{ users|length }}</p>
+            </div>
+            <div class="box red">
+                <a href="{% url 'Attendance:info_users'  month year %}" style="text-decoration: none;">
+                    <p class="box-text">غایبین</p>
+                    <p class="box-count">{{ non_progress_users.user.all|length }}</p>
+                </a>
+            </div>
+
+            <div class="box light-blue">
+                <p class="box-text">تعداد پرسنل</p>
+                <p class="box-count">{{ users|length }}</p>
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% else %}
+        <a href="{% url 'Attendance:list_holidays' %}">
+            <button type="button">روز های تعطیل</button>
+        </a>
+        <a href="{% url 'Attendance:personal_info' %}">
+        <button type="button">اطلاعات کاربر</button>
+    </a>
+    {% endif %}
+
 </div>
 </body>
 </html>

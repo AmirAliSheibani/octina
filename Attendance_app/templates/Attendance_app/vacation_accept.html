@@ -76,6 +76,7 @@
             <th scope="col">نام کاربری</th>
             <th scope="col">نام خانوادگی</th>
             <th scope="col">تاریخ</th>
+            <th scope="col">علت</th>
             <th scope="col">تأیید</th>
             <th scope="col">رد کردن</th>
         </tr>
@@ -86,6 +87,7 @@
                 <td>{{ no_confirmation.user }}</td>
                 <td>{{ no_confirmation.user.last_name }}</td>
                 <td>{{ no_confirmation.date }}</td>
+                <td>{{ no_confirmation.reason }}</td>
                 <td><a href="{% url 'Attendance:accepted_vacation' no_confirmation.id %}"><button class="confirm-button">تأیید</button></a></td>
                 <td><a href="{% url 'Attendance:not_accepted_vacation' no_confirmation.id %}"><button class="reject-button">رد کردن</button></a></td>
             </tr>
@@ -101,6 +103,7 @@
             <th scope="col">نام کاربری</th>
             <th scope="col">نام خانوادگی</th>
             <th scope="col">تاریخ</th>
+            <th scope="col">علت</th>
             <th scope="col">حذف</th>
         </tr>
         </thead>
@@ -111,6 +114,7 @@
                 <td>{{ vac.user }}</td>
                 <td>{{ vac.user.last_name }}</td>
                 <td>{{ vac.date }}</td>
+                <td>{{ vac.reason }}</td>
                 <td><a href="{% url 'Attendance:not_accepted_vacation' vac.id %}"><button class="reject-button">حذف</button></a></td>
             </tr>
         {% endfor %}
@@ -121,6 +125,9 @@
 </div>
         <a href="{% url 'Attendance:redirected_view' %}">
             <button type="button">بازگشت به خانه</button>
+        </a>
+<a href="{% url 'Attendance:setting_app' %}">
+            <button type="button">منوی تنظیمات</button>
         </a>
 
     <br>

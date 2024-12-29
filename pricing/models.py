@@ -44,7 +44,7 @@ class Location(models.Model):
 
 
 class Holidays(models.Model):
-    date = jmodels.jDateField(auto_created=True)
+    date = jmodels.jDateTimeField(auto_created=True)
     name = models.CharField(max_length=80, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_Holidays', blank=True,
                                    null=True)
@@ -156,7 +156,6 @@ class Income(models.Model):
     created_date = jmodels.jDateField(auto_created=True, null=True, blank=True)
     month = models.PositiveSmallIntegerField()
     year = models.PositiveSmallIntegerField(default=None, null=True)
-
     job_time = models.DurationField(default=timezone.timedelta, blank=True)
     user_income = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     surplus = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))

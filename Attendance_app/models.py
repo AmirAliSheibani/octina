@@ -11,6 +11,7 @@ from django.db import models
 from django_jalali.db import models as jmodels
 from jalali_date import date2jalali
 
+
 class AttendanceUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1, related_name='user_attendance')
     created_date = jmodels.jDateField(auto_created=True, null=True, blank=True)

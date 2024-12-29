@@ -26,62 +26,25 @@
 </head>
 <body>
 <div class="header">
-    <div class="filter-form">
-        <form method="GET">
-            <label for="last_name_filter">جست و جو با نام خانوادگی:</label>
-            <input type="text" id="last_name_filter" name="last_name_filter" value="{{ request.GET.last_name_filter }}"
-                   size="16px">
-            <button type="submit">اعمال</button>
-        </form>
-    </div>
 
-    <div class="filter-form">
-        <form method="GET">
-            <label for="job_time_filter">نمایش به ترتیب زمان کار:</label>
-            <select id="job_time_filter" name="job_time_filter">
-                <option value="">همه</option>
-                <option value="greater" {% if request.GET.job_time_filter == "greater" %}selected{% endif %}>بیشترین
-                    زمان کار
-                </option>
-                <option value="smaller" {% if request.GET.job_time_filter == "smaller" %}selected{% endif %}>کمترین زمان
-                    کار
-                </option>
-            </select>
-            <button type="submit">اعمال</button>
-        </form>
-    </div>
-
-    <div class="filter-form">
-        <form method="GET">
-            <label for="income_filter">نمایش به ترتیب درآمد:</label>
-            <select id="income_filter" name="income_filter">
-                <option value="">همه</option>
-                <option value="greater" {% if request.GET.income_filter == "greater" %}selected{% endif %}>بیشترین
-                    درآمد
-                </option>
-                <option value="smaller" {% if request.GET.income_filter == "smaller" %}selected{% endif %}>کمترین
-                    درآمد
-                </option>
-            </select>
-            <button type="submit">اعمال</button>
-        </form>
-    </div>
-</div>
 
 <div class="container">
 
     <div class="table-responsive">
         <table>
+        <a href="{% url 'Attendance:delete_monthly_non_progress' month year  %}">
+            <button type="button">حذف گزارش های این ماه</button>
+        </a>
+        </br></br>
             <thead>
             <tr>
                 <th scope="col">نام کاربری</th>
                 <th scope="col">نام خانوادگی</th>
-                <th scope="col">سمت</th>
+                <th scope="col">گروه شغلی</th>
                 <th scope="col">مجموع زمان کار</th>
                 <th scope="col">مجموع درآمد ماه جاری</th>
-                <th scope="col">جزئیات</th>
+                <th scope="col">تاریخ ایجاد</th>
                 <th scope="col">حذف</th>
-                <th scope="col">آپدیت</th>
             </tr>
             </thead>
             <tbody>
@@ -93,6 +56,10 @@
                         <td>{{ user.possit }}</td>
                         <td>{{ user.user_attendance.last.job_time }}</td>
                         <td>{{ user.user_incomes.last }}</td>
+                        <td>{{ nonprogress.created_date }}</td>
+                        <td><a href="{% url 'Attendance:delete_none_progress' nonprogress.id %}">
+            <button type="button">حذف</button>
+        </a></td>
 
                     </tr>
                 {% endfor %}
@@ -110,8 +77,8 @@
         </a>
         <button type="submit">شروع</button>
         {#        <a href="{% url 'Attendance:download_excel' user.id month year %}">#}
-        <button type="button">مشاهده در اکسل</button>
-        </a>
+{#        <button type="button">مشاهده در اکسل</button>#}
+{#        </a>#}
         <a href="{% url 'Attendance:setting_app' %}" target="_blank">
             <button type="button">تنظیمات حضور غیاب</button>
         </a>

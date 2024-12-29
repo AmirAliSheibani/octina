@@ -73,7 +73,7 @@
         <button type="button">ساخت شیفت کاری</button>
     </a>
     <a href="{% url 'Attendance:create_position' %}">
-        <button type="button">ساخت سمت و پوزیشن کاری</button>
+        <button type="button">ساخت گروه کاری</button>
     </a>
  <a href="{% url 'Attendance:create_user' %}">
         <button type="button">ساخت پرسنل</button>
@@ -92,7 +92,7 @@
         <button type="button">لیست شیفت های کاری</button>
     </a>
     <a href="{% url 'Attendance:list_position' %}">
-        <button type="button">لیست سمت ها</button>
+        <button type="button">لیست گروه های کاری</button>
     </a>
 <a href="{% url 'Attendance:user_list' request.user.id month year %}">
         <button type="button">لیست پرسنل</button>
@@ -100,11 +100,15 @@
     <a href="{% url 'Attendance:list_profile' %}">
         <button type="button">لیست پروفایل ها</button>
     </a>
+<a href="{% url 'Attendance:all_vacations' %}">
+        <button type="button">لیست مرخصی های تایید شده </button>
+    </a>
 
     <p></p>
 <a href="{% url 'Attendance:get_staff_location' %}">
         <button type="button">لوکیشن کاری </button>
     </a>
+
 <p></p>
     <a href="{% url 'Attendance:redirected_view' %}">
         <button type="button">بازگشت به خانه</button>

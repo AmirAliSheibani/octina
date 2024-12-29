@@ -46,6 +46,11 @@
 <body>
 <div class="container">
     <h1> حضور و غیاب اُکتینا</h1>
+<h3 style="{% if work_in_holi %}
+	color: red;
+    {% else %}
+    color: #1abc9c;
+{% endif %} ">{{ current_day }}</h3>
     <p>درحال کار: <span id="duration">درحال بارگیری</span></p>
     {% if at.confirmation == False %}
         <h5 style="color: red">

@@ -15,7 +15,7 @@ def home(request):
     context['about'] = about
     context['whyUS'] = whyUS
     context['team'] = team
-    return render(request, 'home/index.html', context)
+    return render(request, 'home/index.html')
 
 def slidermore(request,pk):
     context = {}
@@ -54,7 +54,4 @@ def why(request):
     whyUS = models.WhyUs.objects.all()
     context['whyUS'] = whyUS
     return render(request, 'home/why.html', context)
-
-
-
 

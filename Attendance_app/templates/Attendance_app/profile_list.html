@@ -33,6 +33,7 @@
   {% for prof in profile %}
   <tr>
     <td>  نام خانوادگی <hr>{{ prof.user.last_name }} </td>
+{#    <td>  نام کاربری <hr>{{ prof.user}} </td>#}
     <td>  گروه کاری <hr>{{ prof.profile_position }}</td>
     <td>
       <a href="{% url 'Attendance:delete_profile' prof.id %}">

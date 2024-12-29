@@ -1,6 +1,6 @@
 import math
 import uuid
-
+from .forms import PositionForm
 import jdatetime
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -11,6 +11,7 @@ from geopy.distance import geodesic
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
+from jalali_date import datetime2jalali
 
 from .forms import StaffCreateUser, ShiftWorkForm, PositionForm, ProfileForm, HolidayForm, VacationForm, \
     UpdateProfileForm
@@ -292,7 +293,7 @@ def download_excel(request, pk, month, year):
             year=year,
             user__in=users
         )
-        income = Income.objects.get(
+        income = Income.objects.filter(
             month=month,
             year=year,
             user__in=users
@@ -439,7 +440,7 @@ def create_attendance_view(request):
     try:
         position = Profile.objects.get(user=request.user)
     except:
-            raise AttributeError('داده ی پروفایل شما موجود نیست. با مدیر خود تماس بگیرید')
+        raise AttributeError('داده ی پروفایل شما موجود نیست. با مدیر خود تماس بگیرید')
     now = timezone.now()
     month = jdatetime.date.fromgregorian(date=now.date()).month
     year = jdatetime.date.fromgregorian(date=now.date()).year
@@ -472,7 +473,8 @@ def create_attendance_view(request):
 
         # print(11121)
         in_progress_users = []
-        non_progress_users, _ = NoneInProgress.objects.get_or_create(created_date=jdatetime.date.fromgregorian(date=now.date()))
+        non_progress_users, _ = NoneInProgress.objects.get_or_create(
+            created_date=jdatetime.date.fromgregorian(date=now.date()))
         users = CustomUser.objects.filter(created_who=request.user)
 
         not_accepted_vacation = Profile.objects.filter(user__in=users, vacation__check_by_employer=False)
@@ -482,19 +484,24 @@ def create_attendance_view(request):
         attendance_users = AttendanceUser.objects.filter(user__in=users)
 
         for attendance in attendance_users:
-            if attendance.user.possit.vacation.last().date != datetime.now().date():
+            # check if user get vacation
+            if attendance is not None or attendance.user.possit.vacation.last().date != datetime.now().date():
+
                 if attendance.in_progress:
                     if attendance.user not in in_progress_users:
                         in_progress_users.append(attendance.user)
+                        # remove user form non progress users
                         if attendance.user in non_progress_users.user.all():
                             non_progress_users.user.remove(attendance.user)
 
                 else:
+                    # if user is not workin at this time check the end time for user
                     if attendance.user not in in_progress_users:
                         try:
                             profile = Profile.objects.get(user=attendance.user)
                             shiftwork = profile.profile_position.shift_work
                             current_day_number = datetime.now().weekday()
+                            # get current day of weak for checking the shift work days
                             reversed_day_number = day_mapping[current_day_number]
                             print(current_day_number, reversed_day_number)
 
@@ -510,6 +517,12 @@ def create_attendance_view(request):
                                     in_progress_users.append(attendance.user)
                                     if attendance.user in non_progress_users.user.all():
                                         non_progress_users.user.remove(attendance.user)
+                                # if user have no shift data for curent day so user work at holiday 
+                            else:
+                                in_progress_users.append(attendance.user)
+                                if attendance.user in non_progress_users.user.all():
+                                    non_progress_users.user.remove(attendance.user)
+
                         except Profile.DoesNotExist:
                             profile = None
 
@@ -545,13 +558,30 @@ def non_progress(request, month, year):
         12: 'اسفند',
     }
     now = timezone.now()
-    month = jdatetime.date.fromgregorian(date=now.date()).month
-    year = jdatetime.date.fromgregorian(date=now.date()).year
-    filter_non_progress = NoneInProgress.objects.filter(month=month, year=year).exclude(
+    users = CustomUser.objects.filter(created_who=request.user)
+    filter_non_progress = NoneInProgress.objects.filter(user__in=users, month=month, year=year).exclude(
         created_date=jdatetime.date.fromgregorian(date=now.date()))
 
     return render(request, 'Attendance_app/non_progress.html',
                   {'filter_non_progress': filter_non_progress, 'months': MONTH_NAMES, 'month': month, 'year': year})
+
+
+def delete_non_progress(request, pk, month, year):
+    if not request.user.is_staff:
+        return redirect(reverse('Attendance:redirected_view'))
+    non = NoneInProgress.objects.get(id=pk)
+    non.delete()
+    return redirect(reverse('Attendance:non_progress', kwargs={'month': month, 'year': year}))
+
+
+def delete_monthly_non_progress(request, month, year):
+    staff = request.user
+    if not staff.is_staff:
+        return redirect(reverse('Attendance:redirected_view'))
+    users = CustomUser.objects.filter(created_who=request.user)
+    monthly_non = NoneInProgress.objects.filter(user__in=users, month=month, year=year)
+    monthly_non.delete()
+    return redirect(reverse('Attendance:non_progress', kwargs={'month': month, 'year': year}))
 
 
 def in_progress_users(request, month, year):
@@ -629,12 +659,35 @@ def in_progress_users(request, month, year):
 
 @login_required
 def start_attendance_view(request):
+    day_mapping = {
+        5: 0,  # Saturday
+        6: 1,  # Sunday
+        0: 2,  # Monday
+        1: 3,  # Tuesday
+        2: 4,  # Wednesday
+        3: 5,  # Thursday
+        4: 6,  # Friday
+    }
+    current_day_number = datetime.now().weekday()
+    reversed_day_number = day_mapping[current_day_number]
+    current_hafte = {
+        0: 'شنبه',
+        1: 'یک شنبه',
+        2: 'دو شنبه ',
+        3: 'سه شنبه',
+        4: 'چهار شنبه',
+        5: 'پنج شنبه',
+        6: 'جمعه',
+    }
+    current_day = current_hafte[reversed_day_number]
     try:
         location = Location.objects.get(created_by=request.user.created_who, active=True)
         print('location = True')
     except Location.DoesNotExist:
         location = False
         print('location = False')
+
+    print(current_day)
     start = datetime.now().time()
     date = datetime.now().date()
     work_holi_day = False
@@ -706,7 +759,8 @@ def start_attendance_view(request):
 
         # print("at = AttendanceUser.objects.get(user=request.user, in_progress=True)")
         return render(request, 'Attendance_app/start.html',
-                      {'started': at.start, 'pk': at.token, 'at': at, 'work_in_holi': work_holi_day})
+                      {'started': at.start, 'pk': at.token, 'at': at, 'work_in_holi': work_holi_day,
+                       'current_day': current_day})
     except AttendanceUser.DoesNotExist:
 
         try:
@@ -734,7 +788,8 @@ def start_attendance_view(request):
             at.save()
             # print("at = AttendanceUser.objects.get(user=request.user, created_date=date)")
             return render(request, 'Attendance_app/start.html',
-                          {'started': start, 'pk': at.token, 'at': at, 'work_in_holi': work_holi_day})
+                          {'started': start, 'pk': at.token, 'at': at, 'work_in_holi': work_holi_day,
+                           'current_day': current_day})
         except AttendanceUser.DoesNotExist:
 
             at = AttendanceUser.objects.create(user=request.user, created_date=date)
@@ -753,7 +808,8 @@ def start_attendance_view(request):
 
             # print("at = AttendanceUser.objects.create(user=request.user, created_date=date, start=start,)")
             return render(request, 'Attendance_app/start.html',
-                          {'started': start, 'pk': at.token, 'at': at, 'work_in_holi': work_holi_day})
+                          {'started': start, 'pk': at.token, 'at': at, 'work_in_holi': work_holi_day,
+                           'current_day': current_day})
 
 
 # def update_duration_view(request):
@@ -980,7 +1036,8 @@ def create_position(request):
             position.save()
             form.save_m2m()  # Save many-to-many relationships
 
-            return redirect(reverse('Attendance:list_position'))
+            return redirect(
+                reverse('Attendance:setting_app'))
     else:
         form = PositionForm(request=request)
 
@@ -1014,13 +1071,15 @@ def update_position(request, pk):
 def list_holidays(request):
     staff = request.user
     if not staff.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
-    holidays = Holidays.objects.filter(created_by=staff)
+        holidays = Holidays.objects.filter(created_by=staff.created_who)
+    else:
+        holidays = Holidays.objects.filter(created_by=staff)
 
     return render(request, 'Attendance_app/holiday_list.html', {'holidays': holidays})
 
 
 def create_holiday(request):
+    jalali_join = datetime2jalali(request.user.date_joined).strftime('%y/%m/%d _ %H:%M:%S')
     # check_profile = Profile.objects.filter(created_by=request.user).count()
     # if check_profile >= 10:
     #     check_profile = True
@@ -1031,7 +1090,8 @@ def create_holiday(request):
             shift_work = form.save(commit=False)
             shift_work.created_by = request.user
             shift_work.save()
-            return redirect(reverse('Attendance:redirected_view'))
+            return redirect(
+                reverse('Attendance:setting_app'))
     else:
         form = HolidayForm()
 
@@ -1252,7 +1312,8 @@ def create_user_for_staff(request):
             month = jdatetime.date.fromgregorian(date=now.date()).month
             year = jdatetime.date.fromgregorian(date=now.date()).year
             return redirect(
-                reverse('Attendance:user_list', kwargs={'pk': request.user.id, 'month': month, 'year': year}))
+                reverse('Attendance:setting_app'))
+            # kwargs={'pk': request.user.id, 'month': month, 'year': year}))
 
     else:
         form = StaffCreateUser()
@@ -1299,7 +1360,7 @@ def update_user_for_staff(request, pk):
     return render(request, 'Attendance_app/create_user.html', {'form': form, 'form2': form2, 'user': user})
 
 
-from .forms import PositionForm
+
 
 
 def list_profile(request):
@@ -1322,7 +1383,8 @@ def create_profile(request):
             shift_work = form.save(commit=False)
             shift_work.created_by = request.user
             shift_work.save()
-            return redirect(reverse('Attendance:redirected_view'))
+            return redirect(
+                reverse('Attendance:setting_app'))
     else:
         form = ProfileForm(request=request)
 
@@ -1428,3 +1490,13 @@ def accepted_vacation(request, pk):
     vacation.check_by_employer = True
     vacation.save()
     return redirect(reverse('Attendance:check_vacation_confirmation'))
+
+
+def personal_info(request):
+    user = request.user
+    profile = Profile.objects.get(user=user)
+    position = profile.profile_position
+    income = Income.objects.filter(user=user).last()
+    return render(request, 'Attendance_app/personal_info.html',
+                  {'profile': profile, 'position': position, 'income': income})
+
