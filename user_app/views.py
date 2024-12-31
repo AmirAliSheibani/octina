@@ -35,7 +35,6 @@ def UserRegisterView(request):
             form.save()
 
             return redirect(reverse('user:send_email', kwargs={'email': email}))
-
     else:
 
         form = UserRegisterForm()
@@ -232,7 +231,6 @@ def change_password(request, email, code):
 
 
 def logoutUser(request):
-    user = request.user
     logout(request)
     return redirect(reverse("user:login"))
 

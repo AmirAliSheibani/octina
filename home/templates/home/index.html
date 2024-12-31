@@ -63,8 +63,6 @@
     .col-md-4 :hover .img-box img {
         animation: fadeIn 0.5s forwards;
     }
-
-    /* سی اس اس ها را پنهان می‌کنیم */
 </style>
     <!-- service section -->
 
@@ -93,7 +91,7 @@
                                 </h5>
                                 <p>{{service.description}}
                                 </p>
-                                <a href="{% url 'home:service' %}">
+                                <a href="{% url 'home:services' %}">
                                     Read More
                                 </a>
                             </div>
@@ -102,7 +100,7 @@
                     {% endfor %}
                 </div>
                 <div class="btn-box">
-                    <a href="{% url 'home:service' %}">
+                    <a href="{% url 'home:services' %}">
                         View All
                     </a>
                 </div>

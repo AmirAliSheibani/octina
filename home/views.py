@@ -1,57 +1,62 @@
 from django.shortcuts import render, redirect
+from django.views.generic import TemplateView
+
+from django.views.generic import TemplateView
 from . import models
-from django.core.mail import send_mail
 
-def home(request):
-    context = {}
-    slider = models.Slider.objects.all()
-    services = models.Service.objects.all()
-    about = models.About.objects.all()
-    whyUS = models.WhyUs.objects.all()
-    team = models.Team.objects.all()
+class BaseModelView(TemplateView):
+    """Base view to fetch model data for the context."""
 
-    context['slider'] = slider
-    context['services'] = services
-    context['about'] = about
-    context['whyUS'] = whyUS
-    context['team'] = team
-    return render(request, 'home/index.html')
+    model = None  # The model to fetch data from
+    context_name = None  # The key to use in the context
 
-def slidermore(request,pk):
-    context = {}
-
-    slider = models.Slider.objects.get(id=pk)
-
-    context['object'] = slider
-
-    return render(request, 'home/readmore.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.model and self.context_name:
+            context[self.context_name] = self.model.objects.all()
+        return context
 
 
-def about(request):
+class HomeView(TemplateView):
+    template_name = 'home/index.html'
 
-    context = {}
-    about = models.About.objects.all()
-    context['about'] = about
-    return render(request, 'home/about.html', context)
-
-
-def service(request):
-    context = {}
-    services = models.Service.objects.all()
-    context['services'] = services
-    return render(request, 'home/service.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['slider'] = models.Slider.objects.all()
+        context['services'] = models.Service.objects.all()
+        context['about'] = models.About.objects.all()
+        context['whyUS'] = models.WhyUs.objects.all()
+        context['team'] = models.Team.objects.all()
+        return context
 
 
-def team(request):
-    context = {}
-    team = models.Team.objects.all()
-    context['team'] = team
-    return render(request, 'home/team.html', context)
+class SliderMoreView(BaseModelView):
+    template_name = 'home/readmore.html'
+    model = models.Slider
+    context_name = 'slider'
 
 
-def why(request):
-    context = {}
-    whyUS = models.WhyUs.objects.all()
-    context['whyUS'] = whyUS
-    return render(request, 'home/why.html', context)
+class AboutView(BaseModelView):
+    template_name = 'home/about.html'
+    model = models.About
+    context_name = 'about'
+
+
+class ServiceView(BaseModelView):
+    template_name = 'home/service.html'
+    model = models.Service
+    context_name = 'services'
+
+
+class TeamView(BaseModelView):
+    template_name = 'home/team.html'
+    model = models.Team
+    context_name = 'team'
+
+
+class WhyUsView(BaseModelView):
+    template_name = 'home/why.html'
+    model = models.WhyUs
+    context_name = 'whyUS'
+
 

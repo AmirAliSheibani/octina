@@ -34,11 +34,11 @@
                         <li class="nav-item {% if request.resolver_match.view_name == 'home:about' %}active{% endif %}">
                             <a class="nav-link" href="{% url 'home:about' %}"> درباره ما</a>
                         </li>
-                        <li class="nav-item {% if request.resolver_match.view_name == 'home:service' %}active{% endif %}">
-                            <a class="nav-link" href="{% url 'home:service' %}">خدمات</a>
+                        <li class="nav-item {% if request.resolver_match.view_name == 'home:services' %}active{% endif %}">
+                            <a class="nav-link" href="{% url 'home:services' %}">خدمات</a>
                         </li>
-                        <li class="nav-item {% if request.resolver_match.view_name == 'home:why' %}active{% endif %}">
-                            <a class="nav-link" href="{% url 'home:why' %}">چرا ما</a>
+                        <li class="nav-item {% if request.resolver_match.view_name == 'home:why_us' %}active{% endif %}">
+                            <a class="nav-link" href="{% url 'home:why_us' %}">چرا ما</a>
                         </li>
                         <li class="nav-item {% if request.resolver_match.view_name == 'home:team' %}active{% endif %}">
                             <a class="nav-link" href="{% url 'home:team' %}">تیم</a>

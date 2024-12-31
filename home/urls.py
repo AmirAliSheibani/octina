@@ -4,10 +4,10 @@ from . import views
 app_name = 'home'
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('about/', views.about, name='about'),
-    path('service/', views.service, name='service'),
-    path('team/', views.team, name='team'),
-    path('why/', views.why, name='why'),
-    path('mores/<int:pk>', views.slidermore, name='slidermore'),
+    path('', views.HomeView.as_view(), name='home'),
+    path('slider/readmore/', views.SliderMoreView.as_view(), name='slider_more'),
+    path('about/', views.AboutView.as_view(), name='about'),
+    path('services/', views.ServiceView.as_view(), name='services'),
+    path('team/', views.TeamView.as_view(), name='team'),
+    path('why-us/', views.WhyUsView.as_view(), name='why_us'),
 ]
