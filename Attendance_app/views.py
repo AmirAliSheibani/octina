@@ -446,9 +446,10 @@ def create_attendance_view(request):
                         except Profile.DoesNotExist:
                             profile = None
 
+        # use * for change queryset to arguments
         non_progress_users.user.add(*users.exclude(username__in=in_progress_users).exclude(
             id__in=non_progress_users.user.values_list('id', flat=True)))
-        
+
         filter_non_progress = NoneInProgress.objects.filter(month=month).exclude(
             created_date=jdatetime.date.fromgregorian(date=now.date()))
 

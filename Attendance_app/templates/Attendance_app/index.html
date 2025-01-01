@@ -115,33 +115,36 @@
 
 
         <div class="boxes">
-
-            <div class="box green">
-                <a href="{% url 'Attendance:info_users'  month year %}" style="text-decoration: none;">
+            <a href="{% url 'Attendance:info_users'  month year %}" class="box green" style="text-decoration: none;">
+                <div>
                     <p class="box-text">حاضرین</p>
                     <p class="box-count">{{ in_progress_users|length }}</p>
-                </a>
 
-            </div>
-            <div class="box red">
-                <a href="{% url 'Attendance:info_users'  month year %}" style="text-decoration: none;">
+
+                </div>
+            </a>
+            <a href="{% url 'Attendance:info_users'  month year %}" class="box red" style="text-decoration: none;">
+                <div >
+
                     <p class="box-text">غایبین</p>
                     <p class="box-count">{{ non_progress_users.user.all|length }}</p>
-                </a>
-            </div>
 
-            <div class="box light-blue">
+                </div>
+            </a>
+            <a href="{% url 'Attendance:info_users'  month year %}" class="box light-blue" style="text-decoration: none;">
+            <div >
                 <p class="box-text">تعداد پرسنل</p>
                 <p class="box-count">{{ users|length }}</p>
             </div>
+                </a>
         </div>
     {% else %}
         <a href="{% url 'Attendance:list_holidays' %}">
             <button type="button">روز های تعطیل</button>
         </a>
         <a href="{% url 'Attendance:personal_info' %}">
-        <button type="button">اطلاعات کاربر</button>
-    </a>
+            <button type="button">اطلاعات کاربر</button>
+        </a>
     {% endif %}
 
 </div>

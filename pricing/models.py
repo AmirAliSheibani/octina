@@ -173,6 +173,9 @@ class NoneInProgress(models.Model):
     month = models.PositiveSmallIntegerField( null=True)
     year = models.PositiveSmallIntegerField(default=None, null=True)
 
+    def __str__(self):
+        return f'{self.user} - {self.month}'
+
     def save(self, *args, **kwargs):
         if not self.pk:  # Only set the month if the object is being created
             self.month = date2jalali(timezone.now().date()).month
