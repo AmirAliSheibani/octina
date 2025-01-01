@@ -60,7 +60,7 @@
 
 
             {% if not location %}
-                <p style="color: red"> لوکیشن شما ثبت نشده است!<a href="{% url 'Attendance:get_staff_location' %}"> برای
+                <p style="color: red"> لوکیشن شما ثبت نشده است!<a href="{% url 'locations:get_staff_location' %}"> برای
                     تغییر کلیک کنید </a></p>
             {% endif %}
             {% if not_accepted_vacation %}

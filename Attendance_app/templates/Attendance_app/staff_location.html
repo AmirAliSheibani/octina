@@ -156,7 +156,7 @@
             // Create a form and append latitude and longitude data
             const form = document.createElement("form");
             form.method = "POST";
-            form.action = '{% url 'Attendance:process_staff_location' %}';
+            form.action = '{% url 'locations:process_staff_location' %}';
 
             const latitudeInput = document.createElement("input");
             latitudeInput.type = "hidden";

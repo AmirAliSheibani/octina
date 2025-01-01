@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'user_app.apps.UserAppConfig',
     'Attendance_app.apps.AttendanceAppConfig',
     'pricing.apps.PricingConfig',
+    'locations.apps.LocationsConfig',
 ]
 ASGI_APPLICATION = "octina.asgi.application"
 

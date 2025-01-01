@@ -1,5 +1,7 @@
 import math
 import uuid
+
+from locations.models import Location
 from .forms import PositionForm
 import jdatetime
 from asgiref.sync import async_to_sync
@@ -18,7 +20,7 @@ from .forms import StaffCreateUser, ShiftWorkForm, PositionForm, ProfileForm, Ho
 from .models import AttendanceUser
 from .mixin import CustomizedRquirementLogin
 from django.contrib.auth.decorators import login_required
-from pricing.models import Profile, User, CustomUser, Income, Location, ShiftWork, Positions, Holidays, Vacation, \
+from pricing.models import Profile, User, CustomUser, Income, ShiftWork, Positions, Holidays, Vacation, \
     VacationType, Day, NoneInProgress
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
 from django.utils import timezone
@@ -32,88 +34,6 @@ from django.http import HttpResponse
 from django.db.models import Q
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models import F
-
-
-def get_staff_location(request):
-    try:
-        location = Location.objects.get(created_by=request.user, active=True)
-    except:
-        location = False
-    return render(request, 'Attendance_app/staff_location.html', {'location': location})
-
-
-def get_user_location(request):
-    return render(request, 'Attendance_app/user_location.html')
-
-
-@csrf_exempt
-def process_user_location(request):
-    if request.method == 'POST':
-        latitude = request.POST.get('latitude')
-        longitude = request.POST.get('longitude')
-        user = request.user
-
-        # موقعیت مرجع
-        location = Location.objects.get(created_by=request.user.created_who, active=True)
-        reference_latitude = location.latitude
-        reference_longitude = location.longitude
-        #
-        # # موقعیت جدید
-        # new_latitude = 35.123456789
-        # new_longitude = 51.987654321
-        #
-        # # محاسبه فاصله بین دو موقعیت
-        distance = geodesic((reference_latitude, reference_longitude), (latitude, longitude)).meters
-        #
-        # بررسی آیا فاصله کمتر از 50 متر است
-        date = datetime.now().date()
-        at = AttendanceUser.objects.get(user=user, created_date=date)
-        start = datetime.now().time()
-        if distance < 50:
-            print("موقعیت در فاصله کمتر از 50 متر است")
-            at.confirmation = True
-            at.start = start
-            at.save()
-        else:
-            print("موقعیت در فاصله بیشتر از 50 متر است")
-            at.confirmation = False
-            at.start = start
-            at.save()
-        print(f'{latitude},{longitude}')
-        return redirect(reverse('Attendance:start'))
-    else:
-        return HttpResponseNotAllowed(['POST'])
-
-
-def ignore_location(request):
-    user = request.user
-    date = datetime.now().date()
-    at = AttendanceUser.objects.get(user=user, created_date=date)
-    start = datetime.now().time()
-    at.confirmation = False
-    at.start = start
-    at.save()
-    return redirect(reverse('Attendance:start'))
-
-
-@csrf_exempt
-def process_staff_location(request):
-    if request.method == 'POST':
-        latitude = request.POST.get('latitude')
-        longitude = request.POST.get('longitude')
-        user = request.user
-        try:
-            location = Location.objects.get(created_by=request.user, active=True)
-            location.active = False
-            location.save()
-        except Location.DoesNotExist:
-            location = False
-
-        location = Location.objects.create(longitude=longitude, latitude=latitude, created_by=user, active=True)
-        # return HttpResponse(f'{latitude},{longitude}')
-        return redirect(reverse('Attendance:redirected_view'))
-    else:
-        return HttpResponseNotAllowed(['POST'])
 
 
 @login_required
@@ -528,6 +448,7 @@ def create_attendance_view(request):
 
         non_progress_users.user.add(*users.exclude(username__in=in_progress_users).exclude(
             id__in=non_progress_users.user.values_list('id', flat=True)))
+        
         filter_non_progress = NoneInProgress.objects.filter(month=month).exclude(
             created_date=jdatetime.date.fromgregorian(date=now.date()))
 

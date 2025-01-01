@@ -25,6 +25,7 @@ urlpatterns = [
     path('user/', include('user_app.urls')),
     path('attendance/', include('Attendance_app.urls')),
     path('price/', include('pricing.urls')),
+    path('locations/', include('locations.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 admin.site.site_title = "مدیریت اُکتینا"
