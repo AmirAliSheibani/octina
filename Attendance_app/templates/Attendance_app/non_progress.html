@@ -57,7 +57,7 @@
                         <td>{{ user.user_attendance.last.job_time }}</td>
                         <td>{{ user.user_incomes.last }}</td>
                         <td>{{ nonprogress.created_date }}</td>
-                        <td><a href="{% url 'Attendance:delete_none_progress' nonprogress.id %}">
+                        <td><a href="{% url 'Attendance:delete_none_progress' nonprogress.id month year %}">
             <button type="button">حذف</button>
         </a></td>
 
