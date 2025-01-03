@@ -32,44 +32,24 @@ from openpyxl.utils import get_column_letter
 
 from django.http import HttpResponse
 from django.db.models import Q
+
+from .decorators import check_progress, profile_required, subscription_required
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models import F
 
 
-@login_required
+@subscription_required
+@profile_required
 def restricted_view(request, *args, **kwargs):
-    user = request.user
-    if user.created_who is None and not user.is_superuser:
-        return redirect(reverse('home:home'))
-    now = timezone.now().date()
-    jalali_date = jdatetime.date.fromgregorian(date=now)
-
-    # Check if the subscription date is today or in the past
-    if user.subscription_Date and user.subscription_Date <= jalali_date:
-        # Disable the user or perform any other desired action
-        user.is_active = False
-        user.save()
-
-        return HttpResponse("Your subscription has expired. Please contact support.")
-
-    if to is not None:
-        return redirect(reverse(to))
-    try:
-        # in_progress=True: user is still working
-        attendance_obj = AttendanceUser.objects.get(user=user, in_progress=True)
-
-        return redirect(reverse('Attendance:start'))
-    except AttendanceUser.DoesNotExist:
-        return redirect('Attendance:home')
+    return redirect('Attendance:home')
 
 
 # homepage
 @login_required
-def create_attendance_view(request):  # home page view
-    try:
-        position = Profile.objects.get(user=request.user)
-    except:
-        raise AttributeError('داده ی پروفایل شما موجود نیست. با مدیر خود تماس بگیرید')
+@check_progress
+def create_attendance_view(request):
+    position = Profile.objects.get(user=request.user)
+
     now = timezone.now()
     month = jdatetime.date.fromgregorian(date=now.date()).month
     year = jdatetime.date.fromgregorian(date=now.date()).year
