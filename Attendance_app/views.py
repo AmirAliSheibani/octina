@@ -30,6 +30,7 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
+from .utils import get_jalali_date
 from django.http import HttpResponse
 from django.db.models import Q
 
@@ -51,8 +52,7 @@ def create_attendance_view(request):
     position = Profile.objects.get(user=request.user)
 
     now = timezone.now()
-    month = jdatetime.date.fromgregorian(date=now.date()).month
-    year = jdatetime.date.fromgregorian(date=now.date()).year
+    month, year = get_jalali_date()
     day_mapping = {
         5: 0,  # Saturday
         6: 1,  # Sunday
@@ -63,8 +63,6 @@ def create_attendance_view(request):
         4: 6,  # Friday
     }
     try:
-        print(year)
-        print(month)
         income = Income.objects.get(
             month=month,
             year=year,
@@ -73,14 +71,13 @@ def create_attendance_view(request):
     except Income.DoesNotExist:
         income = None
 
-    attendance_obj = None
     if request.user.is_staff:
         if Location.objects.filter(created_by=request.user).exists():
             location = True
         else:
             location = False
 
-        # print(11121)
+
         in_progress_users = []
         non_progress_users, _ = NoneInProgress.objects.get_or_create(
             created_date=jdatetime.date.fromgregorian(date=now.date()))
@@ -756,9 +753,7 @@ def process_result_view(request, pk):
     attend = get_object_or_404(AttendanceUser, user=request.user, token=pk)
     # To ensure
     if not attend.in_progress:
-        now = timezone.now()
-        month = jdatetime.date.fromgregorian(date=now.date()).month
-        year = jdatetime.date.fromgregorian(date=now.date()).year
+        month, year = get_jalali_date()
         return redirect(
             reverse("Attendance:result_list", kwargs={"pk": request.user.id, 'month': month, 'year': year}, ))
 
@@ -795,9 +790,7 @@ class ShowResult(TemplateView):
 
             attend = get_object_or_404(AttendanceUser, user=request.user,
                                        token=token)  # token=pk if there is no session
-        now = timezone.now()
-        month = jdatetime.date.fromgregorian(date=now.date()).month
-        year = jdatetime.date.fromgregorian(date=now.date()).year
+        month, year = get_jalali_date()
         context['month'] = month
         context['year'] = year
         context['object'] = attend
@@ -1206,9 +1199,7 @@ def create_user_for_staff(request):
             password = form.cleaned_data.get('password2')
             CustomUser.objects.create_user(username=username, email=email, password=password, last_name=last_name,
                                            first_name=first_name, created_who=staff)
-            now = timezone.now()
-            month = jdatetime.date.fromgregorian(date=now.date()).month
-            year = jdatetime.date.fromgregorian(date=now.date()).year
+            month, year = get_jalali_date()
             return redirect(
                 reverse('Attendance:setting_app'))
             # kwargs={'pk': request.user.id, 'month': month, 'year': year}))
@@ -1242,9 +1233,7 @@ def update_user_for_staff(request, pk):
             user.last_name = form.cleaned_data.get('last_name')
             user.set_password(form.cleaned_data.get('password2'))
             user.save()
-            now = timezone.now()
-            month = jdatetime.date.fromgregorian(date=now.date()).month
-            year = jdatetime.date.fromgregorian(date=now.date()).year
+            month, year = get_jalali_date()
             return redirect(reverse('Attendance:user_list', kwargs={'pk': pk, 'month': month, 'year': year}))
         form2 = UpdateProfileForm(request.POST, instance=profile)
         if form2.is_valid():
@@ -1320,9 +1309,7 @@ def setting_app(request):
 
     profile_users = users.filter(possit__isnull=True)
 
-    now = timezone.now()
-    month = jdatetime.date.fromgregorian(date=now.date()).month
-    year = jdatetime.date.fromgregorian(date=now.date()).year
+    month, year = get_jalali_date()
     return render(request, 'Attendance_app/settings_app.html',
                   {'month': month, 'year': year, 'profile_users': profile_users})
 
