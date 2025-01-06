@@ -58,7 +58,7 @@
         <br>
 
         <div class="work-days">
-            <label for="work_days">Work Days:</label>
+            <label for="work_days">روز های فعال:</label>
             {% for day in all_days %}
                 <div>
                     <label for="{{ day.id_for_label }}">
@@ -69,10 +69,10 @@
                 </div>
             {% endfor %}
         </div>
-        <button type="submit">submit Shift Work</button>
+        <button type="submit">ثبت شیفت</button>
     </form>
 {% endif %}
-<a href="{% url 'Attendance:setting_app' %}" target="_blank">
+<a href="{% url 'Attendance:setting_app' %}">
                 <button type="button">تنظیمات حضور غیاب</button>
             </a>
 

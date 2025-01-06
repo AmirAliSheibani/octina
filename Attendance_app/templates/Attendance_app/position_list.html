@@ -30,54 +30,61 @@
 
 <div class="container">
     <table>
-  {% for poss in position %}
-  <tr>
-    <td>نام سمت<hr>
-        {{ poss.positions }}</td>
-    <td>درآمد<hr>
-        {{ poss.position_income }}</td>
-    <td>درآمد اضافه کاری <hr>
-        {{ poss.overtime_position_income }}</td>
-    <td>
-      {% for work_day in poss.work_days.all %}
-        {{ work_day }},
-      {% endfor %}
-    </td>
-    <td>
-      {% for shift_work in poss.shift_work.all %}
-        <br>
-        <br>
-        اطلاعات روز کاری
-        <hr>
-        {% for work_day in shift_work.work_days.all %}
-          {{ work_day }},
+        {% for poss in position %}
+            <tr>
+                <td>نام سمت
+                    <hr>
+                    {{ poss.positions }}</td>
+                <td>درآمد
+                    <hr>
+                    {{ poss.position_income }}</td>
+                <td>درآمد اضافه کاری
+                    <hr>
+                    {{ poss.overtime_position_income }}</td>
+                <td>
+                    {% for work_day in poss.work_days.all %}
+                        {{ work_day }},
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for shift_work in poss.shift_work.all %}
+                        <br>
+                        <br>
+                        اطلاعات روز کاری
+                        <hr>
+                        {% for work_day in shift_work.work_days.all %}
+                            {{ work_day }},
+                        {% endfor %}
+                        <hr>
+                        {{ shift_work.work_start_time }} شروع ساعت کاری<br>
+                        <hr>
+                        {{ shift_work.work_end_time }} پایان ساعت کاری<br>
+                        <br>
+                    {% endfor %}
+                </td>
+                <td>
+                    <a href="{% url 'Attendance:delete_position' poss.id %}">
+                        <button type="button">حذف</button>
+                    </a>
+                    <a href="{% url 'Attendance:update_position' poss.id %}">
+                        <button type="button">تغییر</button>
+                    </a>
+                </td>
+            </tr>
         {% endfor %}
-          <hr>
-        {{ shift_work.work_start_time }} شروع ساعت کاری<br>
-        <hr>
-        {{ shift_work.work_end_time }} پایان ساعت کاری<br>
-        <br>
-      {% endfor %}
-    </td>
-    <td>
-      <a href="{% url 'Attendance:delete_position' poss.id %}">
-        <button type="button">حذف</button>
-      </a>
-      <a href="{% url 'Attendance:update_position' poss.id %}">
-        <button type="button">تغییر</button>
-      </a>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+    </table>
 
- <a href="{% url 'Attendance:setting_app' %}">
-            <button type="button">منوی تنظیمات</button>
-        </a>
+    <a href="{% url 'Attendance:setting_app' %}">
+        <button type="button">منوی تنظیمات</button>
+    </a>
 
- <a href="{% url 'Attendance:redirected_view' %}">
-            <button type="button">برگشت به خانه</button>
-        </a>
+    <a href="{% url 'Attendance:redirected_view' %}">
+        <button type="button">برگشت به خانه</button>
+    </a>
+    <a href="{% url 'Attendance:create_position' %}">
+        <button type="button">ساخت گروه کاری</button>
+    </a>
+
 </div>
 </body>
 </html>

@@ -94,7 +94,7 @@
                     <td>{{ income.user_income }}</td>
                     <td><a href="{% url 'Attendance:result_list' user.id month year %}">بیشتر</a></td>
                     <td><a href="{% url 'Attendance:delete_user_for_staff' user.id month year %}">حذف یوزر</a></td>
-                    <td><a href="{% url 'Attendance:update_user_for_staff' user.id  %}"> آپدیت</a></td>
+                    <td><a href="{% url 'Attendance:update_user_for_staff' user.id %}"> آپدیت</a></td>
                 </tr>
             {% endfor %}
 
@@ -125,9 +125,10 @@
                     <td style="color: red">{{ user }}</td>
                     <td style="color: red">{{ user.last_name }}</td>
                     <td style="color: red">{{ user.possit }}</td>
-                    <td style="color: red"><a href="{% url 'Attendance:result_list' user.id month year %}">بیشتر</a></td>
+                    <td style="color: red"><a href="{% url 'Attendance:result_list' user.id month year %}">بیشتر</a>
+                    </td>
                     <td><a href="{% url 'Attendance:delete_user_for_staff' user.id month year %}">حذف یوزر</a></td>
-                    <td><a href="{% url 'Attendance:update_user_for_staff' user.id  %}"> آپدیت</a></td>
+                    <td><a href="{% url 'Attendance:update_user_for_staff' user.id %}"> آپدیت</a></td>
                 </tr>
             {% endfor %}
 
@@ -145,11 +146,12 @@
         <a href="{% url 'Attendance:setting_app' %}">
             <button type="button">منوی تنظیمات</button>
         </a>
-        <button type="submit">شروع</button>
         <a href="{% url 'Attendance:download_excel' user.id month year %}">
             <button type="button">مشاهده در اکسل</button>
         </a>
-        <button type="submit">شروع</button>
+        <a href="{% url 'Attendance:create_user' %}">
+            <button type="button">ساخت پرسنل</button>
+        </a>
 
     </form>
 

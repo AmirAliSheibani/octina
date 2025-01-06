@@ -33,15 +33,15 @@
     {% csrf_token %}
 
   <div class="form-textbox ">
-    <label for="{{ form.date.id_for_label }}">date:</label>
+    <label for="{{ form.date.id_for_label }}">تاریخ:</label>
     {{ form.date }}
   </div>
 
   <div class="form-textbox ">
-    <label for="{{ form.name.id_for_label }}">name:</label>
+    <label for="{{ form.name.id_for_label }}">علت:</label>
     {{ form.name }}
   </div>
-  <button type="submit">Save</button>
+  <button type="submit">ثبت</button>
 </form>
    <a href="{% url 'Attendance:setting_app' %}">
             <button type="button">منوی تنظیمات</button>

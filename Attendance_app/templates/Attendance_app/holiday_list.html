@@ -34,38 +34,41 @@
             <th>تاریخ</th>
             <th>علت</th>
             {% if request.user.is_staff %}
-            <th>حذف</th>
-            <th>تغییر</th>
+                <th>حذف</th>
+                <th>تغییر</th>
             {% endif %}
         </tr>
         {% for holiday in holidays %}
-        <tr>
-            <td>{{ holiday.date }}</td>
-            <td>{{ holiday.name }}</td>
-            {% if request.user.is_staff %}
+            <tr>
+                <td>{{ holiday.date }}</td>
+                <td>{{ holiday.name }}</td>
+                {% if request.user.is_staff %}
 
 
-            <td><a href="{% url 'Attendance:delete_holiday' holiday.id %}">
-        <button type="button">حذف</button>
-    </a></td>
-            <td><a href="{% url 'Attendance:update_holiday' holiday.id %}">
-        <button type="button">تغییر</button>
-    </a></td>
-        {% endif %}
-</tr>
-         {% endfor %}
+                    <td><a href="{% url 'Attendance:delete_holiday' holiday.id %}">
+                        <button type="button">حذف</button>
+                    </a></td>
+                    <td><a href="{% url 'Attendance:update_holiday' holiday.id %}">
+                        <button type="button">تغییر</button>
+                    </a></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
     </table>
 
 
 
 
-{% if request.user.is_staff %}
-    <a href="{% url 'Attendance:setting_app' %}">
-        <button type="button">منوی تنظیمات</button>
-    </a>{% endif %}
+    {% if request.user.is_staff %}
+        <a href="{% url 'Attendance:setting_app' %}">
+            <button type="button">منوی تنظیمات</button>
+        </a>{% endif %}
 
     <a href="{% url 'Attendance:redirected_view' %}">
         <button type="button">برگشت به خانه</button>
+    </a>
+    <a href="{% url 'Attendance:create_holiday' %}">
+        <button type="button">ساخت روز تعطیل</button>
     </a>
 
 </div>
