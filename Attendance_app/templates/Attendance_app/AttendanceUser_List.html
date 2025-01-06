@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
@@ -29,49 +29,53 @@
 <div class="container">
     <h2>{{ user }}</h2>
 
-    <h4>میزان درآمد در این ماه:<span>{% if income %}
-        {{ income.user_income }}
-        {% else %}
-        خالی
-        {% endif %}
-    </span></h4>
+    <h5>
+        میزان درآمد در این ماه:<span>
+        {% if income %}{{ income.user_income }}{% else %}خالی{% endif %}
+    </span>
+    </h5>
+    <h5>مجموع ساعت‌های کاری در این ماه:
+        <span>
+        {% if income %}{{ income.job_time }}{% else %}خالی{% endif %}
+        </span>
+    </h5>
     <div class="table-responsive">
-    <table>
-        <thead>
-        <tr>
-            <th scope="col">شروع کار</th>
-            <th scope="col">پایان کار</th>
-            <th scope="col">مدت زمان کار</th>
-            <th scope="col">تاریخ ایجاد</th>
-            <th scope="col">درآمد بدست آمده</th>
-            <th scope="col">جزئیات</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% if object %}
-
-
-        {% for obj, inc, job_time  in object %}
+        <table>
+            <thead>
             <tr>
-                <td>{{ obj.start }}</td>
-                <td>{{ obj.end }}</td>
-                <td>{{ job_time }}</td>
-                <td>{{ obj.created_date }}</td>
-                <td>{{ inc}} </td>
-                <td><a href="{% url 'Attendance:result_detail' user.id obj.id %}">بیشتر</a></td>
-
+                <th scope="col">شروع کار</th>
+                <th scope="col">پایان کار</th>
+                <th scope="col">مدت زمان کار</th>
+                <th scope="col">تاریخ ایجاد</th>
+                <th scope="col">درآمد بدست آمده</th>
+                <th scope="col">جزئیات</th>
             </tr>
- {% endfor %}
-        {% else %}
-            <tr>
-<h2>اطلاعات نا موجود</h2>
+            </thead>
+            <tbody>
+            {% if object %}
 
-            </tr>
+
+                {% for obj, inc, job_time  in object %}
+                    <tr>
+                        <td>{{ obj.start }}</td>
+                        <td>{{ obj.end }}</td>
+                        <td>{{ job_time }}</td>
+                        <td>{{ obj.created_date }}</td>
+                        <td>{{ inc }} </td>
+                        <td><a href="{% url 'Attendance:result_detail' user.id obj.id %}">بیشتر</a></td>
+
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <h2>اطلاعات نا موجود</h2>
+
+                </tr>
             {% endif %}
 
-        </tbody>
-    </table>
-        </div>
+            </tbody>
+        </table>
+    </div>
     <form method="POST" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
         <a href="{% url 'Attendance:redirected_view' %}">
@@ -83,7 +87,8 @@
         <button type="submit">شروع</button>
     </form>
 
-<br>    <div class="month-navigation">
+    <br>
+    <div class="month-navigation">
         {% for month_num, month_name in months.items %}
             {% if month_num == month %}
                 <span class="btn btn-primary">{{ month_name }}</span>

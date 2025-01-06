@@ -790,6 +790,7 @@ class ShowResult(TemplateView):
 
             attend = get_object_or_404(AttendanceUser, user=request.user,
                                        token=token)  # token=pk if there is no session
+
         month, year = get_jalali_date()
         context['month'] = month
         context['year'] = year
@@ -1175,7 +1176,7 @@ def staff_user_list(request, pk, month, year):
         elif income_filter == 'greater':
             data = sorted(data, key=lambda entry: entry[3].user_income, reverse=True)
 
-    return render(request, 'Attendance_app/AdminUserLlist.html',
+    return render(request, 'Attendance_app/AdminUserList.html',
                   {'object': data, 'checkincome': no_income_users,
                    'noIncome': no_income_users,
                    'months': MONTH_NAMES, 'month': month, 'year': year})

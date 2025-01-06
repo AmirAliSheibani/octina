@@ -49,19 +49,22 @@
         }
     </style>
 </head>
-<body><div class="container">
-    <h1> حضور و غیاب اُکتینا</h1>
+<body>
+<div class="container">
+    <h1>حضور و غیاب اُکتینا</h1>
     <h2>{{ user }}</h2>
-    <p>مدت زمان کار کردن: <span id="working-hours">{{ job_time }}</span></p>
-    <p>ورود: <span id="working-hours">{{ start }}</span></p>
-    <p>خروج: <span id="working-hours">{{ end }}</span></p>
-    <p>درآمد ماه جاری: <span id="working-hours">{{income.user_income}}</span></p>
-    <p>درآمد اضافه کاری : <span id="working-hours">{{income.surplus}}</span></p>
-    <p>درآمد بدست آمده: <span id="working-hours">{{inc}}</span></p>
+    <h3>مجموع ساعت‌های کاری امروز: <span id="working-hours">{{ object.job_time }}</span></h3>
+    <p>آخرین زمان ثبت‌شده کار: <span id="working-hours">{{ job_time }}</span></p>
+    <p>زمان ورود: <span id="working-hours">{{ start }}</span></p>
+    <p>زمان خروج: <span id="working-hours">{{ end }}</span></p>
+    <p>درآمد ماه جاری: <span id="working-hours">{{ income.user_income }}</span></p>
+    <p>درآمد اضافه‌کاری ماه جاری: <span id="working-hours">{{ income.surplus }}</span></p>
+    <p>کل درآمد امروز: <span id="working-hours">{{ inc }}</span></p>
+
 
     <table>
         <thead>
-       <h2> ورود و خروج های قبلی ({{ date }})</h2>
+        <h2> ورود و خروج های قبلی ({{ date }})</h2>
         <tr>
             <th>ورود</th>
             <th>خروج</th>
@@ -84,7 +87,7 @@
             <button type="button">بازگشت به خانه</button>
         </a>
         <button type="submit">شروع</button>
-        <a href="{% url 'Attendance:result_list' request.user.id month year%}">
+        <a href="{% url 'Attendance:result_list' request.user.id month year %}">
             <button type="button">لیست نتایج</button>
         </a>
     </form>

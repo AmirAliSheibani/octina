@@ -3,13 +3,14 @@ from . import views
 
 app_name = 'Attendance'
 urlpatterns = [
+# path('update-duration/', views.update_duration_view, name='update_duration'),
     path('homepage/', views.create_attendance_view, name='home'),
     path('setting/', views.setting_app, name='setting_app'),
     path('start/', views.start_attendance_view, name='start'),
     path('procces/<str:pk>/', views.process_result_view, name='procces_result'),
     path('result/', views.ShowResult.as_view(), name='result'),
-    # path('update-duration/', views.update_duration_view, name='update_duration'),
     path('resultdetail/<int:user>/<int:pk>', views.ShowResult.as_view(), name='result_detail'),
+    path('resultlist/<int:pk>/<int:month>/<int:year>/', views.AttendanceListView.as_view(), name='result_list'),
     path('userlist/<int:pk>/<int:month>/<int:year>/', views.staff_user_list, name='user_list'),
     path('download_excel/<int:pk>/<int:month>/<int:year>/', views.download_excel, name='download_excel'),
     path('download_excel_user/<int:pk>/<int:month>/<int:year>/', views.download_excel_user, name='download_excel_user'),
@@ -26,7 +27,6 @@ urlpatterns = [
     path('create_position/', views.create_position, name='create_position'),
     path('create_profile/', views.create_profile, name='create_profile'),
     path('create_holiday/', views.create_holiday, name='create_holiday'),
-    path('resultlist/<int:pk>/<int:month>/<int:year>/', views.AttendanceListView.as_view(), name='result_list'),
     path('user_delete/<int:pk>/<int:mo>/<int:year>/', views.delete_user_for_staff, name='delete_user_for_staff'),
     path('user_update/<int:pk>/', views.update_user_for_staff, name='update_user_for_staff'),
     path('personal_info/', views.personal_info, name='personal_info'),
