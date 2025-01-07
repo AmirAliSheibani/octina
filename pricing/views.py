@@ -47,7 +47,7 @@ def process_pricing(request, pk):
         # Get the corresponding ShiftWork object for the current day
         current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
         print(current_shift)
-
+    
         if current_shift is not None and not check_holidays:
             start_shift_time = current_shift.work_start_time
             end_shift_time = current_shift.work_end_time

@@ -77,10 +77,11 @@ def create_attendance_view(request):
         else:
             location = False
 
-
+        # data we need for checking
         in_progress_users = []
         non_progress_users, _ = NoneInProgress.objects.get_or_create(
             created_date=jdatetime.date.fromgregorian(date=now.date()))
+
         users = CustomUser.objects.filter(created_who=request.user)
 
         not_accepted_vacation = Profile.objects.filter(user__in=users, vacation__check_by_employer=False)
@@ -93,6 +94,7 @@ def create_attendance_view(request):
             # check if user get vacation
             if attendance is not None or attendance.user.possit.vacation.last().date != datetime.now().date():
 
+                # handle in_progress and none progress
                 if attendance.in_progress:
                     if attendance.user not in in_progress_users:
                         in_progress_users.append(attendance.user)
@@ -103,34 +105,34 @@ def create_attendance_view(request):
                 else:
                     # if user is not workin at this time check the end time for user
                     if attendance.user not in in_progress_users:
-                        try:
-                            profile = Profile.objects.get(user=attendance.user)
-                            shiftwork = profile.profile_position.shift_work
-                            current_day_number = datetime.now().weekday()
-                            # get current day of weak for checking the shift work days
-                            reversed_day_number = day_mapping[current_day_number]
-                            print(current_day_number, reversed_day_number)
+                        profile = Profile.objects.filter(user=attendance.user)
+                        if profile.exists():
+                            profile = profile.last()
+                        else:
+                            raise Profile.DoesNotExist()
+                        shiftwork = profile.profile_position.shift_work
+                        current_day_number = datetime.now().weekday()
+                        # get current day of weak for checking the shift work days
+                        reversed_day_number = day_mapping[current_day_number]
+                        print(current_day_number, reversed_day_number)
 
-                            # Get the corresponding ShiftWork object for the current day
-                            current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
+                        # Get the corresponding ShiftWork object for the current day
+                        current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
 
-                            if current_shift is not None:
-                                end_shift_time = current_shift.work_end_time
+                        if current_shift is not None:
+                            end_shift_time = current_shift.work_end_time
 
-                                if not attendance.end >= end_shift_time:
-                                    non_progress_users.user.add(attendance.user)
-                                else:
-                                    in_progress_users.append(attendance.user)
-                                    if attendance.user in non_progress_users.user.all():
-                                        non_progress_users.user.remove(attendance.user)
-                                # if user have no shift data for curent day so user work at holiday
+                            if not attendance.end >= end_shift_time:
+                                non_progress_users.user.add(attendance.user)
                             else:
                                 in_progress_users.append(attendance.user)
                                 if attendance.user in non_progress_users.user.all():
                                     non_progress_users.user.remove(attendance.user)
-
-                        except Profile.DoesNotExist:
-                            profile = None
+                            # if user have no shift data for curent day so user work at holiday
+                        else:
+                            in_progress_users.append(attendance.user)
+                            if attendance.user in non_progress_users.user.all():
+                                non_progress_users.user.remove(attendance.user)
 
         # use * for change queryset to arguments
         non_progress_users.user.add(*users.exclude(username__in=in_progress_users).exclude(
