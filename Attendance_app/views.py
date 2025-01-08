@@ -19,7 +19,7 @@ from .forms import StaffCreateUser, ShiftWorkForm, PositionForm, ProfileForm, Ho
     UpdateProfileForm
 from .models import AttendanceUser
 from .mixin import CustomizedRquirementLogin
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from pricing.models import Profile, User, CustomUser, Income, ShiftWork, Positions, Holidays, Vacation, \
     VacationType, Day, NoneInProgress
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
@@ -216,31 +216,41 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
 
 
 
+@login_required
+@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
 def no_confirmation_check(request):
-    if request.user.is_staff:
-        users = CustomUser.objects.filter(created_who=request.user)
-        no_confirmation = AttendanceUser.objects.filter(
-            Q(user__in=users) & (Q(confirmation=False) | Q(confirmation=None)))
-        return render(request, 'Attendance_app/confirmation_user.html', {'no_confirmation': no_confirmation})
-    else:
-        return redirect(reverse('Attendance:redirected_view'))
+    """
+    View for staff users to see attendance records without confirmation.
+    """
+    users = CustomUser.objects.filter(created_who=request.user)
+    no_confirmation = AttendanceUser.objects.filter(
+        user__in=users,
+        confirmation__in=[False, None]
+    )
+    return render(request, 'Attendance_app/confirmation_user.html', {'no_confirmation': no_confirmation})
 
 
+@login_required
+@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
 def accept_confirmation(request, pk):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
-    attendance_obj = AttendanceUser.objects.get(pk=pk)
+    """
+    View to accept and confirm attendance for a user.
+    """
+    attendance_obj = get_object_or_404(AttendanceUser, pk=pk)
     attendance_obj.confirmation = True
     attendance_obj.save()
-    return redirect(reverse('Attendance:no_confirmation_check'))
+    return redirect('Attendance:no_confirmation_check')
 
 
+@login_required
+@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
 def not_accepted_confirmation(request, pk):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
-    attendance_obj = AttendanceUser.objects.get(pk=pk)
+    """
+    View to reject attendance for a user.
+    """
+    attendance_obj = get_object_or_404(AttendanceUser, pk=pk)
     attendance_obj.delete()
-    return redirect(reverse('Attendance:no_confirmation_check'))
+    return redirect('Attendance:no_confirmation_check')
 
 
 @login_required
