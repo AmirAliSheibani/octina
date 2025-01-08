@@ -35,3 +35,21 @@ def handle_non_progress_users(attendance, current_shift, end_shift_time, non_pro
             non_progress_users.user.add(attendance.user)
     else:
         non_progress_users.user.add(attendance.user)
+
+
+def get_month_names():
+    MONTH_NAMES = {
+        1: 'فروردین',
+        2: 'اردیبهشت',
+        3: 'خرداد',
+        4: 'تیر',
+        5: 'مرداد',
+        6: 'شهریور',
+        7: 'مهر',
+        8: 'آبان',
+        9: 'آذر',
+        10: 'دی',
+        11: 'بهمن',
+        12: 'اسفند',
+    }
+    return MONTH_NAMES

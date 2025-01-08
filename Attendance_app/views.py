@@ -30,7 +30,7 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from .utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users
+from .utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users, get_month_names
 from django.http import HttpResponse
 from django.db.models import Q
 
@@ -137,95 +137,83 @@ def create_attendance_view(request):
 class AttendanceListView(CustomizedRquirementLogin, ListView):
     model = AttendanceUser
 
+    def get_income_or_create(self, attendance_obj):
+        """
+        Retrieve or create an Income object for the given attendance object.
+        """
+        try:
+            return Income.objects.get(
+                month=attendance_obj.created_date.month,
+                year=attendance_obj.created_date.year,
+                user=attendance_obj.user
+            )
+        except Income.DoesNotExist:
+            profile = Profile.objects.get(user=attendance_obj.user)
+            job_time_hours = attendance_obj.job_time.total_seconds() / 3600
+            income = Income.objects.create(
+                created_date=attendance_obj.created_date,
+                user=attendance_obj.user,
+                position=profile,
+                job_time=attendance_obj.job_time,
+                user_income=profile.position_income * job_time_hours,
+                created_by=self.request.user.created_who
+            )
+            income.save()
+            return income
+
+    def format_job_time(self, job_time_str):
+        """
+        Format the job time string into a localized format.
+        """
+        if 'day' in job_time_str:
+            return job_time_str.replace("day", "روز")[:14]
+        return job_time_str[:7]
+
+    def calculate_income(self, attendance, position_income):
+        """
+        Calculate the income for a specific attendance entry.
+        """
+        return round(position_income * (attendance.job_time.total_seconds() / 3600), 4)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         pk = self.kwargs['pk']
         month = self.kwargs['month']
         year = self.kwargs['year']
-        MONTH_NAMES = {
-            1: 'فروردین',
-            2: 'اردیبهشت',
-            3: 'خرداد',
-            4: 'تیر',
-            5: 'مرداد',
-            6: 'شهریور',
-            7: 'مهر',
-            8: 'آبان',
-            9: 'آذر',
-            10: 'دی',
-            11: 'بهمن',
-            12: 'اسفند',
-        }
-
+        MONTH_NAMES = get_month_names()
         context['months'] = MONTH_NAMES
 
         try:
-            attendnace_queryset = AttendanceUser.objects.filter(
-                month=month,
-                year=year,
-                user_id=pk
-            )
-            context['user'] = CustomUser.objects.get(id=pk)
-            attendance_obj = attendnace_queryset.first()
-            if attendance_obj is None:
-                raise AttendanceUser.DoesNotExist("The AttendanceUser does not exist.")
-            job_time = []
+            user = CustomUser.objects.get(id=pk)
+            attendances = AttendanceUser.objects.filter(month=month, year=year, user_id=pk)
+            context['user'] = user
 
-            try:
-                income = Income.objects.get(
-                    month=attendance_obj.created_date.month,
-                    year=attendance_obj.created_date.year,
-                    user=attendance_obj.user
-                )
+            if not attendances.exists():
+                raise AttendanceUser.DoesNotExist("No attendance records found for the given user and date range.")
 
-            except Income.DoesNotExist:
-                profile = Profile.objects.get(user=attendance_obj.user)
-                income = Income.objects.create(created_date=attendance_obj.created_date, user=attendance_obj.user,
-                                               position=profile, job_time=attendance_obj.job_time)
-                income.user_income = profile.position_income * (income.job_time.total_seconds() / 3600)
-                income.created_by = self.request.user.created_who
-                income.save()
+            attendance_obj = attendances.first()
+            income = self.get_income_or_create(attendance_obj)
 
-            objects = attendnace_queryset
-            inc = income.position.profile_position.position_income
+            position_income = income.position.profile_position.position_income
+            job_time_list = []
             results = []
-            for obj in objects:
-                result = inc * (obj.job_time.total_seconds() / 3600)
-                results.append(round(result, 4))
-                job = str(obj.job_time)
-                if 'day' in job:
-                    job_time.append(job.replace("day", "روز")[:14])
-                else:
-                    job_time.append(job[:7])
 
-            # Pass the objects and results to the template context
+            for attendance in attendances:
+                results.append(self.calculate_income(attendance, position_income))
+                job_time_list.append(self.format_job_time(str(attendance.job_time)))
 
-            context["object"] = zip(attendnace_queryset, results, job_time)
+            context["object"] = zip(attendances, results, job_time_list)
             context['income'] = income
-            context['month'] = month
-            context['year'] = year
 
         except AttendanceUser.DoesNotExist:
             context["object"] = None
             context['user'] = CustomUser.objects.get(id=pk)
-
             context['income'] = None
-            context['month'] = month
-            context['year'] = year
 
+        context['month'] = month
+        context['year'] = year
         return context
 
-    # def get_fieldsets(self, request, obj=None):
-    #
-    #     if not request.user.is_superuser:
-    #         if not obj:
-    #             return self.add_fieldsets
-    #         fieldsets = [
-    #
-    #             (None, {"fields": ("username", "password")}),
-    #             (_("Personal info"), {"fields": ("first_name", "last_name", "email")})
-    #         ]
-    #         return fieldsets
 
 
 def no_confirmation_check(request):
