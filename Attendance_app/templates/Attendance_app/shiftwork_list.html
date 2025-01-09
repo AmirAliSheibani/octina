@@ -35,6 +35,7 @@
   <tr>
     <td> شروع ساعت کاری  <hr>{{ shift.work_start_time }}</td>
     <td>  پایان ساعت کاری  <hr>{{ shift.work_end_time }}</td>
+    <td>  پایان ساعت کاری  <hr>{{ shift.required_time }}</td>
     <td>
       {% for work_day in shift.work_days.all %}
         {{ work_day }},

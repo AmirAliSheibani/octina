@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.conf import settings
 # from django.contrib.auth.models import User
@@ -74,6 +74,7 @@ class ShiftWork(models.Model):
     work_end_time = models.TimeField(null=True)
     # Every day, working hours may be different from other days of the week
     work_days = models.ManyToManyField('Day', related_name='Days')
+    required_time = models.DurationField(default=timedelta(0), blank=True)
     name = models.CharField(max_length=70, null=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_shift_works', blank=True,
                                    null=True)
@@ -86,6 +87,15 @@ class ShiftWork(models.Model):
         super().save_model(request, obj, form, change)
 
 
+
+    def save(self, *args, **kwargs):
+        self.required_time = datetime.combine(datetime.min, self.work_end_time) - datetime.combine(datetime.min,
+                                                                                                   self.work_start_time)
+        print(self.required_time)
+        print(1)
+        super().save(*args, **kwargs)
+
+
 class Positions(models.Model):
     positions = models.CharField(max_length=100)
     position_income = models.IntegerField()
@@ -94,12 +104,14 @@ class Positions(models.Model):
     # If he is supposed to work on unspecified days, then it is considered overtime.
 
     shift_work = models.ManyToManyField('ShiftWork', related_name='Shift_work')
+
     # Also, according to the series of working hours, they must be inside the company,
     # and being inside the company more than those working hours is considered overtime
     overtime_position_income = models.IntegerField(null=True, blank=True)
     monthly = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_Positions', blank=True,
                                    null=True)
+
 
     def __str__(self):
         return self.positions
