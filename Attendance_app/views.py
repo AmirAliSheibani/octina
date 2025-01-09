@@ -108,7 +108,7 @@ def create_attendance_view(request):
             *users.exclude(username__in=in_progress_users)
                   .exclude(id__in=non_progress_users.user.values_list('id', flat=True))
         )
-
+        none_progress_count = NoneInProgress.objects.filter(user__in=users).count()
         # Filter absent users for the current month
         filter_non_progress = NoneInProgress.objects.filter(month=month, user__in=users).exclude(
             created_date=jdatetime.date.fromgregorian(date=now.date())
@@ -122,6 +122,7 @@ def create_attendance_view(request):
             'no_confirmation_users': attendance_obj,
             'in_progress_users': in_progress_users,
             'non_progress_users': non_progress_users,
+            'none_progression_count': none_progress_count,
             'users': users,
             'location': location,
             'not_accepted_vacation': not_accepted_vacation,
@@ -402,20 +403,7 @@ def result_detail(request, pk):
 
 
 def non_progress(request, month, year):
-    MONTH_NAMES = {
-        1: 'فروردین',
-        2: 'اردیبهشت',
-        3: 'خرداد',
-        4: 'تیر',
-        5: 'مرداد',
-        6: 'شهریور',
-        7: 'مهر',
-        8: 'آبان',
-        9: 'آذر',
-        10: 'دی',
-        11: 'بهمن',
-        12: 'اسفند',
-    }
+    MONTH_NAMES = get_month_names()
     now = timezone.now()
     users = CustomUser.objects.filter(created_who=request.user)
     filter_non_progress = NoneInProgress.objects.filter(user__in=users, month=month, year=year).exclude(
@@ -445,29 +433,8 @@ def delete_monthly_non_progress(request, month, year):
 
 def in_progress_users(request, month, year):
     if request.user.is_staff:
-        MONTH_NAMES = {
-            1: 'فروردین',
-            2: 'اردیبهشت',
-            3: 'خرداد',
-            4: 'تیر',
-            5: 'مرداد',
-            6: 'شهریور',
-            7: 'مهر',
-            8: 'آبان',
-            9: 'آذر',
-            10: 'دی',
-            11: 'بهمن',
-            12: 'اسفند',
-        }
-        day_mapping = {
-            5: 0,  # Saturday
-            6: 1,  # Sunday
-            0: 2,  # Monday
-            1: 3,  # Tuesday
-            2: 4,  # Wednesday
-            3: 5,  # Thursday
-            4: 6,  # Friday
-        }
+        MONTH_NAMES = get_month_names()
+        day_mapping = get_day_mapping()
 
         non_progress_users = []
         in_progress_users = []
@@ -518,15 +485,7 @@ def in_progress_users(request, month, year):
 
 @login_required
 def start_attendance_view(request):
-    day_mapping = {
-        5: 0,  # Saturday
-        6: 1,  # Sunday
-        0: 2,  # Monday
-        1: 3,  # Tuesday
-        2: 4,  # Wednesday
-        3: 5,  # Thursday
-        4: 6,  # Friday
-    }
+    day_mapping = get_day_mapping()
     current_day_number = datetime.now().weekday()
     reversed_day_number = day_mapping[current_day_number]
     current_hafte = {

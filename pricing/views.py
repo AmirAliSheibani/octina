@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from Attendance_app.models import AttendanceUser
+from Attendance_app.utils import get_day_mapping
 from pricing.models import Income, Profile, CustomUser, Holidays
 from django.conf import settings
 import datetime as d
@@ -23,15 +24,7 @@ def process_pricing(request, pk):
         shiftwork = income.position.profile_position.shift_work
 
         # Get the current day of the week (0 for Monday, 1 for Tuesday, and so on)
-        day_mapping = {
-            5: 0,  # Saturday
-            6: 1,  # Sunday
-            0: 2,  # Monday
-            1: 3,  # Tuesday
-            2: 4,  # Wednesday
-            3: 5,  # Thursday
-            4: 6,  # Friday
-        }
+        day_mapping = get_day_mapping()
 
         current_day_number = datetime.now().weekday()
         reversed_day_number = day_mapping[current_day_number]

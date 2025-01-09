@@ -1,5 +1,12 @@
+from datetime import datetime
+
 import jdatetime
+from django.db.models import Q
 from django.utils import timezone
+
+from Attendance_app.models import AttendanceUser
+from pricing.models import Profile, NoneInProgress
+
 
 def get_jalali_date():
     """
@@ -15,6 +22,7 @@ def get_jalali_date():
     jalali_date = jdatetime.date.fromgregorian(date=now.date())
     return jalali_date.month, jalali_date.year
 
+
 def get_day_mapping():
     return {
         5: 0,  # Saturday
@@ -26,12 +34,14 @@ def get_day_mapping():
         4: 6,  # Friday
     }
 
+
 def get_current_shift(shiftwork, reversed_day_number):
     return shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
 
+
 def handle_non_progress_users(attendance, current_shift, end_shift_time, non_progress_users):
     if current_shift:
-        if not attendance.end >= end_shift_time:
+        if not attendance.end >= end_shift_time or attendance.job_time >= current_shift.required_time:
             non_progress_users.user.add(attendance.user)
     else:
         non_progress_users.user.add(attendance.user)
@@ -53,3 +63,79 @@ def get_month_names():
         12: 'اسفند',
     }
     return MONTH_NAMES
+
+
+def handle_progress_and_none_progress_user(users):
+    """
+    Handles in-progress and non-progress users based on attendance data.
+
+    Args:
+        users (QuerySet): QuerySet of CustomUser objects.
+
+    Returns:
+        dict: A dictionary containing:
+              - 'in_progress_users': List of users currently in progress.
+              - 'non_progress_users': NoneInProgress object for absent users.
+              - 'not_accepted_vacation': QuerySet of vacations not accepted by employer.
+              - 'attendance_obj': QuerySet of AttendanceUser with incomplete confirmations.
+              - 'filter_non_progress': Filtered NoneInProgress objects for the current month.
+    """
+    now = timezone.now()
+    month, year = get_jalali_date()
+    day_mapping = get_day_mapping()
+
+    # Users with incomplete confirmations or absences
+    attendance_obj = AttendanceUser.objects.filter(
+        Q(user__in=users) & (Q(confirmation=False) | Q(confirmation=None))
+    )
+
+    attendance_users = AttendanceUser.objects.filter(user__in=users)
+
+    # Users currently working and absent users
+    in_progress_users = []
+    non_progress_users, _ = NoneInProgress.objects.get_or_create(
+        created_date=jdatetime.date.fromgregorian(date=now.date())
+    )
+
+    # Process user attendance
+    for attendance in attendance_users:
+        profile = Profile.objects.filter(user=attendance.user).last()
+        if not profile:
+            continue
+
+        # Check if user works full at the shift time
+        shiftwork = profile.profile_position.shift_work
+        current_day_number = now.weekday()
+        reversed_day_number = day_mapping[current_day_number]
+        current_shift = get_current_shift(shiftwork, reversed_day_number)
+
+        if attendance.in_progress:
+            in_progress_users.append(attendance.user)
+            if attendance.user in non_progress_users.user.all():
+                non_progress_users.user.remove(attendance.user)
+        else:
+            end_shift_time = current_shift.work_end_time if current_shift else None
+            handle_non_progress_users(attendance, current_shift, end_shift_time, non_progress_users)
+
+    # Add absent users
+    non_progress_users.user.add(
+        *users.exclude(username__in=in_progress_users)
+        .exclude(id__in=non_progress_users.user.values_list('id', flat=True))
+    )
+    print(non_progress_users)
+    # Users with vacations not accepted by employer
+    not_accepted_vacation = Profile.objects.filter(user__in=users, vacation__check_by_employer=False)
+
+    # Filter absent users for the current month
+    filter_non_progress = NoneInProgress.objects.filter(month=month, user__in=users).exclude(
+        created_date=jdatetime.date.fromgregorian(date=now.date())
+    )
+    print(non_progress_users)
+
+    return {
+        'in_progress_users': in_progress_users,
+        'non_progress_users': non_progress_users,
+        'not_accepted_vacation': not_accepted_vacation,
+        'attendance_obj': attendance_obj,
+        'filter_non_progress': filter_non_progress,
+    }
