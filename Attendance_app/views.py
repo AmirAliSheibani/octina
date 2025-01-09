@@ -73,7 +73,9 @@ def create_attendance_view(request):
         attendance_obj = AttendanceUser.objects.filter(
             Q(user__in=users) & (Q(confirmation=False) | Q(confirmation=None))
         )
+        print(attendance_obj)
         attendance_users = AttendanceUser.objects.filter(user__in=users)
+
 
         # Users currently working and absent users
         in_progress_users = []
@@ -87,7 +89,7 @@ def create_attendance_view(request):
             if not profile:
                 continue
 
-            # Calculate user's work shift
+            # check if user works full at the shift time
             shiftwork = profile.profile_position.shift_work
             current_day_number = datetime.now().weekday()
             reversed_day_number = day_mapping[current_day_number]
@@ -108,7 +110,7 @@ def create_attendance_view(request):
         )
 
         # Filter absent users for the current month
-        filter_non_progress = NoneInProgress.objects.filter(month=month).exclude(
+        filter_non_progress = NoneInProgress.objects.filter(month=month, user__in=users).exclude(
             created_date=jdatetime.date.fromgregorian(date=now.date())
         )
 
@@ -252,11 +254,9 @@ def not_accepted_confirmation(request, pk):
     attendance_obj.delete()
     return redirect('Attendance:no_confirmation_check')
 
-
 @login_required
+@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
 def download_excel(request, pk, month, year):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
         # positions = Profile.objects.filter(created_by=request.user)
@@ -285,31 +285,13 @@ def download_excel(request, pk, month, year):
         )
 
     no_income_users = users.exclude(id__in=income.values_list('user_id', flat=True))
-    # for user in users:
-    #     try:
-    #         att = attendances.get(user=user)
-    #     except:
-    #         users = users.exclude(pk=user.pk)
     profile_position = getattr(users, 'possit', None).profile_position if hasattr(users, 'possit') else None
     positions = str(profile_position) if profile_position else ''
 
     # Create an Excel workbook and sheet
     workbook = openpyxl.Workbook()
     sheet = workbook.active
-    MONTH_NAMES = {
-        1: 'فروردین',
-        2: 'اردیبهشت',
-        3: 'خرداد',
-        4: 'تیر',
-        5: 'مرداد',
-        6: 'شهریور',
-        7: 'مهر',
-        8: 'آبان',
-        9: 'آذر',
-        10: 'دی',
-        11: 'بهمن',
-        12: 'اسفند',
-    }
+    MONTH_NAMES = get_month_names()
 
     # Set month name
     month_name = MONTH_NAMES.get(month)
