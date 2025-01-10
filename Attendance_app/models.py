@@ -23,6 +23,7 @@ class AttendanceUser(models.Model):
     token = models.CharField(max_length=100, default=user)
     last_info = models.TextField(max_length=800, default=' +', null=True, blank=True)
     in_progress = models.BooleanField(default=False)
+
     holiday_check = models.BooleanField(default=False)
     overtime_check = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, default=1, related_name='created_by_AttendanceUser')

@@ -43,9 +43,10 @@ def handle_non_progress_users(attendance, current_shift, end_shift_time, non_pro
     if current_shift:
         if not attendance.end >= end_shift_time or attendance.job_time >= current_shift.required_time:
             non_progress_users.user.add(attendance.user)
+            attendance.user.absent = True
     else:
         non_progress_users.user.add(attendance.user)
-
+        attendance.user.absent = True
 
 def get_month_names():
     MONTH_NAMES = {
@@ -111,31 +112,23 @@ def handle_progress_and_none_progress_user(users):
 
         if attendance.in_progress:
             in_progress_users.append(attendance.user)
+            attendance.user.absent = False
+
             if attendance.user in non_progress_users.user.all():
                 non_progress_users.user.remove(attendance.user)
         else:
             end_shift_time = current_shift.work_end_time if current_shift else None
             handle_non_progress_users(attendance, current_shift, end_shift_time, non_progress_users)
+        attendance.user.save()
 
     # Add absent users
     non_progress_users.user.add(
         *users.exclude(username__in=in_progress_users)
         .exclude(id__in=non_progress_users.user.values_list('id', flat=True))
     )
-    print(non_progress_users)
-    # Users with vacations not accepted by employer
-    not_accepted_vacation = Profile.objects.filter(user__in=users, vacation__check_by_employer=False)
-
-    # Filter absent users for the current month
-    filter_non_progress = NoneInProgress.objects.filter(month=month, user__in=users).exclude(
-        created_date=jdatetime.date.fromgregorian(date=now.date())
-    )
-    print(non_progress_users)
 
     return {
         'in_progress_users': in_progress_users,
         'non_progress_users': non_progress_users,
-        'not_accepted_vacation': not_accepted_vacation,
         'attendance_obj': attendance_obj,
-        'filter_non_progress': filter_non_progress,
     }

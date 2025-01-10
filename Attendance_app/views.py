@@ -30,7 +30,8 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from .utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users, get_month_names
+from .utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users, get_month_names, \
+    handle_progress_and_none_progress_user
 from django.http import HttpResponse
 from django.db.models import Q
 
@@ -67,48 +68,13 @@ def create_attendance_view(request):
 
         # Users associated with the manager
         users = CustomUser.objects.filter(created_who=request.user)
+        progress_data = handle_progress_and_none_progress_user(users)
+
         not_accepted_vacation = Profile.objects.filter(user__in=users, vacation__check_by_employer=False)
+        none_progress_count = CustomUser.objects.filter(created_who=request.user, absent=True)
 
-        # Users with incomplete confirmations or absences
-        attendance_obj = AttendanceUser.objects.filter(
-            Q(user__in=users) & (Q(confirmation=False) | Q(confirmation=None))
-        )
-        print(attendance_obj)
-        attendance_users = AttendanceUser.objects.filter(user__in=users)
-
-
-        # Users currently working and absent users
-        in_progress_users = []
-        non_progress_users, _ = NoneInProgress.objects.get_or_create(
-            created_date=jdatetime.date.fromgregorian(date=now.date())
-        )
-
-        # Process user attendance
-        for attendance in attendance_users:
-            profile = Profile.objects.filter(user=attendance.user).last()
-            if not profile:
-                continue
-
-            # check if user works full at the shift time
-            shiftwork = profile.profile_position.shift_work
-            current_day_number = datetime.now().weekday()
-            reversed_day_number = day_mapping[current_day_number]
-            current_shift = get_current_shift(shiftwork, reversed_day_number)
-
-            if attendance.in_progress:
-                in_progress_users.append(attendance.user)
-                if attendance.user in non_progress_users.user.all():
-                    non_progress_users.user.remove(attendance.user)
-            else:
-                end_shift_time = current_shift.work_end_time if current_shift else None
-                handle_non_progress_users(attendance, current_shift, end_shift_time, non_progress_users)
-
-        # Add absent users
-        non_progress_users.user.add(
-            *users.exclude(username__in=in_progress_users)
-                  .exclude(id__in=non_progress_users.user.values_list('id', flat=True))
-        )
-        none_progress_count = NoneInProgress.objects.filter(user__in=users).count()
+        for c in not_accepted_vacation:
+            print(c)
         # Filter absent users for the current month
         filter_non_progress = NoneInProgress.objects.filter(month=month, user__in=users).exclude(
             created_date=jdatetime.date.fromgregorian(date=now.date())
@@ -119,10 +85,9 @@ def create_attendance_view(request):
             'income': income,
             'month': month,
             'year': year,
-            'no_confirmation_users': attendance_obj,
-            'in_progress_users': in_progress_users,
-            'non_progress_users': non_progress_users,
-            'none_progression_count': none_progress_count,
+            'no_confirmation_users': not_accepted_vacation,
+            'in_progress_users': progress_data['in_progress_users'],
+            'none_progression_count': none_progress_count.count(),
             'users': users,
             'location': location,
             'not_accepted_vacation': not_accepted_vacation,
@@ -433,53 +398,18 @@ def delete_monthly_non_progress(request, month, year):
 
 def in_progress_users(request, month, year):
     if request.user.is_staff:
-        MONTH_NAMES = get_month_names()
         day_mapping = get_day_mapping()
-
-        non_progress_users = []
-        in_progress_users = []
         users = CustomUser.objects.filter(created_who=request.user)
 
-        attendance_obj = AttendanceUser.objects.filter(
-            Q(user__in=users) & (Q(confirmation=False) | Q(confirmation=None)))
-        attendance_users = AttendanceUser.objects.filter(user__in=users)
+        # non_progress_records = NoneInProgress.objects.filter(user__in=users, month=month, year=year)
+        # non_progress_users = CustomUser.objects.filter(nonprogres__in=non_progress_records).distinct()
+        non_progress_users = CustomUser.objects.filter(created_who=request.user, absent=True)
+        # in_progress_records = AttendanceUser.objects.filter(user__in=users, absent=False) # todo : i have to ensure user is not absent in models
+        in_progress_users = CustomUser.objects.filter(created_who=request.user, absent=False).distinct()
 
-        for attendance in attendance_users:
-            if attendance.in_progress:
-                if attendance.user not in in_progress_users:
-                    in_progress_users.append(attendance.user)
-                    if attendance.user in non_progress_users:
-                        non_progress_users.remove(attendance.user)
-
-            else:
-                if attendance.user not in in_progress_users:
-                    try:
-                        profile = Profile.objects.get(user=attendance.user)
-                        shiftwork = profile.profile_position.shift_work
-                        current_day_number = datetime.now().weekday()
-                        reversed_day_number = day_mapping[current_day_number]
-                        print(current_day_number, reversed_day_number)
-
-                        # Get the corresponding ShiftWork object for the current day
-                        current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
-
-                        if current_shift is not None:
-                            end_shift_time = current_shift.work_end_time
-
-                            if not attendance.end >= end_shift_time:
-                                if not attendance.user in non_progress_users:
-                                    print('non_progress_users.append(attendance.user)')
-                                    non_progress_users.append(attendance.user)
-                            else:
-                                in_progress_users.append(attendance.user)
-                                if attendance.user in non_progress_users:
-                                    non_progress_users.remove(attendance.user)
-                    except Profile.DoesNotExist:
-                        profile = None
-        non_progress_users += users.exclude(username__in=in_progress_users).exclude(username__in=non_progress_users)
         return render(request, 'Attendance_app/in_progress_users.html',
                       {'in_progress_users': in_progress_users, 'non_progress_users': non_progress_users,
-                       'months': MONTH_NAMES, 'month': month, 'year': year})
+                       'months': get_month_names(), 'month': month, 'year': year})
     return redirect(reverse('Attendance:redirected_view'))
 
 

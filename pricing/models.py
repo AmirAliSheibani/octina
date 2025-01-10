@@ -186,7 +186,7 @@ class NoneInProgress(models.Model):
     year = models.PositiveSmallIntegerField(default=None, null=True)
 
     def __str__(self):
-        return f'{self.user} - {self.month}'
+        return f'{self.created_date} - {self.month}'
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Only set the month if the object is being created
@@ -198,5 +198,6 @@ class NoneInProgress(models.Model):
 class CustomUser(AbstractUser):
     created_who = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
                                     related_name='created_custom_userss')
+    absent = models.BooleanField(default=True)
     subscription_Date = jmodels.jDateField(blank=True, null=True)
     verified_email = models.BooleanField(default=False)
