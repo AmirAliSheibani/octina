@@ -1,6 +1,4 @@
-import math
 import uuid
-
 from locations.models import Location
 from .forms import PositionForm
 import jdatetime
@@ -148,8 +146,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         pk = self.kwargs['pk']
         month = self.kwargs['month']
         year = self.kwargs['year']
-        MONTH_NAMES = get_month_names()
-        context['months'] = MONTH_NAMES
+        context['months'] = get_month_names()
 
         try:
             user = CustomUser.objects.get(id=pk)
@@ -220,6 +217,7 @@ def not_accepted_confirmation(request, pk):
     attendance_obj.delete()
     return redirect('Attendance:no_confirmation_check')
 
+
 @login_required
 @user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
 def download_excel(request, pk, month, year):
@@ -251,7 +249,7 @@ def download_excel(request, pk, month, year):
         )
 
     no_income_users = users.exclude(id__in=income.values_list('user_id', flat=True))
-    profile_position = getattr(users, 'possit', None).profile_position if hasattr(users, 'possit') else None
+    profile_position = getattr(getattr(users, 'possit', None), 'profile_position', None)
     positions = str(profile_position) if profile_position else ''
 
     # Create an Excel workbook and sheet
@@ -544,7 +542,7 @@ def start_attendance_view(request):
 
             attendance_obj.save()
             if location:
-                return redirect(reverse('Attendance:get_user_location'))
+                return redirect(reverse('locations:get_user_location'))
 
             # print("attendance_obj = AttendanceUser.objects.create(user=request.user, created_date=date, start=start,)")
             return render(request, 'Attendance_app/start.html',
@@ -940,20 +938,7 @@ def download_excel_user(request, pk, month, year):
 def staff_user_list(request, pk, month, year):
     if not request.user.is_staff:
         return redirect(reverse('Attendance:redirected_view'))
-    MONTH_NAMES = {
-        1: 'فروردین',
-        2: 'اردیبهشت',
-        3: 'خرداد',
-        4: 'تیر',
-        5: 'مرداد',
-        6: 'شهریور',
-        7: 'مهر',
-        8: 'آبان',
-        9: 'آذر',
-        10: 'دی',
-        11: 'بهمن',
-        12: 'اسفند',
-    }
+    MONTH_NAMES = get_month_names()
 
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
