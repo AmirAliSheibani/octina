@@ -51,7 +51,6 @@ def create_attendance_view(request):
     position = Profile.objects.get(user=request.user)
     now = timezone.now()
     month, year = get_jalali_date()
-    day_mapping = get_day_mapping()
 
     # Calculate user's income
     try:
@@ -70,7 +69,10 @@ def create_attendance_view(request):
 
         not_accepted_vacation = Profile.objects.filter(user__in=users, vacation__check_by_employer=False)
         none_progress_count = CustomUser.objects.filter(created_who=request.user, absent=True)
-
+        no_confirmation = AttendanceUser.objects.filter(
+            user__in=users,
+            confirmation__in=[False, None]
+        )
         for c in not_accepted_vacation:
             print(c)
         # Filter absent users for the current month
@@ -83,7 +85,7 @@ def create_attendance_view(request):
             'income': income,
             'month': month,
             'year': year,
-            'no_confirmation_users': not_accepted_vacation,
+            'no_confirmation_users': no_confirmation,
             'in_progress_users': progress_data['in_progress_users'],
             'none_progression_count': none_progress_count.count(),
             'users': users,
@@ -451,10 +453,10 @@ def start_attendance_view(request):
     check_holidays = datetime.now().date()
     print(check_holidays)
     try:
-        holiday = Holidays.objects.get(date=check_holidays)
+        # holiday = Holidays.objects.get(date=check_holidays)
         check_holidays = True
     except Holidays.DoesNotExist:
-        holiday = None
+        # holiday = None
         check_holidays = False
 
     print(check_holidays)
