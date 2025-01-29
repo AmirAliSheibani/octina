@@ -1,6 +1,6 @@
 import uuid
 from locations.models import Location
-from .forms import PositionForm
+import re
 import jdatetime
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
@@ -328,9 +328,6 @@ def download_excel(request, pk, month, year):
     return response
 
 
-import re
-
-
 @login_required
 def result_detail(request, pk):
     attendance_obj = AttendanceUser.objects.get(id=pk)
@@ -344,7 +341,6 @@ def result_detail(request, pk):
             yar=at_year,
             user=attendance_obj.user
         )
-        print('from try of result_detail')
     except:
         income = Income.objects.create(created_date=attendance_obj.created_date, user=attendance_obj.user,
                                        position=Profile.objects.get(user=attendance_obj.user), job_time=attendance_obj.job_time)
@@ -398,8 +394,6 @@ def delete_monthly_non_progress(request, month, year):
 
 def in_progress_users(request, month, year):
     if request.user.is_staff:
-        day_mapping = get_day_mapping()
-        users = CustomUser.objects.filter(created_who=request.user)
 
         # non_progress_records = NoneInProgress.objects.filter(user__in=users, month=month, year=year)
         # non_progress_users = CustomUser.objects.filter(nonprogres__in=non_progress_records).distinct()
@@ -627,7 +621,6 @@ class ShowResult(TemplateView):
         try:
 
             pk = self.kwargs['pk']
-            print(1)
             id = self.kwargs['user']
             attend = get_object_or_404(AttendanceUser, user_id=id, id=pk)
         except:
@@ -669,7 +662,7 @@ class ShowResult(TemplateView):
         zipped_times = zip(starts, ends)
         at_month = attend.created_date.month
 
-        income = income = Income.objects.get(
+        income = Income.objects.get(
             month=at_month,
             year=attend.created_date.year,
             user=attend.user
@@ -677,6 +670,7 @@ class ShowResult(TemplateView):
 
         job_time = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
         inc = round(income.position.profile_position.position_income * (job_time.total_seconds() / 3600), 4)
+
         context['income'] = income
         context['end'] = end1
         context['start'] = start2
@@ -696,7 +690,8 @@ def list_shift_work(request):
     return render(request, 'Attendance_app/shiftwork_list.html', {'shiftwork': shiftwork})
 
 
-def create_shift_work(request):
+def create_shift_work(request): #todo i have to make another app an put every thing that is about manage users on it and then create a logic to ensure all views need login and also needs to be an staff user
+    #todo and also i have to ensure all views from this app that is only about ordinary users that they are login or not
     check_Shift = ShiftWork.objects.filter(created_by=request.user).count()
     if check_Shift >= 10:
         check_Shift = True
@@ -719,19 +714,18 @@ def create_shift_work(request):
 
     return render(request, 'Attendance_app/create_shift.html', {'form': form, 'all_days': all_days})
 
-
+@login_required
+@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
 def delete_shift_work(request, pk):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     shift = ShiftWork.objects.get(id=pk)
     shift.delete()
     return redirect(reverse('Attendance:list_shift_work'))
 
-
+@login_required
+@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
 def update_shift_work(request, pk):
     shift = ShiftWork.objects.get(id=pk)
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
+
 
     all_days = Day.objects.all()  # Retrieve all Day options
     selected_days = shift.work_days.all()  # Retrieve currently selected Day options for the shift
@@ -868,25 +862,12 @@ def download_excel_user(request, pk, month, year):
         year=year,
         user=user
     )
-    income = income = Income.objects.get(
+    income = Income.objects.get(
         month=month,
         year=year,
         user=user
     )
-    MONTH_NAMES = {
-        1: 'فروردین',
-        2: 'اردیبهشت',
-        3: 'خرداد',
-        4: 'تیر',
-        5: 'مرداد',
-        6: 'شهریور',
-        7: 'مهر',
-        8: 'آبان',
-        9: 'آذر',
-        10: 'دی',
-        11: 'بهمن',
-        12: 'اسفند',
-    }
+    MONTH_NAMES = get_month_names()
 
     # Create an Excel workbook and sheet
     workbook = openpyxl.Workbook()
@@ -945,7 +926,7 @@ def staff_user_list(request, pk, month, year):
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
         # positions = Profile.objects.filter(created_by=request.user)
-        income = income = Income.objects.get(
+        income = Income.objects.get(
             month=month,
             year=year,
             user__in=users
