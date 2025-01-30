@@ -63,10 +63,10 @@
                     {% endfor %}
                 </td>
                 <td>
-                    <a href="{% url 'Attendance:delete_position' poss.id %}">
+                    <a href="{% url 'managing:delete_position' poss.id %}">
                         <button type="button">حذف</button>
                     </a>
-                    <a href="{% url 'Attendance:update_position' poss.id %}">
+                    <a href="{% url 'managing:update_position' poss.id %}">
                         <button type="button">تغییر</button>
                     </a>
                 </td>
@@ -74,14 +74,14 @@
         {% endfor %}
     </table>
 
-    <a href="{% url 'Attendance:setting_app' %}">
+    <a href="{% url 'managing:setting_app' %}">
         <button type="button">منوی تنظیمات</button>
     </a>
 
     <a href="{% url 'Attendance:redirected_view' %}">
         <button type="button">برگشت به خانه</button>
     </a>
-    <a href="{% url 'Attendance:create_position' %}">
+    <a href="{% url 'managing:create_position' %}">
         <button type="button">ساخت گروه کاری</button>
     </a>
 

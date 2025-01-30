@@ -56,29 +56,29 @@
     {% if no_confirmation_users %}
         <P style="color: darkred">هشدار!</P>
         <P> شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a
-                href="{% url 'Attendance:no_confirmation_check' %}">کلیک کنید<a/></P>
+                href="{% url 'managing:no_confirmation_check' %}">کلیک کنید<a/></P>
     {% endif %}
 {% if profile_users %}
         <P style="color: darkred">هشدار!</P>
         <P> شما تعدادی پرسنل ثبت شده بدون ثبت پروفایل دارید! برای ثبت پروفایل برای آنها <a
-                href="{% url 'Attendance:create_profile' %}">کلیک کنید<a/></P>
+                href="{% url 'managing:create_profile' %}">کلیک کنید<a/></P>
     {% endif %}
 
 
-    <a href="{% url 'Attendance:create_holiday' %}">
+    <a href="{% url 'managing:create_holiday' %}">
         <button type="button">ساخت روز تعطیل</button>
     </a>
 
-    <a href="{% url 'Attendance:create_shift_work' %}">
+    <a href="{% url 'managing:create_shift_work' %}">
         <button type="button">ساخت شیفت کاری</button>
     </a>
-    <a href="{% url 'Attendance:create_position' %}">
+    <a href="{% url 'managing:create_position' %}">
         <button type="button">ساخت گروه کاری</button>
     </a>
- <a href="{% url 'Attendance:create_user' %}">
+ <a href="{% url 'managing:create_user' %}">
         <button type="button">ساخت پرسنل</button>
     </a>
-    <a href="{% url 'Attendance:create_profile' %}">
+    <a href="{% url 'managing:create_profile' %}">
         <button type="button">ساخت پروفایل برای پرسنل</button>
     </a>
 
@@ -88,19 +88,19 @@
     <a href="{% url 'Attendance:list_holidays' %}">
         <button type="button">لیست روز های تعطیل</button>
     </a>
-    <a href="{% url 'Attendance:list_shift_work' %}">
+    <a href="{% url 'managing:list_shift_work' %}">
         <button type="button">لیست شیفت های کاری</button>
     </a>
-    <a href="{% url 'Attendance:list_position' %}">
+    <a href="{% url 'managing:list_position' %}">
         <button type="button">لیست گروه های کاری</button>
     </a>
-<a href="{% url 'Attendance:user_list' request.user.id month year %}">
+<a href="{% url 'managing:user_list' request.user.id month year %}">
         <button type="button">لیست پرسنل</button>
     </a>
-    <a href="{% url 'Attendance:list_profile' %}">
+    <a href="{% url 'managing:list_profile' %}">
         <button type="button">لیست پروفایل ها</button>
     </a>
-<a href="{% url 'Attendance:all_vacations' %}">
+<a href="{% url 'managing:all_vacations' %}">
         <button type="button">لیست مرخصی های تایید شده </button>
     </a>
 

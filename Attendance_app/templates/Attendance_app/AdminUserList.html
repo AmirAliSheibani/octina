@@ -93,8 +93,8 @@
                     <td>{{ attendance.job_time|slice:":10" }}</td>
                     <td>{{ income.user_income }}</td>
                     <td><a href="{% url 'Attendance:result_list' user.id month year %}">بیشتر</a></td>
-                    <td><a href="{% url 'Attendance:delete_user_for_staff' user.id month year %}">حذف یوزر</a></td>
-                    <td><a href="{% url 'Attendance:update_user_for_staff' user.id %}"> آپدیت</a></td>
+                    <td><a href="{% url 'managing:delete_user_for_staff' user.id month year %}">حذف یوزر</a></td>
+                    <td><a href="{% url 'managing:update_user_for_staff' user.id %}"> آپدیت</a></td>
                 </tr>
             {% endfor %}
 
@@ -127,8 +127,8 @@
                     <td style="color: red">{{ user.possit }}</td>
                     <td style="color: red"><a href="{% url 'Attendance:result_list' user.id month year %}">بیشتر</a>
                     </td>
-                    <td><a href="{% url 'Attendance:delete_user_for_staff' user.id month year %}">حذف یوزر</a></td>
-                    <td><a href="{% url 'Attendance:update_user_for_staff' user.id %}"> آپدیت</a></td>
+                    <td><a href="{% url 'managing:delete_user_for_staff' user.id month year %}">حذف یوزر</a></td>
+                    <td><a href="{% url 'managing:update_user_for_staff' user.id %}"> آپدیت</a></td>
                 </tr>
             {% endfor %}
 
@@ -143,13 +143,13 @@
         <a href="{% url 'Attendance:redirected_view' %}">
             <button type="button">بازگشت به خانه</button>
         </a>
-        <a href="{% url 'Attendance:setting_app' %}">
+        <a href="{% url 'managing:setting_app' %}">
             <button type="button">منوی تنظیمات</button>
         </a>
-        <a href="{% url 'Attendance:download_excel' user.id month year %}">
+        <a href="{% url 'managing:download_excel' user.id month year %}">
             <button type="button">مشاهده در اکسل</button>
         </a>
-        <a href="{% url 'Attendance:create_user' %}">
+        <a href="{% url 'managing:create_user' %}">
             <button type="button">ساخت پرسنل</button>
         </a>
 
@@ -161,7 +161,7 @@
             {% if month_num == month %}
                 <span class="btn btn-primary">{{ month_name }}</span>
             {% else %}
-                <a href="{% url 'Attendance:user_list' user.id month_num year %}"
+                <a href="{% url 'managing:user_list' user.id month_num year %}"
                    class="btn btn-outline-primary">{{ month_name }}</a>
             {% endif %}
         {% endfor %}

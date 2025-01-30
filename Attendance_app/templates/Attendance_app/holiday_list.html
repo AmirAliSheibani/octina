@@ -45,10 +45,10 @@
                 {% if request.user.is_staff %}
 
 
-                    <td><a href="{% url 'Attendance:delete_holiday' holiday.id %}">
+                    <td><a href="{% url 'managing:delete_holiday' holiday.id %}">
                         <button type="button">حذف</button>
                     </a></td>
-                    <td><a href="{% url 'Attendance:update_holiday' holiday.id %}">
+                    <td><a href="{% url 'managing:update_holiday' holiday.id %}">
                         <button type="button">تغییر</button>
                     </a></td>
                 {% endif %}
@@ -60,14 +60,14 @@
 
 
     {% if request.user.is_staff %}
-        <a href="{% url 'Attendance:setting_app' %}">
+        <a href="{% url 'managing:setting_app' %}">
             <button type="button">منوی تنظیمات</button>
         </a>{% endif %}
 
     <a href="{% url 'Attendance:redirected_view' %}">
         <button type="button">برگشت به خانه</button>
     </a>
-    <a href="{% url 'Attendance:create_holiday' %}">
+    <a href="{% url 'managing:create_holiday' %}">
         <button type="button">ساخت روز تعطیل</button>
     </a>
 

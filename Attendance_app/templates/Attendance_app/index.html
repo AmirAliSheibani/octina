@@ -65,18 +65,18 @@
             {% endif %}
             {% if not_accepted_vacation %}
                 <p> شما تعدادی درخواست مرخصی برسی نشده دارید! برای تایید کردن آنها <a
-                        href="{% url 'Attendance:check_vacation_confirmation' %}">کلیک کنید</a></p>
+                        href="{% url 'managing:check_vacation_confirmation' %}">کلیک کنید</a></p>
             {% endif %}
             {% if no_confirmation_users %}
                 <P style="color: darkred">هشدار!</P>
                 <p> شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a
-                        href="{% url 'Attendance:no_confirmation_check' %}">کلیک کنید</a></p>
+                        href="{% url 'managing:no_confirmation_check' %}">کلیک کنید</a></p>
             {% endif %}
 
             {% if filter_non_progress %}
                 <P style="color: darkred">هشدار!</P>
                 <p> شما تعدادی پرسنل غایب در روز های اخیر دارید! برای بررسی <a
-                        href="{% url 'Attendance:non_progress' month year %}">کلیک کنید</a></p>
+                        href="{% url 'managing:non_progress' month year %}">کلیک کنید</a></p>
             {% endif %}
         {% endif %}
         <button type="submit">شروع کار</button>
@@ -99,7 +99,7 @@
             <a href="/admin" target="_blank">
                 <button type="button">پنل مدیریت</button>
             </a>
-            <a href="{% url 'Attendance:setting_app' %}" target="_blank">
+            <a href="{% url 'managing:setting_app' %}" target="_blank">
                 <button type="button">تنظیمات حضور غیاب</button>
             </a>
         {% endif %}
@@ -115,7 +115,7 @@
 
 
         <div class="boxes">
-            <a href="{% url 'Attendance:info_users'  month year %}" class="box green" style="text-decoration: none;">
+            <a href="{% url 'managing:info_users'  month year %}" class="box green" style="text-decoration: none;">
                 <div>
                     <p class="box-text">حاضرین</p>
                     <p class="box-count">{{ in_progress_users|length }}</p>
@@ -123,7 +123,7 @@
 
                 </div>
             </a>
-            <a href="{% url 'Attendance:info_users'  month year %}" class="box red" style="text-decoration: none;">
+            <a href="{% url 'managing:info_users'  month year %}" class="box red" style="text-decoration: none;">
                 <div >
 
                     <p class="box-text">غایبین</p>
@@ -131,7 +131,7 @@
 
                 </div>
             </a>
-            <a href="{% url 'Attendance:info_users'  month year %}" class="box light-blue" style="text-decoration: none;">
+            <a href="{% url 'managing:info_users'  month year %}" class="box light-blue" style="text-decoration: none;">
             <div >
                 <p class="box-text">تعداد پرسنل</p>
                 <p class="box-count">{{ users|length }}</p>
