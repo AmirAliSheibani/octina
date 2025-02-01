@@ -44,54 +44,47 @@ def restricted_view(request, *args, **kwargs):
     return redirect('Attendance:home')
 
 
-# homepage
+from django.shortcuts import render
+from django.utils import timezone
+from django.db.models import Q
+from django.core.cache import cache
+from django.contrib.auth.decorators import login_required
+
+
 @login_required
-@check_progress
 def create_attendance_view(request):
-    position = Profile.objects.get(user=request.user)
+    """ View for handling attendance and user progress. """
+
+    position = Profile.objects.select_related('user').get(user=request.user)
     now = timezone.now()
     month, year = get_jalali_date()
 
-    # Calculate user's income
-    try:
-        income_obj = Income.objects.get(month=month, year=year, user=request.user)
-        income = income_obj.user_income
-    except Income.DoesNotExist:
-        income = None
+    # Get user's income (Optimized)
+    income = Income.objects.filter(month=month, year=year, user=request.user).values_list('user_income',
+                                                                                          flat=True).first()
 
-    # If the user is a staff member
     if request.user.is_staff:
-        location = Location.objects.filter(created_by=request.user).exists()
-
-        # Users associated with the manager
+        location_exists = Location.objects.filter(created_by=request.user).exists()
         users = CustomUser.objects.filter(created_who=request.user)
-        progress_data = handle_progress_and_none_progress_user(users)
 
-        not_accepted_vacation = Profile.objects.filter(user__in=users, vacation__check_by_employer=False)
-        none_progress_count = CustomUser.objects.filter(created_who=request.user, absent=True)
-        no_confirmation = AttendanceUser.objects.filter(
-            user__in=users,
-            confirmation__in=[False, None]
-        )
-        for c in not_accepted_vacation:
-            print(c)
-        # Filter absent users for the current month
-        filter_non_progress = NoneInProgress.objects.filter(month=month, user__in=users).exclude(
-            created_date=jdatetime.date.fromgregorian(date=now.date())
-        )
+        # Use caching to prevent redundant processing
+        cache_key = f"progress_data_{request.user.id}"
+        progress_data = cache.get(cache_key)
+
+        if not progress_data:
+            progress_data = handle_progress_and_none_progress_user(users)
+            cache.set(cache_key, progress_data, timeout=300)  # Cache for 5 minutes
 
         return render(request, 'Attendance_app/index.html', {
             'position': position,
             'income': income,
             'month': month,
             'year': year,
-            'no_confirmation_users': no_confirmation,
+            'no_confirmation_users': progress_data['attendance_obj'],
             'in_progress_users': progress_data['in_progress_users'],
-            'none_progression_count': none_progress_count.count(),
+            'none_progression_count': progress_data['staff_none_progress_users'],
             'users': users,
-            'location': location,
-            'not_accepted_vacation': not_accepted_vacation,
-            'filter_non_progress': filter_non_progress,
+            'location': location_exists,
         })
 
     return render(request, 'Attendance_app/index.html', {
@@ -100,6 +93,8 @@ def create_attendance_view(request):
         'year': year,
         'month': month,
     })
+
+
 
 
 class AttendanceListView(CustomizedRquirementLogin, ListView):

@@ -1,11 +1,11 @@
 from datetime import datetime
-
+from django.db.models import Case, When, Value, BooleanField
 import jdatetime
 from django.db.models import Q
 from django.utils import timezone
 
 from Attendance_app.models import AttendanceUser
-from pricing.models import Profile, NoneInProgress
+from pricing.models import Profile, NoneInProgress, CustomUser
 
 
 def get_jalali_date():
@@ -67,68 +67,56 @@ def get_month_names():
 
 
 def handle_progress_and_none_progress_user(users):
-    """
-    Handles in-progress and non-progress users based on attendance data.
+    """ Handles in-progress and non-progress users based on attendance data. """
 
-    Args:
-        users (QuerySet): QuerySet of CustomUser objects.
-
-    Returns:
-        dict: A dictionary containing:
-              - 'in_progress_users': List of users currently in progress.
-              - 'non_progress_users': NoneInProgress object for absent users.
-              - 'not_accepted_vacation': QuerySet of vacations not accepted by employer.
-              - 'attendance_obj': QuerySet of AttendanceUser with incomplete confirmations.
-              - 'filter_non_progress': Filtered NoneInProgress objects for the current month.
-    """
     now = timezone.now()
-    month, year = get_jalali_date()
-    day_mapping = get_day_mapping()
+
+    # Optimized queryset fetching
+    attendance_users = AttendanceUser.objects.filter(user__in=users).select_related(
+        "user__profile", "user__profile__profile_position"
+    ).prefetch_related("user__noneinprogress_set")
 
     # Users with incomplete confirmations or absences
     attendance_obj = AttendanceUser.objects.filter(
         Q(user__in=users) & (Q(confirmation=False) | Q(confirmation=None))
     )
 
-    attendance_users = AttendanceUser.objects.filter(user__in=users)
-
-    # Users currently working and absent users
-    in_progress_users = []
+    # Get or create NoneInProgress object for absent users
     non_progress_users, _ = NoneInProgress.objects.get_or_create(
         created_date=jdatetime.date.fromgregorian(date=now.date())
     )
 
-    # Process user attendance
-    for attendance in attendance_users:
-        profile = Profile.objects.filter(user=attendance.user).last()
-        if not profile:
-            continue
+    # Get in-progress users
+    in_progress_users = attendance_users.filter(in_progress=True).values_list("user", flat=True)
 
-        # Check if user works full at the shift time
-        shiftwork = profile.profile_position.shift_work
-        current_day_number = now.weekday()
-        reversed_day_number = day_mapping[current_day_number]
-        current_shift = get_current_shift(shiftwork, reversed_day_number)
+    # Bulk update absent status
 
-        if attendance.in_progress:
-            in_progress_users.append(attendance.user)
-            attendance.user.absent = False
 
-            if attendance.user in non_progress_users.user.all():
-                non_progress_users.user.remove(attendance.user)
-        else:
-            end_shift_time = current_shift.work_end_time if current_shift else None
-            handle_non_progress_users(attendance, current_shift, end_shift_time, non_progress_users)
-        attendance.user.save()
+    # دریافت کاربران در حال کار
+    in_progress_users_ids = list(AttendanceUser.objects.filter(in_progress=True).values_list("user_id", flat=True))
 
-    # Add absent users
-    non_progress_users.user.add(
-        *users.exclude(username__in=in_progress_users)
-        .exclude(id__in=non_progress_users.user.values_list('id', flat=True))
+    # آپدیت کاربران به‌صورت مستقیم
+    CustomUser.objects.update(
+        absent=Case(
+            When(id__in=in_progress_users_ids, then=Value(False)),
+            default=Value(True),
+            output_field=BooleanField(),
+        )
     )
 
+    # Add absent users to NoneInProgress
+    absent_users = users.exclude(id__in=in_progress_users).exclude(
+        id__in=non_progress_users.user.values_list('id', flat=True))
+    non_progress_users.user.add(*absent_users)
+    # دریافت لیست ID کاربران
+    # دریافت فقط کاربران (User objects)
+    staff_none_progress_users = users.filter(absent=True)
+
+    # تعداد کاربران
+    staff_none_progress_count = staff_none_progress_users.count()
     return {
-        'in_progress_users': in_progress_users,
+        'in_progress_users': list(in_progress_users),
         'non_progress_users': non_progress_users,
+        'staff_none_progress_users': staff_none_progress_count,
         'attendance_obj': attendance_obj,
     }
