@@ -213,143 +213,71 @@ def result_detail(request, pk):
 
     return render(request, 'Attendance_app/result.html', {'zipped_times': zipped_times, 'income': income})
 
+
 @login_required
 def start_attendance_view(request):
-    day_mapping = get_day_mapping()
-    current_day_number = datetime.now().weekday()
-    reversed_day_number = day_mapping[current_day_number]
-    current_hafte = {
-        0: 'شنبه',
-        1: 'یک شنبه',
-        2: 'دو شنبه ',
-        3: 'سه شنبه',
-        4: 'چهار شنبه',
-        5: 'پنج شنبه',
-        6: 'جمعه',
-    }
-    current_day = current_hafte[reversed_day_number]
-    try:
-        location = Location.objects.get(created_by=request.user.created_who, active=True)
-        print('location = True')
-    except Location.DoesNotExist:
-        location = False
-        print('location = False') #todo make it in one line
+    now = datetime.now()
+    date, start = now.date(), now.time()
 
-    print(current_day)
-    start = datetime.now().time()
-    date = datetime.now().date()
-    work_holi_day = False
-    # confirmation = False
-    user_id = request.user.id
+    # دریافت اطلاعات روز هفته
+    day_mapping = get_day_mapping()
+    reversed_day_number = day_mapping[now.weekday()]
+    current_day = ['شنبه', 'یک‌شنبه', 'دو‌شنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'][reversed_day_number]
+
+    # بررسی تعطیلات و موقعیت مکانی کاربر
+    check_holidays = Holidays.objects.filter(date=date).exists()
+    location = Location.objects.filter(created_by=request.user.created_who, active=True).exists()
+
+    # اطلاعات شیفت کاری
     profile = Profile.objects.get(user=request.user)
     shiftwork = profile.profile_position.shift_work
-
-    # Get the current day of the week (0 for Monday, 1 for Tuesday, and so on)
-    day_mapping = get_day_mapping()
-
-    current_day_number = datetime.now().weekday()
-    reversed_day_number = day_mapping[current_day_number]
-    print(current_day_number, reversed_day_number)
-    check_holidays = datetime.now().date()
-    print(check_holidays)
-    try:
-        # holiday = Holidays.objects.get(date=check_holidays)
-        check_holidays = True
-    except Holidays.DoesNotExist:
-        # holiday = None
-        check_holidays = False
-
-    print(check_holidays)
-
-    # Get the corresponding ShiftWork object for the current day
     current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
 
-    if current_shift is not None and check_holidays == False:
-        start_shift_time = current_shift.work_start_time
-        end_shift_time = current_shift.work_end_time
+    work_holi_day = check_holidays or current_shift is None
+    overtime = work_holi_day or not (current_shift.work_start_time < start < current_shift.work_end_time) if current_shift else True
 
-        if not start_shift_time < datetime.now().time() < end_shift_time:
-            overtime = True
-        else:
-            overtime = False
-    else:
-        work_holi_day = True
-        overtime = False  # in fact this is true but for ensure
-
-    # ارسال شناسه کاربر به کانسومر
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        'group_name',  # نام گروه مورد نظر خود را قرار دهید
-        {
-            'type': 'send_user_id',
-            'user_id': user_id,
-        }
+    # ارسال شناسه کاربر به WebSocket
+    async_to_sync(get_channel_layer().group_send)(
+        'group_name', {'type': 'send_user_id', 'user_id': request.user.id}
     )
 
-    try:
-        # in_progress=True:
-        # user is still working
-        attendance_obj = AttendanceUser.objects.get(user=request.user, in_progress=True)
-        if check_holidays:
-            attendance_obj.holiday_check = True
-            attendance_obj.save()
-        if overtime or work_holi_day:
-            attendance_obj.overtime_check = True
-            attendance_obj.save()
+    print(f'location = {location}')
+    print(f'current_day = {current_day}')
+    print(f'check_holidays = {check_holidays}')
+    print(f'work_holi_day = {work_holi_day}')
+    print(f'overtime = {overtime}')
 
-        # print("attendance_obj = AttendanceUser.objects.get(user=request.user, in_progress=True)")
-        return render(request, 'Attendance_app/start.html',
-                      {'started': attendance_obj.start, 'pk': attendance_obj.token, 'at': attendance_obj, 'work_in_holi': work_holi_day,
-                       'current_day': current_day})
-    except AttendanceUser.DoesNotExist:
+    # دریافت یا ایجاد رکورد حضور
+    attendance_obj, created = AttendanceUser.objects.get_or_create(
+        user=request.user, created_date=date,
+        defaults={'token': uuid.uuid4(), 'start': start, 'in_progress': True}
+    )
 
-        try:
-            # If the user starts working twice or more in one day,
-            # instead of creating a new record, it will be taken and updated:
-            attendance_obj = AttendanceUser.objects.get(user=request.user, created_date=date)
-            if attendance_obj.confirmation is None:
-                if location:
-                    return redirect(reverse('Attendance:get_user_location'))
+    # تنظیم وضعیت حضور
+    if created or not attendance_obj.in_progress:
+        if not created and attendance_obj.confirmation is None and location:
+            return redirect(reverse('Attendance:get_user_location'))
 
-            # for access to the start and end before start working again
-            if not str(attendance_obj.end)[0:8] in attendance_obj.last_info:
-                attendance_obj.last_info += f" \n start={str(attendance_obj.start)[0:8]}, end={str(attendance_obj.end)[0:8]}*"
-            print(start)
+        if not created and not str(attendance_obj.end)[:8] in attendance_obj.last_info:
+            attendance_obj.last_info += f"\n start={str(attendance_obj.start)[:8]}, end={str(attendance_obj.end)[:8]}*"
 
-            attendance_obj.start = start
+        attendance_obj.start = start
+        attendance_obj.in_progress = True
 
-            attendance_obj.in_progress = True
-            if check_holidays:
-                attendance_obj.holiday_check = True
+    # تنظیم وضعیت تعطیلی و اضافه‌کاری
+    attendance_obj.holiday_check = check_holidays
+    attendance_obj.overtime_check = overtime
 
-            if overtime or work_holi_day:
-                attendance_obj.overtime_check = True
+    attendance_obj.save()
 
-            attendance_obj.save()
-            # print("attendance_obj = AttendanceUser.objects.get(user=request.user, created_date=date)")
-            return render(request, 'Attendance_app/start.html',
-                          {'started': start, 'pk': attendance_obj.token, 'at': attendance_obj, 'work_in_holi': work_holi_day,
-                           'current_day': current_day})
-        except AttendanceUser.DoesNotExist:
+    if location:
+        return redirect(reverse('locations:get_user_location'))
 
-            attendance_obj = AttendanceUser.objects.create(user=request.user, created_date=date)
-            attendance_obj.in_progress = True
-            attendance_obj.token = uuid.uuid4()
-            attendance_obj.start = start
-            if check_holidays:
-                attendance_obj.holiday_check = True
+    return render(request, 'Attendance_app/start.html', {
+        'started': attendance_obj.start, 'pk': attendance_obj.token, 'at': attendance_obj,
+        'work_in_holi': work_holi_day, 'current_day': current_day
+    })
 
-            if overtime or work_holi_day:
-                attendance_obj.overtime_check = True
-
-            attendance_obj.save()
-            if location:
-                return redirect(reverse('locations:get_user_location'))
-
-            # print("attendance_obj = AttendanceUser.objects.create(user=request.user, created_date=date, start=start,)")
-            return render(request, 'Attendance_app/start.html',
-                          {'started': start, 'pk': attendance_obj.token, 'at': attendance_obj, 'work_in_holi': work_holi_day,
-                           'current_day': current_day})
 
 
 # def update_duration_view(request):

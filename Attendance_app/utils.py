@@ -120,3 +120,5 @@ def handle_progress_and_none_progress_user(users):
         'staff_none_progress_users': staff_none_progress_count,
         'attendance_obj': attendance_obj,
     }
+
+
