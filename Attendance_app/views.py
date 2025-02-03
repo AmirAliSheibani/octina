@@ -51,7 +51,6 @@ from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 
 
-@login_required
 def create_attendance_view(request):
     """ View for handling attendance and user progress. """
 
@@ -179,7 +178,6 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
 
 
 
-@login_required
 def result_detail(request, pk):
     attendance_obj = AttendanceUser.objects.get(id=pk)
     at_month = attendance_obj.created_date.month
@@ -214,7 +212,6 @@ def result_detail(request, pk):
     return render(request, 'Attendance_app/result.html', {'zipped_times': zipped_times, 'income': income})
 
 
-@login_required
 def start_attendance_view(request):
     now = datetime.now()
     date, start = now.date(), now.time()
@@ -321,7 +318,6 @@ def start_attendance_view(request):
 #         return JsonResponse({'duration_formatted': '0:00:00'})
 
 
-@login_required
 def process_result_view(request, pk):
     attend = get_object_or_404(AttendanceUser, user=request.user, token=pk)
     # To ensure
@@ -425,7 +421,7 @@ def list_holidays(request):
     return render(request, 'Attendance_app/holiday_list.html', {'holidays': holidays})
 
 
-@login_required
+
 def download_excel_user(request, pk, month, year):
     user = CustomUser.objects.get(id=pk)
     positions = Profile.objects.get(user=user)

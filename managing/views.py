@@ -39,7 +39,7 @@ from django.db.models import F
 # Create your views here.
 
 
-@login_required
+
 @check_progress
 def create_attendance_view(request):
     position = Profile.objects.get(user=request.user)
@@ -95,8 +95,7 @@ def create_attendance_view(request):
         'month': month,
     })
 
-@login_required
-@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
+
 def download_excel(request, pk, month, year):
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
@@ -203,8 +202,7 @@ def download_excel(request, pk, month, year):
     return response
 
 
-@login_required
-@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
+
 def no_confirmation_check(request):
     """
     View for staff users to see attendance records without confirmation.
@@ -217,8 +215,7 @@ def no_confirmation_check(request):
     return render(request, 'Attendance_app/confirmation_user.html', {'no_confirmation': no_confirmation})
 
 
-@login_required
-@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
+
 def accept_confirmation(request, pk):
     """
     View to accept and confirm attendance for a user.
@@ -229,8 +226,7 @@ def accept_confirmation(request, pk):
     return redirect('managing:no_confirmation_check')
 
 
-@login_required
-@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
+
 def not_accepted_confirmation(request, pk):
     """
     View to reject attendance for a user.
@@ -318,15 +314,13 @@ def create_shift_work(request): #todo i have to make another app an put every th
 
     return render(request, 'Attendance_app/create_shift.html', {'form': form, 'all_days': all_days})
 
-@login_required
-@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
+
 def delete_shift_work(request, pk):
     shift = ShiftWork.objects.get(id=pk)
     shift.delete()
     return redirect(reverse('managing:list_shift_work'))
 
-@login_required
-@user_passes_test(lambda user: user.is_staff, login_url='Attendance:redirected_view')
+
 def update_shift_work(request, pk):
     shift = ShiftWork.objects.get(id=pk)
 
