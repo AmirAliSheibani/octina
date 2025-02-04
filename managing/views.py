@@ -248,17 +248,12 @@ def non_progress(request, month, year):
 
 
 def delete_non_progress(request, pk, month, year):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     non = NoneInProgress.objects.get(id=pk)
     non.delete()
     return redirect(reverse('managing:non_progress', kwargs={'month': month, 'year': year}))
 
 
 def delete_monthly_non_progress(request, month, year):
-    staff = request.user
-    if not staff.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     users = CustomUser.objects.filter(created_who=request.user)
     monthly_non = NoneInProgress.objects.filter(user__in=users, month=month, year=year)
     monthly_non.delete()
@@ -283,8 +278,6 @@ def in_progress_users(request, month, year):
 
 def list_shift_work(request):
     staff = request.user
-    if not staff.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     shiftwork = ShiftWork.objects.filter(created_by=staff)
 
     return render(request, 'Attendance_app/shiftwork_list.html', {'shiftwork': shiftwork})
@@ -345,8 +338,6 @@ def update_shift_work(request, pk):
 
 def list_position(request):
     staff = request.user
-    if not staff.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     position = Positions.objects.filter(created_by=staff)
 
     return render(request, 'Attendance_app/position_list.html', {'position': position})
@@ -374,8 +365,6 @@ def create_position(request):
 
 
 def delete_position(request, pk):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     position = Positions.objects.get(id=pk)
     position.delete()
     return redirect(reverse('managing:list_position'))
@@ -383,8 +372,6 @@ def delete_position(request, pk):
 
 def update_position(request, pk):
     position = Positions.objects.get(id=pk)
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
 
     if request.method == 'POST':
         form = PositionForm(request.POST, instance=position, request=request)
@@ -396,15 +383,6 @@ def update_position(request, pk):
 
     return render(request, 'Attendance_app/c_position.html', {'form': form, 'position': position})
 
-
-def list_holidays(request):
-    staff = request.user
-    if not staff.is_staff:
-        holidays = Holidays.objects.filter(created_by=staff.created_who)
-    else:
-        holidays = Holidays.objects.filter(created_by=staff)
-
-    return render(request, 'Attendance_app/holiday_list.html', {'holidays': holidays})
 
 
 def create_holiday(request):
@@ -428,8 +406,6 @@ def create_holiday(request):
 
 
 def delete_holiday(request, pk):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     holiday = Holidays.objects.get(id=pk)
     holiday.delete()
     return redirect(reverse('managing:list_holidays'))
@@ -437,8 +413,6 @@ def delete_holiday(request, pk):
 
 def update_holiday(request, pk):
     holiday = Holidays.objects.get(id=pk)
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
 
     if request.method == 'POST':
         form = HolidayForm(request.POST, instance=holiday)
@@ -453,8 +427,6 @@ def update_holiday(request, pk):
 
 
 def staff_user_list(request, pk, month, year):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view')) #todo
     MONTH_NAMES = get_month_names()
 
     if not request.user.is_superuser:
@@ -535,8 +507,6 @@ def create_user_for_staff(request):
         check_User = True
         return render(request, 'Attendance_app/create_user.html', {'check_User': check_User})
     staff = request.user
-    if not staff.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     if request.method == 'POST':
         form = StaffCreateUser(request.POST)
         if form.is_valid():
@@ -566,10 +536,7 @@ def delete_user_for_staff(request, pk, mo, year):
 
 def update_user_for_staff(request, pk):
     user = CustomUser.objects.get(id=pk)
-    staff = request.user
 
-    if not staff.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
 
     profile = Profile.objects.get(user=user)
     if request.method == 'POST':
@@ -600,8 +567,6 @@ def update_user_for_staff(request, pk):
 
 def list_profile(request):
     staff = request.user
-    if not staff.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     profile = Profile.objects.filter(created_by=staff)
 
     return render(request, 'Attendance_app/profile_list.html', {'profile': profile})
@@ -628,8 +593,6 @@ def create_profile(request):
 
 def update_profile(request, pk):
     profile = Profile.objects.get(id=pk)
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
 
     if request.method == 'POST':
         form = UpdateProfileForm(request.POST, instance=profile)
@@ -643,16 +606,12 @@ def update_profile(request, pk):
 
 
 def delete_profile(request, pk):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     profile = Profile.objects.get(id=pk)
     profile.delete()
     return redirect(reverse('managing:list_profile'))
 
 
 def setting_app(request):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     users = CustomUser.objects.filter(created_who=request.user)
 
     profile_users = users.filter(possit__isnull=True)
@@ -665,8 +624,6 @@ def setting_app(request):
 
 def confirmation_vacation(request):
     staff = request.user
-    if not staff.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
 
     users = CustomUser.objects.filter(created_who=staff)
 
@@ -679,8 +636,6 @@ def confirmation_vacation(request):
 
 def all_vacations(request):
     staff = request.user
-    if not staff.is_staff:
-        return redirect(reverse('Attendance:redirected_view')) #todo there are a lot of these
 
     users = CustomUser.objects.filter(created_who=staff)
     vacation = Vacation.objects.filter(user__in=users)
@@ -689,16 +644,12 @@ def all_vacations(request):
 
 
 def not_accepted_vacation(request, pk):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     vacation = Vacation.objects.get(id=pk)
     vacation.delete()
     return redirect(reverse('managing:check_vacation_confirmation'))
 
 
 def accepted_vacation(request, pk):
-    if not request.user.is_staff:
-        return redirect(reverse('Attendance:redirected_view'))
     vacation = Vacation.objects.get(id=pk)
     vacation.check_by_employer = True
     vacation.save()

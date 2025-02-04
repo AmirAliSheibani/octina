@@ -515,3 +515,12 @@ def personal_info(request):
     return render(request, 'Attendance_app/personal_info.html',
                   {'profile': profile, 'position': position, 'income': income})
 
+
+def list_holidays(request):
+    staff = request.user
+    if not staff.is_staff:
+        holidays = Holidays.objects.filter(created_by=staff.created_who)
+    else:
+        holidays = Holidays.objects.filter(created_by=staff)
+
+    return render(request, 'Attendance_app/holiday_list.html', {'holidays': holidays})
