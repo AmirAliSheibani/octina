@@ -170,39 +170,30 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         return context
 
 
-
+def extract_time_ranges(attendance_info):
+    """Extract start and end times from last_info field."""
+    pattern = r"start=(\d{2}:\d{2}:\d{2}), end=(\d{2}:\d{2}:\d{2})"
+    return zip(*re.findall(pattern, attendance_info))
 
 
 def result_detail(request, pk):
     attendance_obj = AttendanceUser.objects.get(id=pk)
-    at_month = attendance_obj.created_date.month
-    at_year = attendance_obj.created_date.year
-    starts = []
-    ends = []
-    try:
-        income = Income.objects.get(
-            month=at_month,
-            yar=at_year,
-            user=attendance_obj.user
-        )
-    except:
-        income = Income.objects.create(created_date=attendance_obj.created_date, user=attendance_obj.user,
-                                       position=Profile.objects.get(user=attendance_obj.user), job_time=attendance_obj.job_time)
-        income.user_income = income.position.profile_position.position_income * (
-                income.job_time.total_seconds() / 3600)
-        print(request.user.is_staff)
-        income.created_by = request.user.created_who
-        income.save()
 
-    pattern = r"start=(\d{2}:\d{2}:\d{2}), end=(\d{2}:\d{2}:\d{2})"
-    matches = re.findall(pattern, attendance_obj.last_info)
+    income, created = Income.objects.get_or_create(
+        month=attendance_obj.created_date.month,
+        year=attendance_obj.created_date.year,
+        user=attendance_obj.user,
+        defaults={
+            "created_date": attendance_obj.created_date,
+            "position": Profile.objects.get(user=attendance_obj.user),
+            "job_time": attendance_obj.job_time,
+            "user_income": Profile.objects.get(user=attendance_obj.user).profile_position.position_income *
+                           (attendance_obj.job_time.total_seconds() / 3600),
+            "created_by": request.user.created_who
+        }
+    )
 
-    for match in matches:
-        start, end = match
-        starts.append(start)
-        ends.append(end)
-
-    zipped_times = zip(starts, ends)
+    zipped_times = extract_time_ranges(attendance_obj.last_info)
 
     return render(request, 'Attendance_app/result.html', {'zipped_times': zipped_times, 'income': income})
 
