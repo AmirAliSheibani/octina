@@ -11,150 +11,69 @@ import datetime as d
 User = settings.AUTH_USER_MODEL
 from decimal import Decimal
 
+from datetime import datetime, timedelta
+from decimal import Decimal
+from django.shortcuts import redirect, reverse
+from django.db.models import Q
+
+
+def calculate_income(income, job_time):
+    """محاسبه درآمد و اضافه‌کاری."""
+    hourly_income = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
+    overtime_income = income.position.profile_position.overtime_position_income * (job_time.total_seconds() / 3600)
+
+    income.user_income += Decimal(hourly_income)
+    income.surplus += Decimal(overtime_income)
+    income.user_income += Decimal(overtime_income)
+    income.save()
+
+
+def is_holiday():
+    """بررسی اینکه آیا روز جاری تعطیل است یا خیر."""
+    return Holidays.objects.filter(date=datetime.now()).exists()
+
+
+def get_shiftwork(income):
+    """دریافت شیفت کاری مربوط به روز جاری."""
+    day_mapping = get_day_mapping()
+    current_day_number = datetime.now().weekday()
+    reversed_day_number = day_mapping[current_day_number]
+    return income.position.profile_position.shift_work.filter(work_days__day_of_week=reversed_day_number).last()
+
 
 def process_pricing(request, pk):
     at = AttendanceUser.objects.get(user=request.user, token=pk)
-    at_month = at.created_date.month
-    # current_month = datetime.now().month
+    at_month, at_year = at.created_date.month, at.created_date.year
+    job_time = datetime.combine(datetime.min, at.end) - datetime.combine(datetime.min, at.start)
 
-    try:
+    income, created = Income.objects.get_or_create(
+        user=at.user, month=at_month, year=at_year,
+        defaults={
+            "created_date": at.created_date,
+            "position": Profile.objects.get(user=at.user),
+            "job_time": at.job_time,
+            "created_by": request.user.created_who
+        }
+    )
 
-        income = Income.objects.get(user=at.user, month=at_month, year=at.created_date.year)
-        job_time = datetime.combine(datetime.min, at.end) - datetime.combine(datetime.min, at.start)
-        shiftwork = income.position.profile_position.shift_work
+    if created and income.position.profile_position.monthly:
+        income.user_income = income.position.profile_position.position_income
 
-        # Get the current day of the week (0 for Monday, 1 for Tuesday, and so on)
-        day_mapping = get_day_mapping()
+    current_shift = get_shiftwork(income)
+    is_holiday_today = is_holiday()
 
-        current_day_number = datetime.now().weekday()
-        reversed_day_number = day_mapping[current_day_number]
-        check_holidays = datetime.now()
-        try:
-            Holidays.objects.get(date=check_holidays)
-            check_holidays = True
-        except Holidays.DoesNotExist:
-            check_holidays = False
-
-        print(current_day_number, reversed_day_number)
-
-        # Get the corresponding ShiftWork object for the current day
-        current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
-        print(current_shift)
-    
-        if current_shift is not None and not check_holidays:
-            start_shift_time = current_shift.work_start_time
-            end_shift_time = current_shift.work_end_time
-            print(d.datetime.now().time())
-            income.save()
-
-            if start_shift_time < d.datetime.now().time() < end_shift_time:
-                if income.position.profile_position.monthly:
-                    pass
-                else:
-                    inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
-                    income.user_income += Decimal(inc)
-                    print('income.user_income += Decimal(inc)')
-                    print('income.surplus += Decimal(inc) income.user_income += Decimal(inc) ')
-                income.save()
-
-            else:
-                if income.position.profile_position.monthly:
-                    pass
-                else:
-                    inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
-                    income.user_income += Decimal(inc)
-                surplus_inc = income.position.profile_position.overtime_position_income * (job_time.total_seconds() / 3600)
-                income.surplus += Decimal(surplus_inc)
-                income.user_income += Decimal(surplus_inc)
-                income.save()
-
+    if current_shift and not is_holiday_today:
+        start_shift_time, end_shift_time = current_shift.work_start_time, current_shift.work_end_time
+        if start_shift_time < datetime.now().time() < end_shift_time:
+            if not income.position.profile_position.monthly:
+                calculate_income(income, job_time)
         else:
-            if income.position.profile_position.monthly:
-                pass
-            else:
-                inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
-                income.user_income += Decimal(inc)
-            surplus_inc = income.position.profile_position.overtime_position_income * (
-                        job_time.total_seconds() / 3600)
-            income.surplus += Decimal(surplus_inc)
-            income.user_income += Decimal(surplus_inc)
-            income.save()
-            print('income.surplus += Decimal(inc) income.user_income += Decimal(inc)1111 ')
+            calculate_income(income, job_time)
+    else:
+        calculate_income(income, job_time)
 
-        income.job_time += at.job_time
-        income.created_by = request.user.created_who
-        income.save()
-    except Income.DoesNotExist:
-        income = Income.objects.create(created_date=at.created_date, user=at.user,
-                                       position=Profile.objects.get(user=at.user), job_time=at.job_time)
+    income.job_time += job_time
+    income.save()
 
-        print(request.user.is_staff)
-        income.created_by = request.user.created_who
-        if income.position.profile_position.monthly:
-            income.user_income = income.position.profile_position.position_income
-
-
-        job_time = datetime.combine(datetime.min, at.end) - datetime.combine(datetime.min, at.start)
-        shiftwork = income.position.profile_position.shift_work
-
-        # Get the current day of the week (0 for Monday, 1 for Tuesday, and so on)
-        day_mapping = get_day_mapping()
-
-        current_day_number = datetime.now().weekday()
-        reversed_day_number = day_mapping[current_day_number]
-        check_holidays = datetime.now()
-        try:
-            Holidays.objects.get(date=check_holidays)
-            check_holidays = True
-        except Holidays.DoesNotExist:
-            check_holidays = False
-
-        print(current_day_number, reversed_day_number)
-
-        # Get the corresponding ShiftWork object for the current day
-        current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
-        print(current_shift)
-
-        if current_shift is not None and not check_holidays:
-            start_shift_time = current_shift.work_start_time
-            end_shift_time = current_shift.work_end_time
-            print(d.datetime.now().time())
-            income.save()
-
-            if start_shift_time < d.datetime.now().time() < end_shift_time:
-                if income.position.profile_position.monthly:
-                    pass
-                else:
-                    inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
-                    income.user_income += Decimal(inc)
-                print('income.user_income += Decimal(inc)')
-                print('income.surplus += Decimal(inc) income.user_income += Decimal(inc) ')
-                income.save()
-            else:
-                if income.position.profile_position.monthly:
-                    pass
-                else:
-                    inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
-                    income.user_income += Decimal(inc)
-                surplus_inc = income.position.profile_position.overtime_position_income * (job_time.total_seconds() / 3600)
-                income.surplus += Decimal(surplus_inc)
-                income.user_income += Decimal(surplus_inc)
-                income.save()
-
-        else:
-            if income.position.profile_position.monthly:
-                pass
-            else:
-                inc = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
-                income.user_income += Decimal(inc)
-            surplus_inc = income.position.profile_position.overtime_position_income * (
-                        job_time.total_seconds() / 3600)
-            income.surplus += Decimal(surplus_inc)
-            income.user_income += Decimal(surplus_inc)
-            income.save()
-
-
-        income.save()
     request.session['token'] = pk
-
     return redirect(reverse('Attendance:result'))

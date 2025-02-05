@@ -267,8 +267,8 @@ def start_attendance_view(request):
 
     attendance_obj.save()
 
-    if location:
-        return redirect(reverse('locations:get_user_location'))
+    # if location:
+    #     return redirect(reverse('locations:get_user_location'))
 
     return render(request, 'Attendance_app/start.html', {
         'started': attendance_obj.start, 'pk': attendance_obj.token, 'at': attendance_obj,
