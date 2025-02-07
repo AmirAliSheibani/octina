@@ -75,5 +75,6 @@ def process_pricing(request, pk):
     income.job_time += job_time
     income.save()
 
+  
     request.session['token'] = pk
     return redirect(reverse('Attendance:result'))
