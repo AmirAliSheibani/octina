@@ -17,12 +17,14 @@ from django.shortcuts import redirect, reverse
 from django.db.models import Q
 
 
-def calculate_income(income, job_time):
+def calculate_income(income, job_time, only_overtime=False):
     """محاسبه درآمد و اضافه‌کاری."""
     hourly_income = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
     overtime_income = income.position.profile_position.overtime_position_income * (job_time.total_seconds() / 3600)
 
-    income.user_income += Decimal(hourly_income)
+    if not only_overtime:
+        income.user_income += Decimal(hourly_income)  # فقط در صورتی که حقوق ساعتی باشه
+
     income.surplus += Decimal(overtime_income)
     income.user_income += Decimal(overtime_income)
     income.save()
@@ -65,16 +67,22 @@ def process_pricing(request, pk):
     if current_shift and not is_holiday_today:
         start_shift_time, end_shift_time = current_shift.work_start_time, current_shift.work_end_time
         if start_shift_time < datetime.now().time() < end_shift_time:
-            if not income.position.profile_position.monthly:
+            if income.position.profile_position.monthly:
+                # فقط اضافه‌کاری حساب شود
+                calculate_income(income, job_time, only_overtime=True)
+            else:
+                # حقوق عادی + اضافه‌کاری حساب شود
                 calculate_income(income, job_time)
         else:
-            calculate_income(income, job_time)
+            # خارج از ساعت شیفت = اضافه‌کاری حساب شود
+            calculate_income(income, job_time, only_overtime=True)
     else:
-        calculate_income(income, job_time)
+        # روز تعطیل = اضافه‌کاری حساب شود
+        calculate_income(income, job_time, only_overtime=True)
 
     income.job_time += job_time
     income.save()
 
-  
+
     request.session['token'] = pk
     return redirect(reverse('Attendance:result'))
