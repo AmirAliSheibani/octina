@@ -121,4 +121,7 @@ def handle_progress_and_none_progress_user(users):
         'attendance_obj': attendance_obj,
     }
 
-
+def extract_time_ranges(attendance_info):
+    """Extract start and end times from last_info field."""
+    pattern = r"start=(\d{2}:\d{2}:\d{2}), end=(\d{2}:\d{2}:\d{2})"
+    return zip(*re.findall(pattern, attendance_info))

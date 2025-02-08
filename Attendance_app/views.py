@@ -29,7 +29,7 @@ from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 from .utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users, get_month_names, \
-    handle_progress_and_none_progress_user
+    handle_progress_and_none_progress_user, extract_time_ranges
 from django.http import HttpResponse
 from django.db.models import Q
 
@@ -51,6 +51,7 @@ from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 
 
+@check_progress
 def create_attendance_view(request):
     """ View for handling attendance and user progress. """
 
@@ -93,7 +94,7 @@ def create_attendance_view(request):
         'month': month,
     })
 
-
+@check_progress
 class AttendanceListView(CustomizedRquirementLogin, ListView):
     model = AttendanceUser
 
@@ -168,12 +169,6 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         context['income'] = income
 
         return context
-
-
-def extract_time_ranges(attendance_info):
-    """Extract start and end times from last_info field."""
-    pattern = r"start=(\d{2}:\d{2}:\d{2}), end=(\d{2}:\d{2}:\d{2})"
-    return zip(*re.findall(pattern, attendance_info))
 
 
 def result_detail(request, pk):
@@ -327,6 +322,7 @@ def process_result_view(request, pk):
     return redirect(reverse("price:procces_pricing", kwargs={'pk': pk}))
 
 
+@check_progress
 class ShowResult(TemplateView):
     template_name = 'Attendance_app/result.html'
 
@@ -472,6 +468,7 @@ def download_excel_user(request, pk, month, year):
     return response
 
 
+
 def getting_vacation(request):
     user = request.user
     if request.method == 'POST':
@@ -500,13 +497,3 @@ def personal_info(request):
     income = Income.objects.filter(user=user).last()
     return render(request, 'Attendance_app/personal_info.html',
                   {'profile': profile, 'position': position, 'income': income})
-
-
-def list_holidays(request):
-    staff = request.user
-    if not staff.is_staff:
-        holidays = Holidays.objects.filter(created_by=staff.created_who)
-    else:
-        holidays = Holidays.objects.filter(created_by=staff)
-
-    return render(request, 'Attendance_app/holiday_list.html', {'holidays': holidays})

@@ -39,63 +39,6 @@ from django.db.models import F
 # Create your views here.
 
 
-
-@check_progress
-def create_attendance_view(request):
-    position = Profile.objects.get(user=request.user)
-    now = timezone.now()
-    month, year = get_jalali_date()
-
-    # Calculate user's income
-    try:
-        income_obj = Income.objects.get(month=month, year=year, user=request.user)
-        income = income_obj.user_income
-    except Income.DoesNotExist:
-        income = None
-
-    # If the user is a staff member
-    if request.user.is_staff:
-        location = Location.objects.filter(created_by=request.user).exists()
-
-        # Users associated with the manager
-        users = CustomUser.objects.filter(created_who=request.user)
-        progress_data = handle_progress_and_none_progress_user(users)
-
-        not_accepted_vacation = Profile.objects.filter(user__in=users, vacation__check_by_employer=False)
-        none_progress_count = CustomUser.objects.filter(created_who=request.user, absent=True)
-        no_confirmation = AttendanceUser.objects.filter(
-            user__in=users,
-            confirmation__in=[False, None]
-        )
-        for c in not_accepted_vacation:
-            print(c)
-        # Filter absent users for the current month
-        filter_non_progress = NoneInProgress.objects.filter(month=month, user__in=users).exclude(
-            created_date=jdatetime.date.fromgregorian(date=now.date())
-        )
-
-        return render(request, 'Attendance_app/index.html', {
-            'position': position,
-            'income': income,
-            'month': month,
-            'year': year,
-            'no_confirmation_users': no_confirmation,
-            'in_progress_users': progress_data['in_progress_users'],
-            'none_progression_count': none_progress_count.count(),
-            'users': users,
-            'location': location,
-            'not_accepted_vacation': not_accepted_vacation,
-            'filter_non_progress': filter_non_progress,
-        })
-
-    return render(request, 'Attendance_app/index.html', {
-        'position': position,
-        'income': income,
-        'year': year,
-        'month': month,
-    })
-
-
 def download_excel(request, pk, month, year):
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
