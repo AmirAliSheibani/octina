@@ -65,7 +65,7 @@ def email_form_context(request, email):
             کد ورود به سایت :
             {code}
             """,
-            from_email='octinaweb@gmail.com',
+            from_email='octina01@gmail.com',
             recipient_list=[email],
             fail_silently=False,
         )
@@ -123,22 +123,6 @@ def UserLoginView(request, ):
     return render(request, 'user_app/UserLogin.html', {'form': form})
 
 
-def UserLoginView(request, ):
-    if request.user.is_authenticated:
-        return redirect(reverse("home:home"))
-    if request.method == 'POST':
-        form = UserLoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            login(request, user)
-            return redirect(reverse("home:home"))
-    else:
-        form = UserLoginForm()
-    return render(request, 'user_app/UserLogin.html', {'form': form})
-
-
 def GetEmail(request):
     if request.method == "POST":
         form = GetUserEmailPass(data=request.POST)
@@ -173,7 +157,7 @@ def send_password_code(request, email):
             ----------------
             اگر این درخواست توسط شما انجام نشده نیازی نیست کاری انجام بدید
                 """,
-        from_email='octinaweb@gmail.com',
+        from_email='octina01@gmail.com',
         recipient_list=[user.email],
         fail_silently=False,
     )
