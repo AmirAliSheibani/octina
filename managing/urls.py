@@ -4,7 +4,6 @@ from . import views
 app_name = 'managing'
 urlpatterns = [
 # path('update-duration/', views.update_duration_view, name='update_duration'),
-    path('homepage/', views.create_attendance_view, name='home'),
     path('setting/', views.setting_app, name='setting_app'),
     # path('start/', views.start_attendance_view, name='start'),
     # path('procces/<str:pk>/', views.process_result_view, name='procces_result'),

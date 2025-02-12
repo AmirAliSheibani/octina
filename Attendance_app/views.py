@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
 from django.views.generic.list import ListView
 from jalali_date import datetime2jalali
-
+from django.utils.decorators import method_decorator
 from .forms import StaffCreateUser, ShiftWorkForm, PositionForm, ProfileForm, HolidayForm, VacationForm, \
     UpdateProfileForm
 from .models import AttendanceUser
@@ -36,19 +36,17 @@ from django.db.models import Q
 from .decorators import check_progress, profile_required, subscription_required
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models import F
+from django.shortcuts import render
+from django.utils import timezone
+from django.db.models import Q
+from django.core.cache import cache
+from django.contrib.auth.decorators import login_required
 
 
 @subscription_required
 @profile_required
 def restricted_view(request, *args, **kwargs):
     return redirect('Attendance:home')
-
-
-from django.shortcuts import render
-from django.utils import timezone
-from django.db.models import Q
-from django.core.cache import cache
-from django.contrib.auth.decorators import login_required
 
 
 @check_progress
@@ -94,7 +92,8 @@ def create_attendance_view(request):
         'month': month,
     })
 
-@check_progress
+
+@method_decorator(check_progress, name='dispatch')
 class AttendanceListView(CustomizedRquirementLogin, ListView):
     model = AttendanceUser
 
@@ -322,7 +321,7 @@ def process_result_view(request, pk):
     return redirect(reverse("price:procces_pricing", kwargs={'pk': pk}))
 
 
-@check_progress
+@method_decorator(check_progress, name='dispatch')
 class ShowResult(TemplateView):
     template_name = 'Attendance_app/result.html'
 

@@ -11,6 +11,7 @@ from pricing.models import Profile
 from .models import AttendanceUser
 
 
+
 def subscription_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
