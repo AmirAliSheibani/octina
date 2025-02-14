@@ -41,9 +41,8 @@ class AttendanceUser(models.Model):
     def save(self, *args, **kwargs):
         # مقدار `month` و `year` را همیشه از `created_date` بگیر
         if self.created_date:
-            jalali_date = date2jalali(self.created_date)
-            self.month = jalali_date.month
-            self.year = jalali_date.year
+            self.month = self.created_date.month
+            self.year = self.created_date.year
         super().save(*args, **kwargs)
 
     def __str__(self):

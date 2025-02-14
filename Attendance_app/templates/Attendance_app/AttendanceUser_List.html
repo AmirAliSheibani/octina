@@ -36,9 +36,9 @@
     </h5>
     <h5>مجموع ساعت‌های کاری در این ماه:
         <span>
-        {% if income %}{{ income.job_time }}{% else %}خالی{% endif %}
+        {% if income %}{{ month_job_time }}{% else %}خالی{% endif %}
         </span>
-    </h5>
+    </h5>   {# todo تایم ساعت کاری منفی شده #}
     <div class="table-responsive">
         <table>
             <thead>

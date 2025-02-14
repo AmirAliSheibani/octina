@@ -101,10 +101,10 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         """
         Retrieve or create an Income object for the given attendance object.
         """
-        profile = Profile.objects.select_related("profile_position").get(user=attendance_obj.user)
+        profile = Profile.objects.get(user=attendance_obj.user)
         job_time_hours = attendance_obj.job_time.total_seconds() / 3600
 
-        income, _ = Income.objects.get_or_create(
+        income, created = Income.objects.get_or_create(
             month=attendance_obj.created_date.month,
             year=attendance_obj.created_date.year,
             user=attendance_obj.user,
@@ -116,6 +116,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
                 "created_by": self.request.user.created_who
             }
         )
+        print(income, created)
 
         return income
 
@@ -123,7 +124,9 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         """
         Format the job time string into a localized format.
         """
-        return job_time_str.replace("day", "روز")[:14] if 'day' in job_time_str else job_time_str[:7]
+        if 'day' in job_time_str:
+            return job_time_str.replace("day", "روز")[:14]
+        return job_time_str[:7]
 
     def calculate_income(self, attendance, position_income):
         """
@@ -136,37 +139,39 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         pk = self.kwargs['pk']
         month = self.kwargs['month']
         year = self.kwargs['year']
-
         context['months'] = get_month_names()
+
+        try:
+            user = CustomUser.objects.get(id=pk)
+            attendances = AttendanceUser.objects.filter(month=month, year=year, user_id=pk)
+            context['user'] = user
+
+            if not attendances.exists():
+                raise AttendanceUser.DoesNotExist("No attendance records found for the given user and date range.")
+
+            attendance_obj = attendances.first()
+            income = self.get_income_or_create(attendance_obj)
+
+            position_income = income.position.profile_position.position_income
+            job_time_list = []
+            results = []
+
+            for attendance in attendances:
+                results.append(self.calculate_income(attendance, position_income))
+                job_time_list.append(self.format_job_time(str(attendance.job_time)))
+
+            context["object"] = zip(attendances, results, job_time_list)
+
+            context['income'] = income
+            context['month_job_time'] = self.format_job_time(str(income.job_time))
+
+        except AttendanceUser.DoesNotExist:
+            context["object"] = None
+            context['user'] = CustomUser.objects.get(id=pk)
+            context['income'] = None
+
         context['month'] = month
         context['year'] = year
-
-        user = CustomUser.objects.filter(id=pk).first()
-        context['user'] = user
-
-        if not user:
-            context["object"] = None
-            context['income'] = None
-            return context
-
-        attendances = AttendanceUser.objects.filter(month=month, year=year, user_id=pk)
-
-        if not attendances.exists():
-            context["object"] = None
-            context['income'] = None
-            return context
-
-        attendance_obj = attendances.first()
-        income = self.get_income_or_create(attendance_obj)
-
-        position_income = income.position.profile_position.position_income
-
-        context["object"] = [
-            (attendance, self.calculate_income(attendance, position_income), self.format_job_time(str(attendance.job_time)))
-            for attendance in attendances
-        ]
-        context['income'] = income
-
         return context
 
 
