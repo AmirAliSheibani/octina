@@ -7,22 +7,26 @@ User = CustomUser
 from django.contrib.admin import AdminSite
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from datetime import timedelta
+
 
 @receiver(pre_delete, sender=AttendanceUser)
 def pre_delete_callback(sender, instance, **kwargs):
     at = instance
     try:
-
         income = Income.objects.get(month=at.month, user=at.user)
         inc = income.position.profile_position.position_income * (at.job_time.total_seconds() / 3600)
         arc = income.position.profile_position.overtime_position_income * (at.job_time.total_seconds() / 3600)
+
         income.surplus -= Decimal(arc)
         income.user_income -= Decimal(inc)
         income.user_income -= Decimal(arc)
         income.job_time -= at.job_time
+
         income.save()
-    except:
+    except Income.DoesNotExist:
         pass
+
 
 class MyAdminSite(AdminSite):
     site_header = 'مدیریت اُکتینا'

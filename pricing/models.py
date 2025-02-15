@@ -112,7 +112,6 @@ class Positions(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_Positions', blank=True,
                                    null=True)
 
-
     def __str__(self):
         return self.positions
 
@@ -176,6 +175,11 @@ class Income(models.Model):
         if not self.pk:  # Only set the month if the object is being created
             self.month = date2jalali(timezone.now().date()).month
             self.year = date2jalali(timezone.now().date()).year
+
+        # جلوگیری از مقدار منفی برای درآمد، اضافه‌کاری و زمان کار
+        self.user_income = max(Decimal('0.00'), self.user_income)
+        self.surplus = max(Decimal('0.00'), self.surplus)
+        self.job_time = max(timedelta(0), self.job_time)
         super().save(*args, **kwargs)
 
 
