@@ -44,6 +44,8 @@ def get_shiftwork(income):
 
 
 def process_pricing(request, pk):
+    print('***********')
+    print('process_pricing')
     at = AttendanceUser.objects.get(user=request.user, token=pk)
     at_month, at_year = at.created_date.month, at.created_date.year
     job_time = datetime.combine(datetime.min, at.end) - datetime.combine(datetime.min, at.start)
@@ -58,7 +60,7 @@ def process_pricing(request, pk):
         }
     )
 
-    if created and income.position.profile_position.monthly:
+    if income.position.profile_position.monthly:
         income.user_income = income.position.profile_position.position_income
 
     current_shift = get_shiftwork(income)

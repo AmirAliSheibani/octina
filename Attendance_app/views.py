@@ -41,7 +41,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
-
+import re
 
 @subscription_required
 @profile_required
@@ -198,6 +198,7 @@ def result_detail(request, pk):
 
 
 def start_attendance_view(request):
+
     now = datetime.now()
     date, start = now.date(), now.time()
 
@@ -257,50 +258,8 @@ def start_attendance_view(request):
 
     return render(request, 'Attendance_app/start.html', {
         'started': attendance_obj.start, 'pk': attendance_obj.token, 'at': attendance_obj,
-        'work_in_holi': work_holi_day, 'current_day': current_day
+        'work_in_holi': work_holi_day, 'current_day': current_day, 'monthly': profile.profile_position.monthly
     })
-
-
-
-# def update_duration_view(request):
-#     try:
-#         attend = get_object_or_404(AttendanceUser, user=request.user, in_progress=True)
-#         attend.end = datetime.now().time()
-#         # Calculate the duration of working time
-#         job_time = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
-#         profile = Profile.objects.get(user_id=request.user)
-#         # Calculate the number of hours elapsed since the record was created
-#         if attend.created_date < datetime.now().date():
-#             date_hours = datetime.now().date() - attend.created_date
-#             if job_time.days == date_hours.days:
-#                 attend.save()
-#                 job_time = timedelta(seconds=job_time.total_seconds())
-#
-#                 inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
-#                 attend.job_time += job_time  # Convert to timedelta object
-#
-#                 duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-#                 duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
-#                 return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
-#             else:
-#                 # Add 24 hours for each day that has passed
-#                 job_time += timedelta(days=date_hours.days)
-#                 attend.save()
-#                 job_time = timedelta(seconds=job_time.total_seconds())
-#                 attend.job_time += job_time  # Convert to timedelta object
-#                 inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
-#                 duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-#                 duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
-#                 return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
-#         else:
-#             attend.save()
-#             job_time = timedelta(seconds=job_time.total_seconds())
-#             attend.job_time += job_time  # Convert to timedelta object
-#             inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
-#             duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-#             return JsonResponse({'duration_formatted': duration_formatted, 'inc': inc})
-#     except AttendanceUser.DoesNotExist:
-#         return JsonResponse({'duration_formatted': '0:00:00'})
 
 
 def process_result_view(request, pk):
@@ -385,8 +344,11 @@ class ShowResult(TemplateView):
         )
 
         job_time = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
-        inc = round(income.position.profile_position.position_income * (job_time.total_seconds() / 3600), 4)
-
+        if income.position.profile_position.monthly:
+            inc = income.user_income
+        else:
+            inc = round(income.position.profile_position.position_income * (job_time.total_seconds() / 3600), 4)
+        context['monthly'] = income.position.profile_position.monthly
         context['income'] = income
         context['end'] = end1
         context['start'] = start2

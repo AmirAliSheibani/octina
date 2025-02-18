@@ -1,78 +1,72 @@
-from datetime import timedelta, datetime
-
-from channels.generic.websocket import AsyncWebsocketConsumer
-import asyncio
-
-from django.shortcuts import get_object_or_404
-from asgiref.sync import sync_to_async
-from Attendance_app.models import AttendanceUser
-from pricing.models import Profile
-
 import json
+from datetime import datetime, timezone, timedelta
+from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 
-class MyConsumer(AsyncWebsocketConsumer):
+class AttendanceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-
-        self.group_name = 'group_name'
-        await self.channel_layer.group_add(
-            self.group_name,
-            self.channel_name
-        )
-        self.user_id = self.scope['url_route']['kwargs']['user_id']
-        await self.accept()
+        self.user = self.scope["user"]
+        if self.user.is_authenticated:
+            await self.accept()
+        else:
+            await self.close()
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            self.group_name,
-            self.channel_name
-        )
+        pass  # می‌توانید عملیات خاصی در زمان قطع اتصال انجام دهید
 
-    async def receive(self, text_data=None, bytes_data=None):
+    async def receive(self, text_data):
+        """ دریافت پیام از WebSocket و بروزرسانی اطلاعات """
         await self.update_duration_view()
 
-    async def update_duration_view(self,):
-        try:
+    @database_sync_to_async
+    def get_profile(self):
+        """ دریافت پروفایل کاربر """
+        return self.user.possit
 
-            user__id = self.user_id
-            attend = await sync_to_async(AttendanceUser.objects.get)(user_id=user__id, in_progress=True)
-            attend.end = datetime.now().time()
-            # Calculate the duration of working time
-            job_time = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
-            profile = await sync_to_async(Profile.objects.get)(user_id=user__id)
-            # Calculate the number of hours elapsed since the record was created
-            if attend.created_date < datetime.now().date():
-                date_hours = datetime.now().date() - attend.created_date
-                if job_time.days == date_hours.days:
-                    await sync_to_async(attend.save)()
-                    job_time = timedelta(seconds=job_time.total_seconds())
+    @database_sync_to_async
+    def get_profile_position(self, profile):
+        """ دریافت موقعیت پروفایل (Profile Position) """
+        return profile.profile_position
 
-                    inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
-                    attend.job_time += job_time  # Convert to timedelta object
+    @database_sync_to_async
+    def get_last_attendance(self):
+        """ دریافت آخرین حضور کاربر """
+        return self.user.user_attendance.last()
 
-                    duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-                    duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
-                    await self.send(text_data=f'{{"duration": "{duration_formatted}", "inc": {inc}}}')
-                else:
-                    # Add 24 hours for each day that has passed
-                    job_time += timedelta(days=date_hours.days)
-                    attend.save()
-                    job_time = timedelta(seconds=job_time.total_seconds())
-                    attend.job_time += job_time  # Convert to timedelta object
-                    inc = round(profile.profile_position.position_income * (attend.job_time.total_seconds() / 3600), 4)
-                    duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-                    duration_formatted = duration_formatted.replace("day", "روز")  # Replace "day" with "روز"
-                    await self.send(text_data=f'{{"duration": "{duration_formatted}", "inc": {inc}}}')
-            else:
-                await sync_to_async(attend.save)()
-                job_time = timedelta(seconds=job_time.total_seconds())
-                attend.job_time += job_time  # Convert to timedelta object
+    @database_sync_to_async
+    def get_last_income(self):
+        """ دریافت آخرین درآمد """
+        return self.user.user_incomes.last().user_income
 
-                profile = await sync_to_async(Profile.objects.get)(user_id=user__id)
-                position_income = await sync_to_async(lambda: profile.profile_position.position_income)()
-                job_time_seconds = await sync_to_async(lambda: attend.job_time.total_seconds())()
-                inc = await sync_to_async(round)((position_income * (job_time_seconds / 3600)), 4)
 
-                duration_formatted = str(attend.job_time).split(".")[0]  # Extract the hours:minutes:seconds part
-                await self.send(text_data=f'{{"duration": "{duration_formatted}", "inc": {inc}}}')
-        except AttendanceUser.DoesNotExist:
-            await self.send(text_data='{"duration": "0:00:00"}')
+
+    async def update_duration_view(self):
+        """ محاسبه مدت زمان و درآمد کاربر و ارسال اطلاعات به WebSocket """
+        profile = await self.get_profile()
+        profile_position = await self.get_profile_position(profile)
+
+
+        attendance = await self.get_last_attendance()
+        print(attendance)
+        if attendance:
+            now = datetime.now().time()
+
+            duration = datetime.combine(datetime.min, now) - datetime.combine(datetime.min, attendance.start)
+
+        else:
+            duration = 0
+
+        if profile_position.monthly:
+            income = await self.get_last_income()
+
+        else:
+            income = profile_position.position_income * (duration / 3600)
+
+        print(income)
+        print(duration)
+        data = {
+            "income": str(income),
+            "duration": str(timedelta(seconds=int(duration.total_seconds())))
+        }
+
+        await self.send(text_data=json.dumps(data))

@@ -101,8 +101,6 @@ class ShiftWork(models.Model):
 class Positions(models.Model):
     positions = models.CharField(max_length=100)
     position_income = models.IntegerField()
-
-
     shift_work = models.ManyToManyField('ShiftWork', related_name='Shift_work')
 
     # Also, according to the series of working hours, they must be inside the company,

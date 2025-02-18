@@ -59,7 +59,9 @@
     <p>زمان خروج: <span id="working-hours">{{ end }}</span></p>
     <p>درآمد ماه جاری: <span id="working-hours">{{ income.user_income }}</span></p>
     <p>درآمد اضافه‌کاری ماه جاری: <span id="working-hours">{{ income.surplus }}</span></p>
+{% if not monthly %}
     <p>کل درآمد امروز: <span id="working-hours">{{ inc }}</span></p>
+{% endif %}
 
 
     <table>

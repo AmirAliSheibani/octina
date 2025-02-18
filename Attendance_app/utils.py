@@ -3,7 +3,7 @@ from django.db.models import Case, When, Value, BooleanField
 import jdatetime
 from django.db.models import Q
 from django.utils import timezone
-
+import re
 from Attendance_app.models import AttendanceUser
 from pricing.models import Profile, NoneInProgress, CustomUser
 
@@ -94,6 +94,7 @@ def handle_progress_and_none_progress_user(users):
 
     # دریافت کاربران در حال کار
     in_progress_users_ids = list(AttendanceUser.objects.filter(in_progress=True).values_list("user_id", flat=True))
+
 
     # آپدیت کاربران به‌صورت مستقیم
     CustomUser.objects.update(

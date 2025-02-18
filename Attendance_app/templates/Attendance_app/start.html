@@ -31,7 +31,7 @@
         websocket.onmessage = function (event) {
             var data = JSON.parse(event.data);
             $('#duration').text(data.duration);
-            $('#income').text(data.inc);
+            $('#income').text(data.income);
         };
 
         // ارسال پیام به سرور
