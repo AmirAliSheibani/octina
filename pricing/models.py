@@ -72,6 +72,8 @@ class Vacation(models.Model):
 class ShiftWork(models.Model):
     work_start_time = models.TimeField(null=True)
     work_end_time = models.TimeField(null=True)
+    # Every employee must be in the company on certain days and these days are determined here.
+    # If he is supposed to work on unspecified days, then it is considered overtime.
     # Every day, working hours may be different from other days of the week
     work_days = models.ManyToManyField('Day', related_name='Days')
     required_time = models.DurationField(default=timedelta(0), blank=True)
@@ -99,9 +101,7 @@ class ShiftWork(models.Model):
 class Positions(models.Model):
     positions = models.CharField(max_length=100)
     position_income = models.IntegerField()
-    # Every employee must be in the company on certain days and these days are determined here.
-    work_days = models.ManyToManyField('Day', related_name='days')
-    # If he is supposed to work on unspecified days, then it is considered overtime.
+
 
     shift_work = models.ManyToManyField('ShiftWork', related_name='Shift_work')
 

@@ -69,15 +69,12 @@ class ShiftWorkForm(forms.ModelForm):
 
 
 class PositionForm(forms.ModelForm):
-    work_days = forms.ModelMultipleChoiceField(
-        queryset=Day.objects.all(),
-    )
 
     shift_work = forms.ModelMultipleChoiceField(queryset=ShiftWork.objects.none())
 
     class Meta:
         model = Positions
-        fields = ['positions', 'monthly', 'position_income', 'work_days', 'shift_work', 'overtime_position_income']
+        fields = ['positions', 'monthly', 'position_income', 'shift_work', 'overtime_position_income']
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
