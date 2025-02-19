@@ -178,6 +178,8 @@ class Income(models.Model):
         self.user_income = max(Decimal('0.00'), self.user_income)
         self.surplus = max(Decimal('0.00'), self.surplus)
         self.job_time = max(timedelta(0), self.job_time)
+        if self.job_time:
+            self.job_time = timedelta(seconds=int(self.job_time.total_seconds()))
         super().save(*args, **kwargs)
 
 

@@ -43,6 +43,9 @@ class AttendanceUser(models.Model):
         if self.created_date:
             self.month = self.created_date.month
             self.year = self.created_date.year
+
+        if self.job_time:
+            self.job_time = timedelta(seconds=int(self.job_time.total_seconds()))
         super().save(*args, **kwargs)
 
     def __str__(self):

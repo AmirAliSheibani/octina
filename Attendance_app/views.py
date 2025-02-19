@@ -352,7 +352,7 @@ class ShowResult(TemplateView):
         context['income'] = income
         context['end'] = end1
         context['start'] = start2
-        context['job_time'] = job_time
+        context['job_time'] = timedelta(seconds=int(job_time.total_seconds()))
         context['zipped_times'] = zipped_times
         context['inc'] = inc
         context['date'] = attend.created_date
