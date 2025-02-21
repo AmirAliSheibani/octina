@@ -53,7 +53,9 @@
     <h1> حضور و غیاب اُکتینا</h1>
     <h2>{{ request.user }}</h2>
     <h4>{{ position }}</h4>
-    <h5>درآمد ماه جاری: {{ income }}</h5>
+    <h5>درآمد ماه جاری: {% if income %}
+    	{{ income }} {% else %}خالی
+{% endif %} </h5>
     <form method="post" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
         {% if request.user.is_staff %}

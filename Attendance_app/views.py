@@ -49,7 +49,7 @@ def restricted_view(request, *args, **kwargs):
     return redirect('Attendance:home')
 
 
-@check_progress
+@check_progress #home page
 def create_attendance_view(request):
     """ View for handling attendance and user progress. """
 
