@@ -81,9 +81,11 @@
         <a href="{% url 'Attendance:redirected_view' %}">
             <button type="button">بازگشت به خانه</button>
         </a>
+        {% if object %}
         <a href="{% url 'Attendance:download_excel_user' request.user.id month year %}">
             <button type="button">مشاهده در اکسل</button>
         </a>
+        {% endif %}
         <button type="submit">شروع</button>
     </form>
 

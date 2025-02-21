@@ -378,11 +378,13 @@ def download_excel_user(request, pk, month, year):
         year=year,
         user=user
     )
-    income = Income.objects.get(
+    income = Income.objects.filter(
         month=month,
         year=year,
         user=user
     )
+    if not income:
+        raise ValueError('no income data')
     MONTH_NAMES = get_month_names()
 
     # Create an Excel workbook and sheet
