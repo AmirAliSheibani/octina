@@ -46,13 +46,7 @@
             <td>درآمد اضافه کاری (ساعتی)
                 <hr>
                 {{ position.overtime_position_income }}</td>
-            <td>روز های کاری
-            <hr>
 
-                {% for work_day in position.work_days.all %}
-                    {{ work_day }},
-                {% endfor %}
-            </td>
             </tr>
     {% for shift_work in position.shift_work.all %}
             <tr>

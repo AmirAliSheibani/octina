@@ -436,7 +436,6 @@ def download_excel_user(request, pk, month, year):
     return response
 
 
-
 def getting_vacation(request):
     user = request.user
     if request.method == 'POST':
