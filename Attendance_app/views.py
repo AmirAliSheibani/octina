@@ -249,9 +249,20 @@ def start_attendance_view(request):
 
     # تنظیم وضعیت تعطیلی و اضافه‌کاری
     attendance_obj.holiday_check = check_holidays
-    attendance_obj.overtime_check = overtime
-
-    attendance_obj.save()
+    print('252')
+    print(attendance_obj.job_time >= current_shift.required_time)
+    if attendance_obj.job_time >= current_shift.required_time:
+        print('*' * 10)
+        print('overtime_check: True')
+        print(current_shift.required_time)
+        attendance_obj.overtime_check = overtime
+    else:
+        attendance_obj.overtime_check = False
+        print('*' * 10)
+        print('overtime_check: False')
+    print(current_shift.required_time)
+    print(attendance_obj.overtime_check)
+    attendance_obj.save(required_time=current_shift.required_time if current_shift else timedelta())
 
     if location and attendance_obj.confirmation is None:
         return redirect(reverse('locations:get_user_location'))
@@ -367,7 +378,6 @@ def list_holidays(request):
         holidays = Holidays.objects.filter(created_by=staff)
 
     return render(request, 'Attendance_app/holiday_list.html', {'holidays': holidays})
-
 
 
 def download_excel_user(request, pk, month, year):

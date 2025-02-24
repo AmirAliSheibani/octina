@@ -28,17 +28,18 @@ class AttendanceUser(models.Model):
     start = models.TimeField(null=True, blank=True)
     end = models.TimeField(null=True, blank=True)
     job_time = models.DurationField(default=timedelta(0), blank=True)
-
     token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     last_info = models.TextField(max_length=800, default=' +', null=True, blank=True)
 
     in_progress = models.BooleanField(default=False)
     holiday_check = models.BooleanField(default=False)
     overtime_check = models.BooleanField(default=False)
-
+    overtime_duration = models.DurationField(default=timedelta(0), blank=True)
     confirmation = models.BooleanField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        required_time = kwargs.pop('required_time', None)
+        print(f'required_time: {required_time}')
         # مقدار `month` و `year` را همیشه از `created_date` بگیر
         if self.created_date:
             self.month = self.created_date.month
@@ -46,6 +47,11 @@ class AttendanceUser(models.Model):
 
         if self.job_time:
             self.job_time = timedelta(seconds=int(self.job_time.total_seconds()))
+
+        if self.overtime_check and required_time:
+            self.overtime_duration = self.job_time - required_time
+
+
         super().save(*args, **kwargs)
 
     def __str__(self):

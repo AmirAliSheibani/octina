@@ -17,16 +17,18 @@ from django.shortcuts import redirect, reverse
 from django.db.models import Q
 
 
-def calculate_income(income, job_time, only_overtime=False):
+def calculate_income(income, job_time, overtime):
     """محاسبه درآمد و اضافه‌کاری."""
     hourly_income = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
-    overtime_income = income.position.profile_position.overtime_position_income * (job_time.total_seconds() / 3600)
 
-    if not only_overtime:
+
+    if not overtime:
         income.user_income += Decimal(hourly_income)  # فقط در صورتی که حقوق ساعتی باشه
+    else:
+        overtime_income = income.position.profile_position.overtime_position_income * (overtime.total_seconds() / 3600)
 
-    income.surplus += Decimal(overtime_income)
-    income.user_income += Decimal(overtime_income)
+        income.surplus += Decimal(overtime_income)
+        income.user_income += Decimal(overtime_income)
     income.save()
 
 
@@ -64,23 +66,41 @@ def process_pricing(request, pk):
         income.user_income = income.position.profile_position.position_income
 
     current_shift = get_shiftwork(income)
-    is_holiday_today = is_holiday()
+    is_holiday_today = at.holiday_check
+
+    # if current_shift and not is_holiday_today:
+    #     start_shift_time, end_shift_time = current_shift.work_start_time, current_shift.work_end_time
+    #     if start_shift_time < datetime.now().time() < end_shift_time:
+    #         if income.position.profile_position.monthly:
+    #             # فقط اضافه‌کاری حساب شود
+    #             calculate_income(income, job_time, only_overtime=True)
+    #         else:
+    #             # حقوق عادی + اضافه‌کاری حساب شود
+    #             calculate_income(income, job_time)
+    #     else:
+    #         # خارج از ساعت شیفت = اضافه‌کاری حساب شود
+    #         calculate_income(income, job_time, only_overtime=True)
+    # else:
+    #     # روز تعطیل = اضافه‌کاری حساب شود
+    #     calculate_income(income, job_time, only_overtime=True)
 
     if current_shift and not is_holiday_today:
-        start_shift_time, end_shift_time = current_shift.work_start_time, current_shift.work_end_time
-        if start_shift_time < datetime.now().time() < end_shift_time:
+        if not at.overtime_check:
+            print('not overtime')
             if income.position.profile_position.monthly:
+                print('pass')
                 # فقط اضافه‌کاری حساب شود
-                calculate_income(income, job_time, only_overtime=True)
+                # calculate_income(income, job_time)
             else:
                 # حقوق عادی + اضافه‌کاری حساب شود
                 calculate_income(income, job_time)
         else:
             # خارج از ساعت شیفت = اضافه‌کاری حساب شود
-            calculate_income(income, job_time, only_overtime=True)
+            calculate_income(income, job_time, overtime=at.overtime_duration)
     else:
         # روز تعطیل = اضافه‌کاری حساب شود
-        calculate_income(income, job_time, only_overtime=True)
+        calculate_income(income, job_time,overtime=at.overtime_duration)
+
 
     income.job_time += job_time
     income.save()
