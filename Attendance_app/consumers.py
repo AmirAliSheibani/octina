@@ -31,12 +31,12 @@ class AttendanceConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_last_attendance(self):
         """ دریافت آخرین حضور کاربر """
-        return self.user.user_attendance.last()
+        return self.user.user_attendance.latest("created_date")
 
     @database_sync_to_async
     def get_last_income(self):
         """ دریافت آخرین درآمد """
-        return self.user.user_incomes.last().user_income
+        return self.user.user_incomes.latest("created_date").user_income
 
 
 
@@ -47,10 +47,12 @@ class AttendanceConsumer(AsyncWebsocketConsumer):
 
 
         attendance = await self.get_last_attendance()
-        print(attendance)
+        print(attendance, 'attendance')
         print(attendance.overtime_check)
         if attendance:
             now = datetime.now().time()
+            print(now, 'now')
+            print(attendance.start, 'start')
             duration = attendance.job_time
             duration += datetime.combine(datetime.min, now) - datetime.combine(datetime.min, attendance.start)
 
@@ -63,9 +65,6 @@ class AttendanceConsumer(AsyncWebsocketConsumer):
         else:
             income = profile_position.position_income * (duration / 3600)
 
-        print(income)
-        print(duration)
-        print(attendance.created_date)
         data = {
             "income": str(income),
             "duration": str(timedelta(seconds=int(duration.total_seconds())))
