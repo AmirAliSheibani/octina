@@ -31,12 +31,12 @@ class AttendanceConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_last_attendance(self):
         """ دریافت آخرین حضور کاربر """
-        return self.user.user_attendance.first()
+        return self.user.user_attendance.last()
 
     @database_sync_to_async
     def get_last_income(self):
         """ دریافت آخرین درآمد """
-        return self.user.user_incomes.first().user_income
+        return self.user.user_incomes.last().user_income
 
 
 

@@ -249,9 +249,8 @@ def start_attendance_view(request):
 
     # تنظیم وضعیت تعطیلی و اضافه‌کاری
     attendance_obj.holiday_check = check_holidays
-    print('252')
-    print(attendance_obj.job_time >= current_shift.required_time)
-    if attendance_obj.job_time >= current_shift.required_time:
+
+    if current_shift and attendance_obj.job_time >= current_shift.required_time:
         print('*' * 10)
         print('overtime_check: True')
         print(current_shift.required_time)
@@ -260,8 +259,6 @@ def start_attendance_view(request):
         attendance_obj.overtime_check = False
         print('*' * 10)
         print('overtime_check: False')
-    print(current_shift.required_time)
-    print(attendance_obj.overtime_check)
     attendance_obj.save(required_time=current_shift.required_time if current_shift else timedelta())
 
     if location and attendance_obj.confirmation is None:
