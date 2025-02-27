@@ -31,7 +31,6 @@
         websocket.onmessage = function (event) {
             var data = JSON.parse(event.data);
             $('#duration').text(data.duration);
-            $('#income').text(data.income);
         };
 
         // ارسال پیام به سرور
@@ -40,7 +39,7 @@
         }
 
         // دریافت به‌روزرسانی‌ها هر 1 ثانیه
-        setInterval(sendUpdateRequest, 3000);
+        setInterval(sendUpdateRequest, 5000);
     </script>
 </head>
 <body>
@@ -70,7 +69,6 @@
     	<h5 style="color: gold"> در حال حاضر امروز روز تعطیل است و درآمد بصورت اضافه حقوق میباشد </h5>
         {% endif %}
     <h6>میتوانید از این صفحه خارج شوید </h6>
-    <h4 >درآمد بدست آمده: <span id="income">{{ inc }}</span> </h4>
     <form method="POST" action="{% url 'Attendance:procces_result' pk %}">
         {% csrf_token %}
         <button class="button" type="submit">اتمام کار</button>

@@ -33,17 +33,11 @@ class AttendanceConsumer(AsyncWebsocketConsumer):
         """ دریافت آخرین حضور کاربر """
         return self.user.user_attendance.latest("created_date")
 
-    @database_sync_to_async
-    def get_last_income(self):
-        """ دریافت آخرین درآمد """
-        return self.user.user_incomes.latest("created_date").user_income
-
-
 
     async def update_duration_view(self):
         """ محاسبه مدت زمان و درآمد کاربر و ارسال اطلاعات به WebSocket """
         profile = await self.get_profile()
-        profile_position = await self.get_profile_position(profile)
+        # profile_position = await self.get_profile_position(profile)
 
 
         attendance = await self.get_last_attendance()
@@ -59,14 +53,7 @@ class AttendanceConsumer(AsyncWebsocketConsumer):
         else:
             duration = 0
 
-        if profile_position.monthly:
-            income = await self.get_last_income()
-
-        else:
-            income = profile_position.position_income * (duration / 3600)
-
         data = {
-            "income": str(income),
             "duration": str(timedelta(seconds=int(duration.total_seconds())))
         }
 
