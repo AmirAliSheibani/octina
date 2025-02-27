@@ -23,8 +23,8 @@ class AttendanceUser(models.Model):
     id = models.CharField(primary_key=True, max_length=36, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_attendance')
     created_date = jmodels.jDateField(auto_now_add=True, null=True, blank=True)
-    month = models.PositiveSmallIntegerField(editable=False)
-    year = models.PositiveSmallIntegerField(editable=False)
+    month = models.PositiveSmallIntegerField(editable=False, default=1)
+    year = models.PositiveSmallIntegerField(editable=False, default=1403)
     start = models.TimeField(null=True, blank=True)
     end = models.TimeField(null=True, blank=True)
     job_time = models.DurationField(default=timedelta(0), blank=True)
@@ -47,6 +47,8 @@ class AttendanceUser(models.Model):
 
         if self.job_time:
             self.job_time = timedelta(seconds=int(self.job_time.total_seconds()))
+        if self.job_time <= timedelta(seconds=0):
+            self.job_time = datetime.combine(datetime.min, self.end) - datetime.combine(datetime.min, self.start)
 
         if self.overtime_check and required_time:
             self.overtime_duration = self.job_time - required_time
