@@ -224,12 +224,6 @@ def start_attendance_view(request):
         'group_name', {'type': 'send_user_id', 'user_id': request.user.id}
     )
 
-    print(f'location = {location}')
-    print(f'current_day = {current_day}')
-    print(f'check_holidays = {check_holidays}')
-    print(f'work_holi_day = {work_holi_day}')
-    print(f'overtime = {overtime}')
-
     # دریافت یا ایجاد رکورد حضور
     attendance_obj, created = AttendanceUser.objects.get_or_create(
         user=request.user, created_date=date,
@@ -251,14 +245,9 @@ def start_attendance_view(request):
     attendance_obj.holiday_check = check_holidays
 
     if current_shift and attendance_obj.job_time >= current_shift.required_time:
-        print('*' * 10)
-        print('overtime_check: True')
-        print(current_shift.required_time)
         attendance_obj.overtime_check = overtime
     else:
         attendance_obj.overtime_check = False
-        print('*' * 10)
-        print('overtime_check: False')
     attendance_obj.save(required_time=current_shift.required_time if current_shift else timedelta())
 
     if location and attendance_obj.confirmation is None:

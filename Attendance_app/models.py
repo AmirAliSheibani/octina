@@ -47,8 +47,9 @@ class AttendanceUser(models.Model):
 
         if self.job_time:
             self.job_time = timedelta(seconds=int(self.job_time.total_seconds()))
-        if self.job_time <= timedelta(seconds=0):
-            self.job_time = datetime.combine(datetime.min, self.end) - datetime.combine(datetime.min, self.start)
+        if self.end:
+            if self.job_time <= timedelta(seconds=0):
+                self.job_time = datetime.combine(datetime.min, self.end) - datetime.combine(datetime.min, self.start)
 
         if self.overtime_check and required_time:
             self.overtime_duration = self.job_time - required_time
