@@ -101,7 +101,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         """
         Retrieve or create an Income object for the given attendance object.
         """
-        profile = Profile.objects.get(user=attendance_obj.user)
+        profile = attendance_obj.user.possit
         job_time_hours = attendance_obj.job_time.total_seconds() / 3600
 
         income, created = Income.objects.get_or_create(
@@ -116,17 +116,13 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
                 "created_by": self.request.user.created_who
             }
         )
-        print(income, created)
-
         return income
 
     def format_job_time(self, job_time_str):
         """
         Format the job time string into a localized format.
         """
-        if 'day' in job_time_str:
-            return job_time_str.replace("day", "روز")[:14]
-        return job_time_str[:7]
+        return job_time_str.replace("day", "روز").split(",")[0]  # جایگزین کردن [:14] و [:7]
 
     def calculate_income(self, attendance, position_income):
         """
@@ -139,35 +135,27 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         pk = self.kwargs['pk']
         month = self.kwargs['month']
         year = self.kwargs['year']
+
         context['months'] = get_month_names()
+        user = get_object_or_404(CustomUser, id=pk)
 
-        try:
-            user = CustomUser.objects.get(id=pk)
-            attendances = AttendanceUser.objects.filter(month=month, year=year, user_id=pk)
-            context['user'] = user
+        # مرتب‌سازی بر اساس created_date به صورت نزولی (جدیدترین موارد در ابتدا)
+        attendances = AttendanceUser.objects.filter(month=month, year=year, user=user).order_by('-created_date')
 
-            if not attendances.exists():
-                raise AttendanceUser.DoesNotExist("No attendance records found for the given user and date range.")
-
+        context['user'] = user
+        if attendances.exists():
             attendance_obj = attendances.first()
             income = self.get_income_or_create(attendance_obj)
+            position_income = income.position.profile_position.position_income  # مقدار فقط یکبار گرفته می‌شود
 
-            position_income = income.position.profile_position.position_income
-            job_time_list = []
-            results = []
-
-            for attendance in attendances:
-                results.append(self.calculate_income(attendance, position_income))
-                job_time_list.append(self.format_job_time(str(attendance.job_time)))
+            results = [self.calculate_income(attendance, position_income) for attendance in attendances]
+            job_time_list = [self.format_job_time(str(attendance.job_time)) for attendance in attendances]
 
             context["object"] = zip(attendances, results, job_time_list)
-
             context['income'] = income
             context['month_job_time'] = self.format_job_time(str(income.job_time))
-
-        except AttendanceUser.DoesNotExist:
+        else:
             context["object"] = None
-            context['user'] = CustomUser.objects.get(id=pk)
             context['income'] = None
 
         context['month'] = month

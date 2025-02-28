@@ -44,6 +44,8 @@ class AttendanceUserAdmin(admin.ModelAdmin):
 
     list_display = ['user', 'created_date', 'start', 'end', 'month', 'year', 'job_time', 'in_progress', 'confirmation']
 
+    ordering = ['-created_date']
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if not request.user.is_superuser:
             if db_field.name == 'user':
