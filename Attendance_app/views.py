@@ -122,7 +122,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         """
         Format the job time string into a localized format.
         """
-        return job_time_str.replace("day", "روز").split(",")[0]  # جایگزین کردن [:14] و [:7]
+        return job_time_str.replace("day", "روز").split(",")[0]
 
     def calculate_income(self, attendance, position_income):
         """
@@ -139,14 +139,13 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         context['months'] = get_month_names()
         user = get_object_or_404(CustomUser, id=pk)
 
-        # مرتب‌سازی بر اساس created_date به صورت نزولی (جدیدترین موارد در ابتدا)
         attendances = AttendanceUser.objects.filter(month=month, year=year, user=user).order_by('-created_date')
 
         context['user'] = user
         if attendances.exists():
             attendance_obj = attendances.first()
             income = self.get_income_or_create(attendance_obj)
-            position_income = income.position.profile_position.position_income  # مقدار فقط یکبار گرفته می‌شود
+            position_income = income.position.profile_position.position_income
 
             results = [self.calculate_income(attendance, position_income) for attendance in attendances]
             job_time_list = [self.format_job_time(str(attendance.job_time)) for attendance in attendances]

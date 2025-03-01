@@ -17,7 +17,7 @@ from django.shortcuts import redirect, reverse
 from django.db.models import Q
 
 
-def calculate_income(income, job_time, overtime):
+def calculate_income(income, job_time, overtime=None):
     """محاسبه درآمد و اضافه‌کاری."""
     hourly_income = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
 

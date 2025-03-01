@@ -10,11 +10,13 @@ from django.conf import settings
 import jdatetime
 from django.db import models
 from django.utils import timezone
-
+from decimal import Decimal
 User = settings.AUTH_USER_MODEL
 from django_jalali.db import models as jmodels
 from jalali_date import date2jalali
 from decimal import Decimal
+
+
 
 
 # class JalaliDateField(models.DateField):
@@ -205,3 +207,34 @@ class CustomUser(AbstractUser):
     absent = models.BooleanField(default=True)
     subscription_Date = jmodels.jDateField(blank=True, null=True)
     verified_email = models.BooleanField(default=False)
+
+
+
+def recalculate_income(user, month, year):
+    """بازمحاسبه درآمد بر اساس تمام ورود و خروج‌های تأیید شده"""
+    attendances = AttendanceUser.objects.filter(user=user, month=month, year=year, confirmation=True)
+    total_job_time = sum((at.job_time for at in attendances), timedelta())
+
+    try:
+        income = Income.objects.get(user=user, month=month, year=year)
+    except Income.DoesNotExist:
+        income = Income(user=user, month=month, year=year, position=Profile.objects.get(user=user))
+
+    hourly_income = income.position.profile_position.position_income
+    overtime_income = income.position.profile_position.overtime_position_income
+
+    total_income = sum(
+        [Decimal(hourly_income) * Decimal(at.job_time.total_seconds()) / Decimal(3600) for at in attendances],
+        Decimal(0)
+    )
+
+    total_overtime = sum(
+        [Decimal(overtime_income) * Decimal(at.overtime_duration.total_seconds()) / Decimal(3600) for at in
+         attendances],
+        Decimal(0)
+    )
+
+    income.job_time = total_job_time
+    income.user_income = total_income + total_overtime
+    income.surplus = total_overtime
+    income.save()
