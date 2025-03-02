@@ -18,17 +18,25 @@ from django.db.models import Q
 
 
 def calculate_income(income, job_time, overtime=None):
-    """محاسبه درآمد و اضافه‌کاری."""
-    hourly_income = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
+    """محاسبه درآمد و اضافه‌کاری بدون تغییر مقدار ماهانه در حالت حقوق ثابت."""
 
-
-    if not overtime:
-        income.user_income += Decimal(hourly_income)  # فقط در صورتی که حقوق ساعتی باشه
+    if income.position.profile_position.monthly:
+        # یوزر حقوق ثابت ماهانه دارد، پس فقط اضافه‌کاری حساب شود
+        if overtime:
+            overtime_income = income.position.profile_position.overtime_position_income * (
+                        overtime.total_seconds() / 3600)
+            income.surplus += Decimal(overtime_income)  # فقط اضافه‌کاری اضافه شود
     else:
-        overtime_income = income.position.profile_position.overtime_position_income * (overtime.total_seconds() / 3600)
+        # یوزر حقوق ساعتی دارد، پس حقوق عادی + اضافه‌کاری حساب شود
+        hourly_income = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
+        income.user_income += Decimal(hourly_income)
 
-        income.surplus += Decimal(overtime_income)
-        income.user_income += Decimal(overtime_income)
+        if overtime:
+            overtime_income = income.position.profile_position.overtime_position_income * (
+                        overtime.total_seconds() / 3600)
+            income.surplus += Decimal(overtime_income)
+            income.user_income += Decimal(overtime_income)  # برای یوزرهای ساعتی، اضافه‌کاری هم به درآمد کل اضافه شود
+
     income.save()
 
 

@@ -77,7 +77,7 @@ class VacationTypeAdmin(admin.ModelAdmin):
 
 @admin.register(models.ShiftWork)
 class ShiftWorkAdmin(admin.ModelAdmin):
-    list_display = ['work_start_time', 'work_end_time', ]
+    list_display = ['work_start_time', 'work_end_time', 'name']
 
     def save_model(self, request, obj, form, change):
         if not change:
