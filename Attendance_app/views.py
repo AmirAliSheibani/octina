@@ -277,71 +277,50 @@ class ShowResult(TemplateView):
         context = super().get_context_data(**kwargs)
         request = self.request
 
-        try:
+        pk = self.kwargs.get('pk')
+        user_id = self.kwargs.get('user', request.user.id)
 
-            pk = self.kwargs['pk']
-            id = self.kwargs['user']
-            attend = get_object_or_404(AttendanceUser, user_id=id, id=pk)
-        except:
-            token = self.request.session['token']
-
-            attend = get_object_or_404(AttendanceUser, user=request.user,
-                                       token=token)  # token=pk if there is no session
+        token = request.session.get('token')
+        attend = get_object_or_404(AttendanceUser, user_id=user_id, id=pk) if pk else get_object_or_404(AttendanceUser,
+                                                                                                        user=request.user,
+                                                                                                        token=token)
 
         month, year = get_jalali_date()
-        context['month'] = month
-        context['year'] = year
-        context['object'] = attend
-        context['user'] = CustomUser.objects.get(id=request.user.id)
+        context.update({
+            'month': month,
+            'year': year,
+            'object': attend,
+            'user': request.user,
+            'date': attend.created_date
+        })
 
-        # get attend.end and start in datetime type
-        end_datetime = attend.end
-        start_datetime = attend.start
         job_time = str(attend.job_time)
-        if 'day' in job_time:
-            job_time = job_time.replace("day", "روز")[:14]
-        else:
-            job_time = job_time[:7]
-        # Format the datetime objects
-        end1 = end_datetime.strftime("%H:%M:%S %p")
-        start2 = start_datetime.strftime("%H:%M:%S %p")
+        context['job_time'] = job_time.replace("day", "روز")[:14] if 'day' in job_time else job_time[:7]
 
-        starts = []
-        ends = []
+        context.update({
+            'start': attend.start.strftime("%H:%M:%S %p"),
+            'end': attend.end.strftime("%H:%M:%S %p"),
+        })
 
-        pattern = r"start=(\d{2}:\d{2}:\d{2}), end=(\d{2}:\d{2}:\d{2})"
+        matches = re.findall(r"start=(\d{2}:\d{2}:\d{2}), end=(\d{2}:\d{2}:\d{2})", attend.last_info)
+        context['zipped_times'] = matches if matches else []
 
-        matches = re.findall(pattern, attend.last_info)
-
-        for match in matches:
-            start, end = match
-            starts.append(start)
-            ends.append(end)
-
-        zipped_times = zip(starts, ends)
-        at_month = attend.created_date.month
-
-        income = Income.objects.get(
-            month=at_month,
+        income, _ = Income.objects.get_or_create(
+            month=attend.created_date.month,
             year=attend.created_date.year,
-            user=attend.user
+            user=attend.user,
+            defaults={'position': attend.user.possit, 'job_time': timedelta()}
         )
 
-        job_time = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
-        if income.position.profile_position.monthly:
-            inc = income.user_income
-        else:
-            inc = round(income.position.profile_position.position_income * (job_time.total_seconds() / 3600), 4)
-        context['monthly'] = income.position.profile_position.monthly
-        context['income'] = income
-        context['end'] = end1
-        context['start'] = start2
-        context['job_time'] = timedelta(seconds=int(job_time.total_seconds()))
-        context['zipped_times'] = zipped_times
-        context['inc'] = inc
-        context['date'] = attend.created_date
-        return context
+        job_time_duration = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
+        context.update({
+            'monthly': income.position.profile_position.monthly,
+            'income': income,
+            'inc': income.user_income if income.position.profile_position.monthly else round(
+                income.position.profile_position.position_income * (job_time_duration.total_seconds() / 3600), 4)
+        })
 
+        return context
 
 def list_holidays(request):
     staff = request.user
@@ -420,6 +399,7 @@ def download_excel_user(request, pk, month, year):
 
 
 def getting_vacation(request):
+    #todo i have to get the limit from manager
     user = request.user
     if request.method == 'POST':
         form = VacationForm(data=request.POST)
@@ -437,7 +417,8 @@ def getting_vacation(request):
             return redirect(reverse('Attendance:redirected_view'))
     else:
         form = VacationForm()
-    return render(request, 'Attendance_app/get_vacation.html', {'form': form})
+    return render(request, 'Attendance_app/get_vacation.html', {'form': form})#todo #
+
 
 
 def personal_info(request):
