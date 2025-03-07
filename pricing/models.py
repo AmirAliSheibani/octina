@@ -188,7 +188,7 @@ class Income(models.Model):
 class NoneInProgress(models.Model):
     user = models.ManyToManyField(User, related_name='nonprogres', blank=True)
     created_date = jmodels.jDateField(auto_created=True, null=True, blank=True)
-    month = models.PositiveSmallIntegerField( null=True)
+    month = models.PositiveSmallIntegerField(null=True)
     year = models.PositiveSmallIntegerField(default=None, null=True)
 
     def __str__(self):
@@ -196,6 +196,23 @@ class NoneInProgress(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Only set the month if the object is being created
+            self.month = date2jalali(timezone.now().date()).month
+            self.year = date2jalali(timezone.now().date()).year
+        super().save(*args, **kwargs)
+
+
+class Delay(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_delays')
+    created_date = jmodels.jDateField(auto_created=True, null=True, blank=True)
+    month = models.PositiveSmallIntegerField(null=True)
+    year = models.PositiveSmallIntegerField(default=None, null=True)
+    delay_time = models.DurationField()
+
+    def __str__(self):
+        return f'{self.created_date} - {self.delay_time}'
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
             self.month = date2jalali(timezone.now().date()).month
             self.year = date2jalali(timezone.now().date()).year
         super().save(*args, **kwargs)
