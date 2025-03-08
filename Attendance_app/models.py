@@ -16,7 +16,6 @@ from django.db import models
 from django.utils import timezone
 from jalali_date import date2jalali
 from datetime import timedelta
-
 import uuid
 
 class AttendanceUser(models.Model):
@@ -37,7 +36,7 @@ class AttendanceUser(models.Model):
     overtime_duration = models.DurationField(default=timedelta(0), blank=True)
     confirmation = models.BooleanField(null=True, blank=True)
 
-    delay = models.OneToOneField('Delay', on_delete=models.SET_NULL, null=True, blank=True, related_name='attendance')
+    delay = models.OneToOneField('pricing.Delay', on_delete=models.SET_NULL, null=True, blank=True, related_name='attendance')
 
     def save(self, *args, **kwargs):
         required_time = kwargs.pop('required_time', None)
