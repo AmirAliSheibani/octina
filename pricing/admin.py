@@ -70,6 +70,11 @@ class DaysAdmin(admin.ModelAdmin):
     list_display = ['day_of_week']
 
 
+@admin.register(models.Delay)
+class DelayAdmin(admin.ModelAdmin):
+    list_display = ['created_date']
+
+
 @admin.register(models.VacationType)
 class VacationTypeAdmin(admin.ModelAdmin):
     list_display = ['name_type', 'Limitation', 'get_income']

@@ -203,7 +203,7 @@ class NoneInProgress(models.Model):
 
 class Delay(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_delays')
-    created_date = jmodels.jDateField(auto_created=True, null=True, blank=True)
+    created_date = jmodels.jDateField(auto_now_add=True, null=True, blank=True)
     month = models.PositiveSmallIntegerField(null=True)
     year = models.PositiveSmallIntegerField(default=None, null=True)
     delay_time = models.DurationField()

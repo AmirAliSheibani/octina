@@ -19,7 +19,7 @@ from .models import AttendanceUser
 from .mixin import CustomizedRquirementLogin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from pricing.models import Profile, User, CustomUser, Income, ShiftWork, Positions, Holidays, Vacation, \
-    VacationType, Day, NoneInProgress
+    VacationType, Day, NoneInProgress, Delay
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
 from django.utils import timezone
 # exel
@@ -228,20 +228,22 @@ def start_attendance_view(request):
         attendance_obj.start = start
         attendance_obj.in_progress = True
 
-    # check for delay users
-    # delay_check = start > current_shift.work_start_time
-    # print(f'delay_check={delay_check}')
-    # if created and delay_check:
-
-
-
-
 
     # تنظیم وضعیت تعطیلی و اضافه‌کاری
     attendance_obj.holiday_check = check_holidays
 
     if current_shift and attendance_obj.job_time >= current_shift.required_time:
         attendance_obj.overtime_check = overtime
+        # check for delay users
+        delay_check = start < current_shift.work_start_time
+        print(f'delay_check={delay_check}')
+        # print(f'created={created}')
+        if delay_check and not attendance_obj.delay:
+            delay_time = datetime.combine(datetime.min, current_shift.work_start_time) - datetime.combine(datetime.min,
+                                                                                                          start)
+            delay_object = Delay.objects.create(user=request.user, delay_time=delay_time)
+            attendance_obj.delay = delay_object
+            print(f'delay_object={delay_object}')
     else:
         attendance_obj.overtime_check = False
     attendance_obj.save(required_time=current_shift.required_time if current_shift else timedelta())
