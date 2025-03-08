@@ -37,6 +37,8 @@ class AttendanceUser(models.Model):
     overtime_duration = models.DurationField(default=timedelta(0), blank=True)
     confirmation = models.BooleanField(null=True, blank=True)
 
+    delay = models.OneToOneField('Delay', on_delete=models.SET_NULL, null=True, blank=True, related_name='attendance')
+
     def save(self, *args, **kwargs):
         required_time = kwargs.pop('required_time', None)
         print(f'required_time: {required_time}')

@@ -218,7 +218,7 @@ def in_progress_users(request, month, year):
     return redirect(reverse('Attendance:redirected_view'))
 
 
-
+#todo i have to link each object to others like when user se profiles a user and click on position user redirected to positions
 def list_shift_work(request):
     staff = request.user
     shiftwork = ShiftWork.objects.filter(created_by=staff)

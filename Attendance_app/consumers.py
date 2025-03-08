@@ -41,12 +41,12 @@ class AttendanceConsumer(AsyncWebsocketConsumer):
 
 
         attendance = await self.get_last_attendance()
-        print(attendance, 'attendance')
-        print(attendance.overtime_check)
+        # print(attendance, 'attendance')
+        # print(attendance.overtime_check)
         if attendance:
             now = datetime.now().time()
-            print(now, 'now')
-            print(attendance.start, 'start')
+            # print(now, 'now')
+            # print(attendance.start, 'start')
             duration = attendance.job_time
             duration += datetime.combine(datetime.min, now) - datetime.combine(datetime.min, attendance.start)
 

@@ -228,6 +228,15 @@ def start_attendance_view(request):
         attendance_obj.start = start
         attendance_obj.in_progress = True
 
+    # check for delay users
+    # delay_check = start > current_shift.work_start_time
+    # print(f'delay_check={delay_check}')
+    # if created and delay_check:
+
+
+
+
+
     # تنظیم وضعیت تعطیلی و اضافه‌کاری
     attendance_obj.holiday_check = check_holidays
 
