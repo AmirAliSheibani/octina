@@ -51,6 +51,9 @@
                         <br>
                         <br>
                         اطلاعات روز کاری
+                        <br>
+                        <br>
+                        {{ shift_work.name }}
                         <hr>
                         {% for work_day in shift_work.work_days.all %}
                             {{ work_day }},
