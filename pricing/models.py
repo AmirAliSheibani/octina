@@ -240,10 +240,14 @@ def recalculate_income(user, month, year):
     hourly_income = income.position.profile_position.position_income
     overtime_income = income.position.profile_position.overtime_position_income
 
-    total_income = sum(
-        [Decimal(hourly_income) * Decimal(at.job_time.total_seconds()) / Decimal(3600) for at in attendances],
-        Decimal(0)
-    )
+    if not income.position.profile_position.monthly:
+
+        total_income = sum(
+            [Decimal(hourly_income) * Decimal(at.job_time.total_seconds()) / Decimal(3600) for at in attendances],
+            Decimal(0)
+        )
+    else:
+        total_income = hourly_income
 
     total_overtime = sum(
         [Decimal(overtime_income) * Decimal(at.overtime_duration.total_seconds()) / Decimal(3600) for at in
