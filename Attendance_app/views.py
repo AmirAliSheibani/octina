@@ -22,6 +22,7 @@ from pricing.models import Profile, User, CustomUser, Income, ShiftWork, Positio
     VacationType, Day, NoneInProgress, Delay
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
 from django.utils import timezone
+from django.http import Http404
 # exel
 
 import openpyxl
@@ -43,13 +44,14 @@ from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 import re
 
+
 @subscription_required
 @profile_required
 def restricted_view(request, *args, **kwargs):
     return redirect('Attendance:home')
 
 
-@check_progress #home page
+@check_progress  # home page
 def create_attendance_view(request):
     """ View for handling attendance and user progress. """
 
@@ -130,6 +132,18 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         """
         return round(position_income * (attendance.job_time.total_seconds() / 3600), 4)
 
+    def has_access(self, user):
+        req_user = self.request.user
+        print(user)
+        print(req_user)
+        if user != req_user:
+            if req_user.is_staff and user.created_who == req_user:
+                pass
+            else:
+                print('شما اجازه دسترسی به این اطلاعات را ندارید.')
+                raise Http404("شما اجازه دسترسی به این اطلاعات را ندارید.")
+        print('you have access')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         pk = self.kwargs['pk']
@@ -138,6 +152,8 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
 
         context['months'] = get_month_names()
         user = get_object_or_404(CustomUser, id=pk)
+
+        self.has_access(user) #check if user has access to this page
 
         attendances = AttendanceUser.objects.filter(month=month, year=year, user=user).order_by('-created_date')
 
@@ -185,7 +201,6 @@ def result_detail(request, pk):
 
 
 def start_attendance_view(request):
-
     now = datetime.now()
     date, start = now.date(), now.time()
 
@@ -204,7 +219,8 @@ def start_attendance_view(request):
     current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
 
     work_holi_day = check_holidays or current_shift is None
-    overtime = work_holi_day or not (current_shift.work_start_time < start < current_shift.work_end_time) if current_shift else True
+    overtime = work_holi_day or not (
+                current_shift.work_start_time < start < current_shift.work_end_time) if current_shift else True
 
     # ارسال شناسه کاربر به WebSocket
     async_to_sync(get_channel_layer().group_send)(
@@ -227,7 +243,6 @@ def start_attendance_view(request):
 
         attendance_obj.start = start
         attendance_obj.in_progress = True
-
 
     # تنظیم وضعیت تعطیلی و اضافه‌کاری
     attendance_obj.holiday_check = check_holidays
@@ -290,11 +305,11 @@ class ShowResult(TemplateView):
 
         pk = self.kwargs.get('pk')
         user_id = self.kwargs.get('user', request.user.id)
-
         token = request.session.get('token')
-        attend = get_object_or_404(AttendanceUser, user_id=user_id, id=pk) if pk else get_object_or_404(AttendanceUser,
-                                                                                                        user=request.user,
-                                                                                                        token=token)
+
+        attend = get_object_or_404(AttendanceUser,
+                                   user=request.user,
+                                   token=token)
 
         month, year = get_jalali_date()
         context.update({
@@ -332,6 +347,7 @@ class ShowResult(TemplateView):
         })
 
         return context
+
 
 def list_holidays(request):
     staff = request.user
@@ -410,7 +426,7 @@ def download_excel_user(request, pk, month, year):
 
 
 def getting_vacation(request):
-    #todo i have to get the limit from manager
+    # todo i have to get the limit from manager
     user = request.user
     if request.method == 'POST':
         form = VacationForm(data=request.POST)
@@ -428,8 +444,7 @@ def getting_vacation(request):
             return redirect(reverse('Attendance:redirected_view'))
     else:
         form = VacationForm()
-    return render(request, 'Attendance_app/get_vacation.html', {'form': form})#todo #
-
+    return render(request, 'Attendance_app/get_vacation.html', {'form': form})  # todo #
 
 
 def personal_info(request):
