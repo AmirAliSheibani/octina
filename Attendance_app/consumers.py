@@ -1,60 +1,48 @@
 import json
-from datetime import datetime, timezone, timedelta
+import asyncio
+from datetime import datetime, timedelta
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 class AttendanceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        """ اتصال وب‌سوکت """
         self.user = self.scope["user"]
         if self.user.is_authenticated:
             await self.accept()
+            asyncio.create_task(self.send_duration_periodically())  # اجرای حلقه ارسال خودکار
         else:
             await self.close()
 
     async def disconnect(self, close_code):
-        pass  # می‌توانید عملیات خاصی در زمان قطع اتصال انجام دهید
+        """ قطع اتصال """
+        print("WebSocket Disconnected")
 
-    async def receive(self, text_data):
-        """ دریافت پیام از WebSocket و بروزرسانی اطلاعات """
-        await self.update_duration_view()
-
-    @database_sync_to_async
-    def get_profile(self):
-        """ دریافت پروفایل کاربر """
-        return self.user.possit
-
-    @database_sync_to_async
-    def get_profile_position(self, profile):
-        """ دریافت موقعیت پروفایل (Profile Position) """
-        return profile.profile_position
+    async def send_duration_periodically(self):
+        """ هر ۵ ثانیه مقدار جدید duration رو می‌فرسته """
+        while True:
+            duration = await self.get_duration()
+            if duration:
+                await self.send(text_data=json.dumps({
+                    "duration": str(timedelta(seconds=int(duration.total_seconds())))
+                }))
+            await asyncio.sleep(1)  # هر ۵ ثانیه ارسال کنه
 
     @database_sync_to_async
     def get_last_attendance(self):
         """ دریافت آخرین حضور کاربر """
-        return self.user.user_attendance.latest("created_date")
+        return self.user.user_attendance.order_by("-created_date").first()
 
-
-    async def update_duration_view(self):
-        """ محاسبه مدت زمان و درآمد کاربر و ارسال اطلاعات به WebSocket """
-        profile = await self.get_profile()
-        # profile_position = await self.get_profile_position(profile)
-
-
+    async def get_duration(self):
+        """ محاسبه مدت زمان کارکرد """
         attendance = await self.get_last_attendance()
-        # print(attendance, 'attendance')
-        # print(attendance.overtime_check)
-        if attendance:
-            now = datetime.now().time()
-            # print(now, 'now')
-            # print(attendance.start, 'start')
-            duration = attendance.job_time
-            duration += datetime.combine(datetime.min, now) - datetime.combine(datetime.min, attendance.start)
+        if not attendance:
+            return None
 
-        else:
-            duration = 0
-
-        data = {
-            "duration": str(timedelta(seconds=int(duration.total_seconds())))
-        }
-
-        await self.send(text_data=json.dumps(data))
+        now = datetime.now().time()
+        return attendance.job_time + (
+                datetime.combine(datetime.min, now) - datetime.combine(datetime.min, attendance.start))

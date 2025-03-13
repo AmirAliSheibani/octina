@@ -1,10 +1,11 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="fa">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>درحال کار</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+    <title>در حال کار</title>
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <style>
         @font-face {
             font-family: 'Shabnam';
@@ -18,61 +19,71 @@
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    {#        <p>Duration: <span id="duration"></span></p>#}
-    {#        <p>Income: <span id="income"></span></p>#}
 
-    <script>
-        // اتصال WebSocket
-
-        var user_id = '{{ request.user.id }}';
-        var websocket = new WebSocket('ws://' + window.location.host + '/ws/myapp/' + user_id + '/');
-
-        // دریافت پیام‌ها از سرور
-        websocket.onmessage = function (event) {
-            var data = JSON.parse(event.data);
-            $('#duration').text(data.duration);
-        };
-
-        // ارسال پیام به سرور
-        function sendUpdateRequest() {
-            websocket.send('update');
-        }
-
-        // دریافت به‌روزرسانی‌ها هر 1 ثانیه
-        setInterval(sendUpdateRequest, 5000);
-    </script>
 </head>
 <body>
 <div class="container">
-    <h1> حضور و غیاب اُکتینا</h1>
-<h3 style="{% if work_in_holi %}
-	color: red;
-    {% else %}
-    color: #1abc9c;
-{% endif %} ">{{ current_day }}</h3>
-    <p>درحال کار: <span id="duration">درحال بارگیری</span></p>
-    {% if at.confirmation == False %}
-        <h5 style="color: red">
-            نیاز به تایید توسط مدیر به علت عدم دریافت موقعیت مکانی: در صورت عدم تایید، ورود و خروج و درآمد بدست آمده از
-            سابقه شما حذف خواهد شد.</h5>
+    <h1>حضور و غیاب اُکتینا</h1>
+    <h3 style="color: {% if work_in_holi %}red{% else %}#1abc9c{% endif %};">{{ current_day }}</h3>
+    <p>در حال کار: <span id="duration">در حال بارگیری...</span></p>
+
+    {% if not at.confirmation %}
+        <h5 style="color: red">نیاز به تایید توسط مدیر به علت عدم دریافت موقعیت مکانی</h5>
     {% endif %}
 
     {% if at.overtime_check %}
-        {% if work_in_holi %}
-        	<h5 style="color: gold">در حال حاضر شما در روز تعطیل شیفت کاری خود کار میکنید و درآمد بصورت اضافه حقوق میباشد</h5>
-            {% else %}
-            <h5 style="color: gold">در حال حاضر شما بیشتر از ساعت کاری کار میکنید و درآمد بصورت اضافه حقوق میباشد</h5>
-        {% endif %}
+        <h5 style="color: gold">شما بیش از حد مجاز کار کرده‌اید و حقوق اضافه دریافت می‌کنید</h5>
     {% endif %}
 
     {% if at.holiday_check %}
-    	<h5 style="color: gold"> در حال حاضر امروز روز تعطیل است و درآمد بصورت اضافه حقوق میباشد </h5>
-        {% endif %}
-    <h6>میتوانید از این صفحه خارج شوید </h6>
+        <h5 style="color: gold">امروز تعطیل است و حقوق اضافه دریافت می‌کنید</h5>
+    {% endif %}
+
+    <h6>می‌توانید از این صفحه خارج شوید</h6>
+
     <form method="POST" action="{% url 'Attendance:procces_result' pk %}">
         {% csrf_token %}
         <button class="button" type="submit">اتمام کار</button>
     </form>
 </div>
+<script>
+
+        var protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+        var socketUrl = protocol + window.location.host + "/ws/myapp/";
+        console.log("WebSocket URL:", socketUrl);  // بررسی URL
+
+        var socket = new WebSocket(socketUrl);
+
+        socket.onopen = function (event) {
+            console.log("WebSocket connection opened!");  // اگر وصل شد این لاگ باید بیاد
+            socket.send(JSON.stringify({action: "test"}));  // ارسال پیام تستی
+        };
+
+        socket.onerror = function (error) {
+            console.error("WebSocket Error:", error);  // اگر خطایی هست نمایش بده
+        };
+
+        socket.onclose = function (event) {
+            console.warn("WebSocket Closed:", event);  // اگر بسته شد، دلیلش رو نمایش بده
+        };
+        socket.onopen = function (event) {
+            console.log('socket open');
+            console.log("اتصال وب‌سوکت برقرار شد");
+            socket.send(JSON.stringify({action: "test"}));  // ارسال یک پیام تستی
+        };
+        socket.onmessage = function (event) {
+            var data = JSON.parse(event.data);
+            console.log('Received data:', data);
+
+            if (data.duration) {
+                $('#duration').text(data.duration);
+            } else {
+                console.log('Error or no duration:', data.error);
+            }
+        };
+        socket.onclose = function (event) {
+            console.error("اتصال وب‌سوکت قطع شد", event);
+        };
+    </script>
 </body>
 </html>
