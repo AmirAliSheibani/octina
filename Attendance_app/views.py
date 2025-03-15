@@ -30,7 +30,7 @@ from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 from .utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users, get_month_names, \
-    handle_progress_and_none_progress_user, extract_time_ranges
+    handle_progress_and_none_progress_user, extract_time_ranges, has_access
 from django.http import HttpResponse
 from django.db.models import Q
 
@@ -132,17 +132,6 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         """
         return round(position_income * (attendance.job_time.total_seconds() / 3600), 4)
 
-    def has_access(self, user):
-        req_user = self.request.user
-        print(user)
-        print(req_user)
-        if user != req_user:
-            if req_user.is_staff and user.created_who == req_user:
-                pass
-            else:
-                print('شما اجازه دسترسی به این اطلاعات را ندارید.')
-                raise Http404("شما اجازه دسترسی به این اطلاعات را ندارید.")
-        print('you have access')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -153,7 +142,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         context['months'] = get_month_names()
         user = get_object_or_404(CustomUser, id=pk)
 
-        self.has_access(user) #check if user has access to this page
+        has_access(self.request, user) #check if user has access to this page
 
         attendances = AttendanceUser.objects.filter(month=month, year=year, user=user).order_by('-created_date')
 
@@ -311,6 +300,7 @@ class ShowResult(TemplateView):
                                    pk=pk) if pk else get_object_or_404(AttendanceUser,
                                    user=request.user,
                                    token=token)
+        has_access(self.request, attend.user)
 
         month, year = get_jalali_date()
         context.update({

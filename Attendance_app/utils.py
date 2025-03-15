@@ -2,6 +2,7 @@ from datetime import datetime
 from django.db.models import Case, When, Value, BooleanField
 import jdatetime
 from django.db.models import Q
+from django.http import Http404
 from django.utils import timezone
 import re
 from Attendance_app.models import AttendanceUser
@@ -126,3 +127,10 @@ def extract_time_ranges(attendance_info):
     """Extract start and end times from last_info field."""
     pattern = r"start=(\d{2}:\d{2}:\d{2}), end=(\d{2}:\d{2}:\d{2})"
     return zip(*re.findall(pattern, attendance_info))
+
+
+def has_access(request, user):
+    req_user = request.user
+    if user != req_user and not (req_user.is_staff and user.created_who == req_user):
+        raise Http404("شما اجازه دسترسی به این اطلاعات را ندارید.")
+    return True
