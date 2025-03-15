@@ -308,6 +308,7 @@ class ShowResult(TemplateView):
         token = request.session.get('token')
 
         attend = get_object_or_404(AttendanceUser,
+                                   pk=pk) if pk else get_object_or_404(AttendanceUser,
                                    user=request.user,
                                    token=token)
 

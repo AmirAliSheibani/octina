@@ -445,6 +445,7 @@ def staff_user_list(request, pk, month, year):
 
 
 def create_user_for_staff(request):
+    #todo need to check validations and creataions
     check_User = CustomUser.objects.filter(created_who=request.user).count()
     if check_User >= 10:
         check_User = True
@@ -467,7 +468,8 @@ def create_user_for_staff(request):
 
     else:
         form = StaffCreateUser()
-    return render(request, 'Attendance_app/create_user.html', {'form': form})
+    return render(request, 'Attendance_app/create_user.html', {'form': form}) #
+
 
 
 def delete_user_for_staff(request, pk, mo, year):
@@ -503,9 +505,6 @@ def update_user_for_staff(request, pk):
         form2 = UpdateProfileForm(instance=profile, request=request)
 
     return render(request, 'Attendance_app/create_user.html', {'form': form, 'form2': form2, 'user': user})
-
-
-
 
 
 def list_profile(request):
