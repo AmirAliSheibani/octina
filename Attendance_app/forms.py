@@ -43,7 +43,7 @@ class StaffCreateUser(forms.ModelForm):
         password = self.cleaned_data.get('password')
         password2 = self.cleaned_data.get('password2')
         if len(password2) < 8:
-            return password2
+            raise forms.ValidationError('رمز عبور باید حداقل شامل 8 کاراکتر باشد')
         else:
             if password != password2:
                 raise forms.ValidationError('رمز عبورها مطابقت ندارند')

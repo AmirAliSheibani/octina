@@ -445,30 +445,27 @@ def staff_user_list(request, pk, month, year):
 
 
 def create_user_for_staff(request):
-    #todo need to check validations and creataions
     check_User = CustomUser.objects.filter(created_who=request.user).count()
     if check_User >= 10:
         check_User = True
         return render(request, 'Attendance_app/create_user.html', {'check_User': check_User})
+
     staff = request.user
     if request.method == 'POST':
         form = StaffCreateUser(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            first_name = form.cleaned_data.get('first_name')
-            last_name = form.cleaned_data.get('last_name')
-            password = form.cleaned_data.get('password2')
-            CustomUser.objects.create_user(username=username, email=email, password=password, last_name=last_name,
-                                           first_name=first_name, created_who=staff)
-            month, year = get_jalali_date()
-            return redirect(
-                reverse('managing:setting_app'))
-            # kwargs={'pk': request.user.id, 'month': month, 'year': year}))
+            user = form.save(commit=False)
+            user.created_who = staff
+            user.set_password(form.cleaned_data['password2'])
+            user.save()
+
+            return redirect(reverse('managing:setting_app'))
 
     else:
         form = StaffCreateUser()
-    return render(request, 'Attendance_app/create_user.html', {'form': form}) #
+
+    return render(request, 'Attendance_app/create_user.html', {'form': form})
+
 
 
 
