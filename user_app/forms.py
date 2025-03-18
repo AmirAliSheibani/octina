@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
@@ -9,49 +10,55 @@ from .models import EmailCode
 # from django_recaptcha.fields import ReCaptchaField
 User = CustomUser
 
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField()
 
-
-
-
-
-class UserRegisterForm(forms.ModelForm):
     class Meta:
-        model = UserProfile
-        fields = '__all__'
-        widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'نام کاربری را وارد کنید'}),
-            'Email': forms.EmailInput(attrs={'placeholder': 'ایمیل خود را وارد کنید'}),
-            'password': forms.PasswordInput(attrs={'placeholder': 'رمز عبور را ایجاد کنید'}),
-            'password2': forms.PasswordInput(attrs={'placeholder': 'رمز عبور را تأیید کنید'}),
-        }
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
 
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-        if User.objects.filter(username=username).exists():
-            raise ValidationError('نام کاربری قبلاً استفاده شده است')
-        return username
 
-    def clean_Email(self):
-        email = self.cleaned_data.get('Email')
-        if User.objects.filter(email=email).exists():
-            raise ValidationError('ایمیل قبلاً استفاده شده است')
-        return email
 
-    def clean_password(self):
-        password = self.cleaned_data.get('password')
-        if len(password) < 8:
-            raise ValidationError("رمز عبور باید حداقل ۸ کاراکتر باشد")
-        return password
 
-    def clean_password2(self):
-        password = self.cleaned_data.get('password')
-        password2 = self.cleaned_data.get('password2')
-        if len(password2) < 8:
-            return password2
-        else:
-            if password != password2:
-                raise ValidationError('رمز عبورها مطابقت ندارند')
-        return password2
+
+# class UserRegisterForm(forms.ModelForm):
+#     class Meta:
+#         model = UserProfile
+#         fields = '__all__'
+#         widgets = {
+#             'username': forms.TextInput(attrs={'placeholder': 'نام کاربری را وارد کنید'}),
+#             'Email': forms.EmailInput(attrs={'placeholder': 'ایمیل خود را وارد کنید'}),
+#             'password': forms.PasswordInput(attrs={'placeholder': 'رمز عبور را ایجاد کنید'}),
+#             'password2': forms.PasswordInput(attrs={'placeholder': 'رمز عبور را تأیید کنید'}),
+#         }
+#
+#     def clean_username(self):
+#         username = self.cleaned_data.get('username')
+#         if User.objects.filter(username=username).exists():
+#             raise ValidationError('نام کاربری قبلاً استفاده شده است')
+#         return username
+#
+#     def clean_Email(self):
+#         email = self.cleaned_data.get('Email')
+#         if User.objects.filter(email=email).exists():
+#             raise ValidationError('ایمیل قبلاً استفاده شده است')
+#         return email
+#
+#     def clean_password(self):
+#         password = self.cleaned_data.get('password')
+#         if len(password) < 8:
+#             raise ValidationError("رمز عبور باید حداقل ۸ کاراکتر باشد")
+#         return password
+#
+#     def clean_password2(self):
+#         password = self.cleaned_data.get('password')
+#         password2 = self.cleaned_data.get('password2')
+#         if len(password2) < 8:
+#             return password2
+#         else:
+#             if password != password2:
+#                 raise ValidationError('رمز عبورها مطابقت ندارند')
+#         return password2
 
 
 class UserLoginForm(forms.ModelForm):

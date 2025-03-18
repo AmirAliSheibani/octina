@@ -43,7 +43,7 @@ body {
   position: absolute;
   left: 0;
   bottom: 0;
-  height: 3px;
+  /*height: 3px;*/
   width: 28px;
   border-radius: 12px;
   background: #4070f4;
@@ -56,13 +56,12 @@ body {
 }
 
 .wrapper form .input-box {
-  height: 52px;
+  /*height: 52px;*/
   margin: 18px 0;
 
 }
 
 form .input-box input {
-  height: 100%;
   width: 100%;
   outline: none;
   padding: 0 15px;

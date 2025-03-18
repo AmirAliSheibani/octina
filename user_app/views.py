@@ -1,5 +1,6 @@
 from profile import Profile
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from datetime import datetime, timedelta
@@ -8,7 +9,7 @@ from django.utils import timezone
 
 from home.form import EmailSendingForm
 # from pricing.models import Profile
-from .forms import UserRegisterForm, UserLoginForm, VerifiedEmail, ChangeUserPassowrd, GetUserEmailPass
+from .forms import UserLoginForm, VerifiedEmail, ChangeUserPassowrd, GetUserEmailPass, UserRegisterForm
 # from Attendance_app.form import PositionForm
 from django.urls import reverse
 from django.contrib.auth.models import Group
@@ -25,16 +26,11 @@ def UserRegisterView(request):
     if request.user.is_authenticated:
         return redirect(reverse("home:home"))
     if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
+        form = UserRegisterForm(data= request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('Email')
-            password = form.cleaned_data.get('password2')
-            user = User.objects.create_user(username=username, email=email, password=password)
+            user = form.save()
             login(request, user)
-            form.save()
-
-            return redirect(reverse('user:send_email', kwargs={'email': email}))
+            return redirect(reverse('user:send_email', kwargs={'email': form.cleaned_data['email']}))
     else:
 
         form = UserRegisterForm()

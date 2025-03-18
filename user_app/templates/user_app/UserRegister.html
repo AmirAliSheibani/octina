@@ -1,53 +1,70 @@
 {% load static %}
 <!DOCTYPE html>
-<!-- Coding By CodingNepal - codingnepalweb.com -->
-<html lang="en" dir="ltr">
-  <head>
+<html lang="fa" dir="rtl">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> ثبت نام</title>
+    <title>ثبت نام</title>
     <link rel="stylesheet" href="{% static 'css/gh.css' %}">
-      <style>
-
-
-
-        .error-message {
-            color: red;
+    <style>
+        .error-box {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
             font-size: 14px;
+            text-align: right;
+        }
+        .error-message {
             margin-bottom: 10px;
         }
     </style>
-   </head>
+</head>
 <body>
-  <div class="wrapper">
-    <h2>فرم ثبت نام</h2>
-    <form method="post">
-        {% csrf_token %}
-{{ form.username.errors }}
-      <div class="input-box">
-          {{ form.username }}
+    <div class="wrapper">
+        <h2>فرم ثبت نام</h2>
 
-      </div>
-        {{ form.Email.errors }}
-      <div class="input-box">
-        {{ form.Email }}
-      </div>
-        {{ form.password.errors }}
-      <div class="input-box">
-        {{ form.password }}
-      </div>
-        {{ form.password2.errors }}
-      <div class="input-box">
-        {{ form.password2 }}
-      </div>
-      <div class="input-box button">
-        <input type="submit" value="ثبت نام">
-      </div>
-      <div class="text">
-        <h3>از قبل حساب کاربری دارید؟ <a href="{% url 'user:login' %}">ورود به سایت</a></h3>
-          <div class="signup-link">برو به <a href="{% url 'home:home' %}">صفحه اصلی</a></div>
-      </div>
-    </form>
-  </div>
+        <!-- نمایش ارورهای کلی فرم در این بخش -->
+        {% if form.errors %}
+            <div class="error-box">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="input-box">
+                <input type="text" name="username" placeholder="نام کاربری را وارد کنید">
+            </div>
+
+            <div class="input-box">
+                <input type="email" name="email"  placeholder="ایمیل خود را وارد کنید">
+            </div>
+
+            <div class="input-box">
+                <input type="password" name="password1" placeholder="رمز عبور را ایجاد کنید">
+            </div>
+
+            <div class="input-box">
+                <input type="password" name="password2" placeholder="رمز عبور را تأیید کنید">
+            </div>
+
+            <div class="input-box button">
+                <input type="submit" value="ثبت نام">
+            </div>
+
+            <div class="text">
+                <h3>از قبل حساب کاربری دارید؟ <a href="{% url 'user:login' %}">ورود به سایت</a></h3>
+                <div class="signup-link">برو به <a href="{% url 'home:home' %}">صفحه اصلی</a></div>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

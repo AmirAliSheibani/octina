@@ -435,7 +435,7 @@ def getting_vacation(request):
             return redirect(reverse('Attendance:redirected_view'))
     else:
         form = VacationForm()
-    return render(request, 'Attendance_app/get_vacation.html', {'form': form})  # todo #
+    return render(request, 'Attendance_app/get_vacation.html', {'form': form})
 
 
 def personal_info(request):

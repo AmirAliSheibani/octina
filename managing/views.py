@@ -218,7 +218,6 @@ def in_progress_users(request, month, year):
     return redirect(reverse('Attendance:redirected_view'))
 
 
-#todo i have to link each object to others like when user se profiles a user and click on position user redirected to positions
 def list_shift_work(request):
     staff = request.user
     shiftwork = ShiftWork.objects.filter(created_by=staff)
@@ -226,8 +225,7 @@ def list_shift_work(request):
     return render(request, 'Attendance_app/shiftwork_list.html', {'shiftwork': shiftwork})
 
 
-def create_shift_work(request): #todo i have to make another app an put every thing that is about manage users on it and then create a logic to ensure all views need login and also needs to be an staff user
-    #todo and also i have to ensure all views from this app that is only about ordinary users that they are login or not
+def create_shift_work(request):
     check_Shift = ShiftWork.objects.filter(created_by=request.user).count()
     if check_Shift >= 10:
         check_Shift = True
