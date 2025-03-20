@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from home.form import EmailSendingForm
 # from pricing.models import Profile
-from .forms import UserLoginForm, VerifiedEmail, ChangeUserPassowrd, GetUserEmailPass, UserRegisterForm
+from .forms import  VerifiedEmail, ChangeUserPassowrd, GetUserEmailPass, UserRegisterForm
 # from Attendance_app.form import PositionForm
 from django.urls import reverse
 from django.contrib.auth.models import Group
@@ -119,14 +119,17 @@ def GetEmail(request):
         form = GetUserEmailPass(data=request.POST)
         if form.is_valid():
             email = form.cleaned_data.get('Email')
-            return redirect(reverse('user:send_passcode_email', kwargs={"email": email}))
+            request.session['reset_email'] = email
+            return redirect(reverse('user:send_passcode_email'))
     else:
         form = GetUserEmailPass()
     return render(request, 'user_app/UserGetEmail.html', {'form': form})
 
 
-def send_password_code(request, email):
-    email = email
+def send_password_code(request):
+    email = request.session.get('reset_email')
+    if not email:
+        return redirect(reverse('user:GetEmail'))
 
     user = User.objects.get(email=email)
 
@@ -152,11 +155,13 @@ def send_password_code(request, email):
         recipient_list=[user.email],
         fail_silently=False,
     )
-    return redirect(reverse("user:pass_code", kwargs={"email": email}))
+    return redirect(reverse("user:pass_code"))
 
 
-def check_password_code(request, email):
-    email = email
+def check_password_code(request):
+    email = request.session.get('reset_email')
+    if not email:
+        return redirect(reverse('user:GetEmail'))
 
     user = User.objects.get(email=email)
     current_time = timezone.now()
@@ -168,37 +173,37 @@ def check_password_code(request, email):
             emailcode.delete()
             raise EmailCode.DoesNotExist
     except EmailCode.DoesNotExist:
-        return redirect(reverse('user:pass_code', kwargs={'email': email}))
+        return redirect(reverse('user:send_passcode_email'))
 
     if request.method == 'POST':
         form = VerifiedEmail(request.POST)
         form.request = request
         if form.is_valid():  # check form cleaned_data
-            code = form.cleaned_data.get('code')
-
-            user.password = f'{code}{code}'
-            user.save()
-            print(user.password)
+            request.session['password_reset_verified'] = True  # تأیید کاربر
+            request.session['reset_email'] = email
             emailcode.delete()
-            return redirect(reverse('user:change_password', kwargs={'email': email, "code": user.password}))
+            return redirect(reverse('user:change_password'))
     else:
         form = VerifiedEmail()
 
     return render(request, 'user_app/checkEmail.html', {'form': form})
 
 
-def change_password(request, email, code):
+def change_password(request,):
+    email = request.session.get('reset_email')
 
     user = User.objects.get(email=email)
     print(user.password)
-    if user.password != code:
+    if not request.session.get('password_reset_verified'):
         return redirect(reverse("home:home"))
     if request.method == "POST":
         form = ChangeUserPassowrd(request.POST)
         if form.is_valid():
             password = form.cleaned_data.get('password2')
-            user.password = password
+            user.set_password(password)
             user.save()
+            del request.session['password_reset_verified']
+            del request.session['reset_email']
             return redirect(reverse("user:login"))
     else:
         form = ChangeUserPassowrd()

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import authenticate
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
@@ -61,24 +61,24 @@ class UserRegisterForm(UserCreationForm):
 #         return password2
 
 
-class UserLoginForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ('username', 'password')
-        widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'نام کاربری', 'class': 'input100'}),
-            'password': forms.PasswordInput(attrs={'placeholder': 'رمز عبور', 'class': 'input100'}),
-        }
-
-    def clean(self):
-        cleaned_data = super().clean()
-        username = self.cleaned_data.get('username')
-        password = self.cleaned_data.get('password')
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            return cleaned_data
-        else:
-            raise forms.ValidationError('نام کاربری یا رمز عبور اشتباه است')
+# class UserLoginForm(forms.ModelForm):
+#     class Meta:
+#         model = UserProfile
+#         fields = ('username', 'password')
+#         widgets = {
+#             'username': forms.TextInput(attrs={'placeholder': 'نام کاربری', 'class': 'input100'}),
+#             'password': forms.PasswordInput(attrs={'placeholder': 'رمز عبور', 'class': 'input100'}),
+#         }
+#
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         username = self.cleaned_data.get('username')
+#         password = self.cleaned_data.get('password')
+#         user = authenticate(username=username, password=password)
+#         if user is not None:
+#             return cleaned_data
+#         else:
+#             raise forms.ValidationError('نام کاربری یا رمز عبور اشتباه است')
 
 
 class VerifiedEmail(forms.ModelForm):
