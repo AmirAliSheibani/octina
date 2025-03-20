@@ -121,23 +121,24 @@ class ChangeUserPassowrd(forms.ModelForm):
 
 
 
-class GetUserEmailPass(forms.ModelForm):
+class GetUserEmailPass(forms.Form):
+    username = forms.CharField(max_length=100, required=True)
+    email = forms.EmailField(required=True)
+
     class Meta:
-        model = UserProfile
-        fields = ('username', 'Email')
         widgets = {
             'username': forms.TextInput(attrs={'placeholder': 'نام کاربری را وارد کنید'}),
-            'Email': forms.EmailInput(attrs={'placeholder': 'ایمیل خود را وارد کنید'})
+            'email': forms.EmailInput(attrs={'placeholder': 'ایمیل خود را وارد کنید'})
         }
 
 
     def clean(self):
         cleaned_data = super().clean()
         username = self.cleaned_data.get('username')
-        Email = self.cleaned_data['Email']
+        email = self.cleaned_data['email']
 
         try:
-            User.objects.get(username=username, email=Email)
+            User.objects.get(username=username, email=email)
             return cleaned_data
         except:
             raise forms.ValidationError('کاربری با این مشخصات وجود ندارد')

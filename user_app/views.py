@@ -118,7 +118,7 @@ def GetEmail(request):
     if request.method == "POST":
         form = GetUserEmailPass(data=request.POST)
         if form.is_valid():
-            email = form.cleaned_data.get('Email')
+            email = form.cleaned_data.get('email')
             request.session['reset_email'] = email
             return redirect(reverse('user:send_passcode_email'))
     else:
@@ -129,7 +129,8 @@ def GetEmail(request):
 def send_password_code(request):
     email = request.session.get('reset_email')
     if not email:
-        return redirect(reverse('user:GetEmail'))
+        print(f' there is no email {email}')
+        return redirect(reverse('user:get_email_pass'))
 
     user = User.objects.get(email=email)
 
@@ -161,7 +162,7 @@ def send_password_code(request):
 def check_password_code(request):
     email = request.session.get('reset_email')
     if not email:
-        return redirect(reverse('user:GetEmail'))
+        return redirect(reverse('user:get_email_pass'))
 
     user = User.objects.get(email=email)
     current_time = timezone.now()
@@ -202,8 +203,8 @@ def change_password(request,):
             password = form.cleaned_data.get('password2')
             user.set_password(password)
             user.save()
-            del request.session['password_reset_verified']
-            del request.session['reset_email']
+            request.session.pop('password_reset_verified', None)
+            request.session.pop('reset_email', None)
             return redirect(reverse("user:login"))
     else:
         form = ChangeUserPassowrd()
