@@ -30,18 +30,20 @@ def UserRegisterView(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect(reverse('user:send_email', kwargs={'email': form.cleaned_data['email']}))
+            request.session['send_email'] = form.cleaned_data['email']
+            return redirect(reverse('user:send_email'))
     else:
 
         form = UserRegisterForm()
     return render(request, 'user_app/UserRegister.html', {'form': form})
 
 
-def email_form_context(request, email):
+def email_form_context(request):
     if request.user.verified_email:
         return redirect(reverse("home:home"))
 
     user = request.user
+    email = request.session['send_email']
     current_time = timezone.now()
     two_minutes_ago = current_time - timezone.timedelta(minutes=2)
 
@@ -65,7 +67,7 @@ def email_form_context(request, email):
             recipient_list=[email],
             fail_silently=False,
         )
-
+    request.session.pop('send_email', None)
     return redirect(reverse('user:verified_email'))
 
 
@@ -82,7 +84,7 @@ def check_verified_email(request):
             emailcode.delete()
             raise EmailCode.DoesNotExist
     except EmailCode.DoesNotExist:
-        return redirect(reverse('user:send_email', kwargs={'email': user.email}))
+        return redirect(reverse('user:send_email'))
 
     if request.method == 'POST':
         form = VerifiedEmail(request.POST)

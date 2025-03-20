@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, Pass
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-from .models import UserProfile
+
 from pricing.models import CustomUser
 from .models import EmailCode
 # from django_recaptcha.fields import ReCaptchaField
@@ -18,8 +18,11 @@ class UserRegisterForm(UserCreationForm):
         fields = ['username', 'email', 'password1', 'password2']
 
 
-
-
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise ValidationError('ایمیل قبلاً استفاده شده است')
+        return email
 
 # class UserRegisterForm(forms.ModelForm):
 #     class Meta:
