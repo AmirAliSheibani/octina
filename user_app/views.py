@@ -1,6 +1,6 @@
 from profile import Profile
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from datetime import datetime, timedelta
@@ -26,7 +26,7 @@ def UserRegisterView(request):
     if request.user.is_authenticated:
         return redirect(reverse("home:home"))
     if request.method == 'POST':
-        form = UserRegisterForm(data= request.POST)
+        form = UserRegisterForm(data=request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -105,17 +105,12 @@ def UserLoginView(request, ):
     if request.user.is_authenticated:
         return redirect(reverse("home:home"))
     if request.method == 'POST':
-        form = UserLoginForm(request.POST)
+        form = AuthenticationForm(data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                form.save()
-                return redirect(reverse('home:home'))
+            login(request, form.get_user())
+            return redirect(reverse('home:home'))
     else:
-        form = UserLoginForm()
+        form = AuthenticationForm()
     return render(request, 'user_app/UserLogin.html', {'form': form})
 
 
