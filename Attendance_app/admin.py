@@ -1,9 +1,9 @@
 from django.contrib import admin
 # from django.contrib.auth.models import User
-from .models import AttendanceUser
+from .models import AttendanceUser, AbsenceRecord
 from pricing.models import CustomUser, Income, recalculate_income
 from decimal import Decimal
-User = CustomUser
+
 from django.contrib.admin import AdminSite
 from django.db.models.signals import pre_delete, post_save, post_delete
 from django.dispatch import receiver
@@ -11,7 +11,7 @@ from datetime import timedelta
 
 
 
-
+User = CustomUser
 
 
 
@@ -67,5 +67,13 @@ class AttendanceUserAdmin(admin.ModelAdmin):
         return qs
 
 
+class AbsenceRecordAdmin(admin.ModelAdmin):
+    list_display = ['date']
+    ordering = ['-date']
+
+
+
 admin.site.register(AttendanceUser, AttendanceUserAdmin)
+
+admin.site.register(AbsenceRecord, AbsenceRecordAdmin)
 
