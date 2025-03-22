@@ -134,3 +134,5 @@ def has_access(request, user):
     if user != req_user and not (req_user.is_staff and user.created_who == req_user):
         raise Http404("شما اجازه دسترسی به این اطلاعات را ندارید.")
     return True
+
+

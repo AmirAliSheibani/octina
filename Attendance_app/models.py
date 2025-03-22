@@ -61,3 +61,9 @@ class AttendanceUser(models.Model):
     def __str__(self):
         return f"Attendance for {self.user.username} - {self.job_time}"
 
+
+
+class AbsenceRecord(models.Model):
+    date = models.DateField(unique=True)
+    absent_users = models.ManyToManyField(User, related_name="absences")
+
