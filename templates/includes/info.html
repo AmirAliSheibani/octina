@@ -83,7 +83,7 @@
             <div class="col-md-6 col-lg-3 info_col ">
                 {% if request.user.is_authenticated %}
                     {% if request.user.verified_email == False %}
-                        <form method="post" action="{% url 'user:send_email' request.user.email %}">
+                        <form method="post" action="{% url 'user:send_email' %}">
                     {% csrf_token %}
                     <button type="submit">
 اکانت خود را وریفای کنید
