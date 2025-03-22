@@ -220,7 +220,7 @@ class Delay(models.Model):
 
 class CustomUser(AbstractUser):
     created_who = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
-                                    related_name='created_custom_userss')
+                                    related_name='created_custom_userss') #todo set null needs to check
     absent = models.BooleanField(default=True)
     subscription_Date = jmodels.jDateField(blank=True, null=True)
     verified_email = models.BooleanField(default=False)
