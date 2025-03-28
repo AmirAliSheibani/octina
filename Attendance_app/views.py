@@ -15,7 +15,7 @@ from jalali_date import datetime2jalali
 from django.utils.decorators import method_decorator
 from .forms import StaffCreateUser, ShiftWorkForm, PositionForm, ProfileForm, HolidayForm, VacationForm, \
     UpdateProfileForm
-from .models import AttendanceUser
+from .models import AttendanceUser, AbsenceRecord
 from .mixin import CustomizedRquirementLogin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from pricing.models import Profile, User, CustomUser, Income, ShiftWork, Positions, Holidays, Vacation, \
@@ -57,11 +57,14 @@ def create_attendance_view(request):
 
     position = Profile.objects.select_related('user').get(user=request.user)
     now = timezone.now()
+    jalali_date = jdatetime.date.fromgregorian(date=now)
     month, year = get_jalali_date()
 
     # Get user's income (Optimized)
     income = Income.objects.filter(month=month, year=year, user=request.user).values_list('user_income',
                                                                                           flat=True).first()
+    today_absents_users = AbsenceRecord.objects.filter(created_date=jalali_date).last()
+    print(today_absents_users)
 
     if request.user.is_staff:
         location_exists = Location.objects.filter(created_by=request.user).exists()

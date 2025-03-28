@@ -6,9 +6,8 @@ User = settings.AUTH_USER_MODEL
 import jdatetime
 from django.db import models
 from django.utils import timezone
-
-from django.db import models
 from django_jalali.db import models as jmodels
+from django.db import models
 from jalali_date import date2jalali
 
 import uuid
@@ -62,11 +61,10 @@ class AttendanceUser(models.Model):
         return f"Attendance for {self.user.username} - {self.job_time}"
 
 
-
 class AbsenceRecord(models.Model):
-    date = models.DateField(unique=True)
+    created_date = jmodels.jDateField(auto_now_add=True)
     absent_users = models.ManyToManyField(User, related_name="absences")
 
     def __str__(self):
-        return f"Absence record for {self.date}-- absent users:{self.absent_users.count()}"
+        return f"Absence record for {self.created_date.strftime('%Y-%m-%d')} -- absent users: {self.absent_users.count()}"
 

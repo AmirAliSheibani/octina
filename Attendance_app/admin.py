@@ -68,8 +68,8 @@ class AttendanceUserAdmin(admin.ModelAdmin):
 
 
 class AbsenceRecordAdmin(admin.ModelAdmin):
-    list_display = ['date']
-    ordering = ['-date']
+    list_display = ['created_date']
+    ordering = ['-created_date']
 
 
 
