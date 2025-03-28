@@ -67,3 +67,6 @@ class AbsenceRecord(models.Model):
     date = models.DateField(unique=True)
     absent_users = models.ManyToManyField(User, related_name="absences")
 
+    def __str__(self):
+        return f"Absence record for {self.date}-- absent users:{self.absent_users.count()}"
+

@@ -14,11 +14,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         today = now().date()
         present_users = AttendanceUser.objects.filter(created_date=today).values_list('user', flat=True)
-        print(present_users)
+        print(f'present_users: {len(present_users)}')
         absent_users = User.objects.filter(created_who__isnull=False, is_staff=False).exclude(id__in=present_users).values_list('id', flat=True)
         if absent_users:
             absent_record, created = AbsenceRecord.objects.get_or_create(date=today)
             absent_record.absent_users.add(*absent_users)
-            print(absent_record.absent_users.all())
+            print(f'absent_record: {absent_record}')
             absent_record.save()
 
