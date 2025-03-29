@@ -1,12 +1,8 @@
 from datetime import timezone
-
 import jdatetime
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
-
 from django.core.management.base import BaseCommand
-
 from Attendance_app.models import AttendanceUser, AbsenceRecord
 
 User = get_user_model()
@@ -17,12 +13,35 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         current_time = now()
         today = jdatetime.date.fromgregorian(date=current_time.date())
+
+        # پیدا کردن کاربران حاضر
         present_users = AttendanceUser.objects.filter(created_date=today).values_list('user', flat=True)
         print(f'present_users: {len(present_users)}')
-        absent_users = User.objects.filter(created_who__isnull=False, is_staff=False).exclude(id__in=present_users).values_list('id', flat=True)
+
+        # پیدا کردن کاربران غایب (به‌صورت tuple شامل id و username)
+        absent_users = User.objects.filter(
+            created_who__isnull=False, is_staff=False
+        ).exclude(id__in=present_users).values_list('id', 'username')  # گرفتن ID و یوزرنیم
+
         if absent_users:
+            # جدا کردن فقط IDها برای اضافه شدن به رکورد غیبت
+            absent_user_ids = [user[0] for user in absent_users]
+
             absent_record, created = AbsenceRecord.objects.get_or_create(created_date=today)
-            absent_record.absent_users.add(*absent_users)
-            print(f'absent_record: {absent_record}')
+            absent_record.absent_users.add(*absent_user_ids)
             absent_record.save()
+            print(f'absent_record: {absent_record}')
+
+            # بررسی تعداد غیبت‌ها در ماه جاری برای هر کاربر غایب
+            current_month = today.month
+            current_year = today.year
+
+            for user_id, username in absent_users:
+                absence_count = AbsenceRecord.objects.filter(
+                    absent_users=user_id, month=current_month, year=current_year
+                ).count()
+
+                if absence_count > 3:
+                    print(f"⚠️ هشدار: کاربر {username} بیش از ۳ بار در این ماه غیبت کرده است!")
+                    # اینجا می‌تونی ایمیل ارسال کنی یا یک نوتیفیکیشن ثبت کنی
 
