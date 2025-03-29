@@ -15,7 +15,7 @@ from jalali_date import datetime2jalali
 from django.utils.decorators import method_decorator
 from .forms import StaffCreateUser, ShiftWorkForm, PositionForm, ProfileForm, HolidayForm, VacationForm, \
     UpdateProfileForm
-from .models import AttendanceUser, AbsenceRecord
+from .models import AttendanceUser, AbsenceRecord, AbsenceWarning
 from .mixin import CustomizedRquirementLogin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from pricing.models import Profile, User, CustomUser, Income, ShiftWork, Positions, Holidays, Vacation, \
@@ -63,7 +63,7 @@ def create_attendance_view(request):
     # Get user's income (Optimized)
     income = Income.objects.filter(month=month, year=year, user=request.user).values_list('user_income',
                                                                                           flat=True).first()
-    today_absents_users = AbsenceRecord.objects.filter(absent_users__in=CustomUser.objects.filter(created_who=request.user))
+    warnings = AbsenceWarning.objects.filter(user=request.user, is_seen=False)
     #todo there is two ways to use the AbsenceRecord, first to show the staff users to see their absents users
     #todo second is for showing the user how many absents they had
     #todo users should see their absents data and they have to send a reason for they absents to their staff
@@ -89,6 +89,7 @@ def create_attendance_view(request):
             'none_progression_count': progress_data['staff_none_progress_users'],
             'users': users,
             'location': location_exists,
+            'warnings': warnings,
         })
 
     return render(request, 'Attendance_app/index.html', {
@@ -96,6 +97,7 @@ def create_attendance_view(request):
         'income': income,
         'year': year,
         'month': month,
+        'warnings': warnings,
     })
 
 
@@ -448,3 +450,15 @@ def personal_info(request):
     income = Income.objects.filter(user=user).last()
     return render(request, 'Attendance_app/personal_info.html',
                   {'profile': profile, 'position': position, 'income': income})
+
+
+def user_warnings_view(request):
+    warnings = AbsenceWarning.objects.filter(user=request.user, is_seen=False)
+    return render(request, 'Attendance_app/user_warnings.html', {'warnings': warnings})
+
+
+def mark_warning_seen(request, warning_id):
+    warning = AbsenceWarning.objects.get(id=warning_id, user=request.user)
+    warning.is_seen = True
+    warning.save()
+    return redirect('user_warnings_view')

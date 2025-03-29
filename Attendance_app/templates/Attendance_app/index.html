@@ -81,6 +81,11 @@
                         href="{% url 'managing:non_progress' month year %}">کلیک کنید</a></p>
             {% endif %}
         {% endif %}
+    {% if warnings %}
+    	<P style="color: darkred">هشدار!</P>
+                <p> شما {{ warnings.count }} تعداد پیام بررسی نشده دارید! برای بررسی  <a
+                        href="{% url 'Attendance:user_warnings_view'  %}">کلیک کنید</a></p>
+    {% endif %}
         <button type="submit">شروع کار</button>
         <a href="{% url 'Attendance:get_vacation' %}">
             <button type="button">مرخصی</button>

@@ -3,7 +3,7 @@ import jdatetime
 from django.contrib.auth import get_user_model
 from django.utils.timezone import now
 from django.core.management.base import BaseCommand
-from Attendance_app.models import AttendanceUser, AbsenceRecord
+from Attendance_app.models import AttendanceUser, AbsenceRecord, AbsenceWarning
 
 User = get_user_model()
 
@@ -42,6 +42,12 @@ class Command(BaseCommand):
                 ).count()
 
                 if absence_count > 3:
-                    print(f"⚠️ هشدار: کاربر {username} بیش از ۳ بار در این ماه غیبت کرده است!")
-                    # اینجا می‌تونی ایمیل ارسال کنی یا یک نوتیفیکیشن ثبت کنی
+                    message = f"شما بیش از ۳ بار در این ماه غایب بوده‌اید! لطفاً علت را توضیح دهید."
+                    AbsenceWarning.objects.create(user_id=user_id, message=message)
+
+                    # ارسال پیام برای مدیر
+                    user = User.objects.get(id=user_id)
+                    if user.created_who:  # یعنی کارمند یک مدیر داره
+                        manager_message = f"کارمند {username} بیش از ۳ بار در این ماه غایب بوده است."
+                        AbsenceWarning.objects.create(user=user.created_who, message=manager_message)
 
