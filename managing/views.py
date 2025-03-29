@@ -179,14 +179,14 @@ def not_accepted_confirmation(request, pk):
     return redirect('managing:no_confirmation_check')
 
 
-# def absent_users(request, month, year):
-#     MONTH_NAMES = get_month_names()
-#     now = timezone.now()
-#     users = CustomUser.objects.filter(created_who=request.user)
-#     Absences_users = AbsenceRecord.objects.filter(absent_users__in=users)
-#     print(Absences_users)
-#     return render(request, 'Attendance_app/absent_users_list.html',
-#                   {'Absences_users_record': Absences_users, 'months': MONTH_NAMES, 'month': month, 'year': year})
+def absent_users(request, month, year):
+    MONTH_NAMES = get_month_names()
+    now = timezone.now()
+    users = CustomUser.objects.filter(created_who=request.user)
+    Absences_users = AbsenceRecord.objects.filter(absent_users__in=users).distinct()
+    print(Absences_users)
+    return render(request, 'Attendance_app/absent_users_list.html',
+                  {'Absences_users_record': Absences_users, 'months': MONTH_NAMES, 'month': month, 'year': year})
 
 
 def non_progress(request, month, year):
