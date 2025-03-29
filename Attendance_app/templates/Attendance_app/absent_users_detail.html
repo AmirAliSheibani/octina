@@ -32,39 +32,35 @@
 
     <div class="table-responsive">
         <table>
-        <a href="{% url 'managing:delete_monthly_non_progress' month year  %}">
-            <button type="button">حذف گزارش های این ماه</button>
-        </a>
+{#        <a href="{% url 'managing:delete_monthly_non_progress' month year  %}">#}
+{#            <button type="button">حذف گزارش های این ماه</button>#}
+{#        </a>#}
         </br></br>
             <thead>
             <tr>
-                <th scope="col">تاریخ</th>
-                <th scope="col">تعداد غایبین</th>
+                <th scope="col">نام کاربری</th>
+                <th scope="col">نام خانوادگی</th>
+                <th scope="col">گروه شغلی</th>
+                <th scope="col">مجموع زمان کار</th>
+                <th scope="col">مجموع درآمد ماه جاری</th>
+                <th scope="col">تاریخ ایجاد</th>
                 <th scope="col">حذف</th>
             </tr>
             </thead>
             <tbody>
-            {% for record in Absences_users_record %}
-{#                {% for user in absents.absent_users.all %}#}
-{#                    <tr>#}
-{#                        <td>{{ user }}</td>#}
-{#                        <td>{{ user.last_name }}</td>#}
-{#                        <td>{{ user.possit }}</td>#}
-{#                        <td>{{ user.user_attendance.last.job_time }}</td>#}
-{#                        <td>{{ user.user_incomes.last }}</td>#}
-{#                        <td>{{ nonprogress.created_date }}</td>#}
-{#                        <td><a>#}
-{#            <button type="button">حذف</button>#}
-{#        </a></td>#}
-{##}
-{#                    </tr>#}
-{#                {% endfor %}#}
-                <tr>
-                    <td><a href="{% url 'managing:absent_users_list' record.created_date %}">{{ record.created_date }} </a></td>
-                    <td>{{ record.absent_users.count }}</td>
-                    <td><a><button type="button">حذف</button></a></td>
+            {% for user in absent_users %}
+                    <tr>
+                        <td>{{ user }}</td>
+                        <td>{{ user.last_name }}</td>
+                        <td>{{ user.possit }}</td>
+                        <td>{{ user.user_attendance.last.job_time }}</td>
+                        <td>{{ user.user_incomes.last }}</td>
+                        <td>date</td>
+                        <td><a>
+            <button type="button">حذف</button>
+        </a></td>
 
-                </tr>
+                    </tr>
             {% endfor %}
 
             </tbody>
