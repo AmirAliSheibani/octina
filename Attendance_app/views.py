@@ -461,4 +461,4 @@ def mark_warning_seen(request, warning_id):
     warning = AbsenceWarning.objects.get(id=warning_id, user=request.user)
     warning.is_seen = True
     warning.save()
-    return redirect('user_warnings_view')
+    return redirect('Attendance:user_warnings_view')
