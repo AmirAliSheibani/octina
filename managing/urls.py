@@ -12,6 +12,7 @@ urlpatterns = [
     path('reject/<str:pk>/', views.not_accepted_confirmation, name='reject'),
     path('info_users/<int:month>/<int:year>/', views.in_progress_users, name='info_users'),
     path('none_progress/<int:month>/<int:year>/', views.non_progress, name='non_progress'),
+    # path('absent_record_list/<int:month>/<int:year>/', views.absent_users, name='absent_record_list'),
     path('delete_none_progress/<int:pk>/<int:month>/<int:year>/', views.delete_non_progress, name='delete_none_progress'),
     path('delete_monthly_non_progress/<int:month>/<int:year>/', views.delete_monthly_non_progress, name='delete_monthly_non_progress'),
     path('all_vacations/', views.all_vacations, name='all_vacations'),

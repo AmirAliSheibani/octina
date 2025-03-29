@@ -63,9 +63,10 @@ def create_attendance_view(request):
     # Get user's income (Optimized)
     income = Income.objects.filter(month=month, year=year, user=request.user).values_list('user_income',
                                                                                           flat=True).first()
-    today_absents_users = AbsenceRecord.objects.filter(created_date=jalali_date).last()
-    print(today_absents_users)
-
+    today_absents_users = AbsenceRecord.objects.filter(absent_users__in=CustomUser.objects.filter(created_who=request.user))
+    #todo there is two ways to use the AbsenceRecord, first to show the staff users to see their absents users
+    #todo second is for showing the user how many absents they had
+    #todo users should see their absents data and they have to send a reason for they absents to their staff
     if request.user.is_staff:
         location_exists = Location.objects.filter(created_by=request.user).exists()
         users = CustomUser.objects.filter(created_who=request.user)
@@ -135,7 +136,6 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         """
         return round(position_income * (attendance.job_time.total_seconds() / 3600), 4)
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         pk = self.kwargs['pk']
@@ -145,7 +145,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         context['months'] = get_month_names()
         user = get_object_or_404(CustomUser, id=pk)
 
-        has_access(self.request, user) #check if user has access to this page
+        has_access(self.request, user)  # check if user has access to this page
 
         attendances = AttendanceUser.objects.filter(month=month, year=year, user=user).order_by('-created_date')
 
@@ -212,7 +212,7 @@ def start_attendance_view(request):
 
     work_holi_day = check_holidays or current_shift is None
     overtime = work_holi_day or not (
-                current_shift.work_start_time < start < current_shift.work_end_time) if current_shift else True
+            current_shift.work_start_time < start < current_shift.work_end_time) if current_shift else True
 
     # ارسال شناسه کاربر به WebSocket
     async_to_sync(get_channel_layer().group_send)(
@@ -301,8 +301,8 @@ class ShowResult(TemplateView):
 
         attend = get_object_or_404(AttendanceUser,
                                    pk=pk) if pk else get_object_or_404(AttendanceUser,
-                                   user=request.user,
-                                   token=token)
+                                                                       user=request.user,
+                                                                       token=token)
         has_access(self.request, attend.user)
 
         month, year = get_jalali_date()

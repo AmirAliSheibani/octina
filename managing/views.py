@@ -15,7 +15,7 @@ from jalali_date import datetime2jalali
 
 from Attendance_app.forms import StaffCreateUser, ShiftWorkForm, PositionForm, ProfileForm, HolidayForm, VacationForm, \
     UpdateProfileForm
-from Attendance_app.models import AttendanceUser
+from Attendance_app.models import AttendanceUser, AbsenceRecord
 from Attendance_app.mixin import CustomizedRquirementLogin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from pricing.models import Profile, User, CustomUser, Income, ShiftWork, Positions, Holidays, Vacation, \
@@ -28,7 +28,8 @@ import openpyxl
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from Attendance_app.utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users, get_month_names, \
+from Attendance_app.utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users, \
+    get_month_names, \
     handle_progress_and_none_progress_user
 from django.http import HttpResponse
 from django.db.models import Q
@@ -36,6 +37,8 @@ from django.db.models import Q
 from Attendance_app.decorators import check_progress, profile_required, subscription_required
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models import F
+
+
 # Create your views here.
 
 
@@ -145,7 +148,6 @@ def download_excel(request, pk, month, year):
     return response
 
 
-
 def no_confirmation_check(request):
     """
     View for staff users to see attendance records without confirmation.
@@ -158,7 +160,6 @@ def no_confirmation_check(request):
     return render(request, 'Attendance_app/confirmation_user.html', {'no_confirmation': no_confirmation})
 
 
-
 def accept_confirmation(request, pk):
     """
     View to accept and confirm attendance for a user.
@@ -169,7 +170,6 @@ def accept_confirmation(request, pk):
     return redirect('managing:no_confirmation_check')
 
 
-
 def not_accepted_confirmation(request, pk):
     """
     View to reject attendance for a user.
@@ -177,6 +177,16 @@ def not_accepted_confirmation(request, pk):
     attendance_obj = get_object_or_404(AttendanceUser, pk=pk)
     attendance_obj.delete()
     return redirect('managing:no_confirmation_check')
+
+
+# def absent_users(request, month, year):
+#     MONTH_NAMES = get_month_names()
+#     now = timezone.now()
+#     users = CustomUser.objects.filter(created_who=request.user)
+#     Absences_users = AbsenceRecord.objects.filter(absent_users__in=users)
+#     print(Absences_users)
+#     return render(request, 'Attendance_app/absent_users_list.html',
+#                   {'Absences_users_record': Absences_users, 'months': MONTH_NAMES, 'month': month, 'year': year})
 
 
 def non_progress(request, month, year):
@@ -205,7 +215,6 @@ def delete_monthly_non_progress(request, month, year):
 
 def in_progress_users(request, month, year):
     if request.user.is_staff:
-
         # non_progress_records = NoneInProgress.objects.filter(user__in=users, month=month, year=year)
         # non_progress_users = CustomUser.objects.filter(nonprogres__in=non_progress_records).distinct()
         non_progress_users = CustomUser.objects.filter(created_who=request.user, absent=True)
@@ -257,7 +266,6 @@ def delete_shift_work(request, pk):
 
 def update_shift_work(request, pk):
     shift = ShiftWork.objects.get(id=pk)
-
 
     all_days = Day.objects.all()  # Retrieve all Day options
     selected_days = shift.work_days.all()  # Retrieve currently selected Day options for the shift
@@ -325,7 +333,6 @@ def update_position(request, pk):
     return render(request, 'Attendance_app/c_position.html', {'form': form, 'position': position})
 
 
-
 def create_holiday(request):
     jalali_join = datetime2jalali(request.user.date_joined).strftime('%y/%m/%d _ %H:%M:%S')
     # check_profile = Profile.objects.filter(created_by=request.user).count()
@@ -364,7 +371,6 @@ def update_holiday(request, pk):
         form = HolidayForm(instance=holiday)
 
     return render(request, 'Attendance_app/c_holiday.html', {'form': form, 'holiday': holiday})
-
 
 
 def staff_user_list(request, pk, month, year):
@@ -465,8 +471,6 @@ def create_user_for_staff(request):
     return render(request, 'Attendance_app/create_user.html', {'form': form})
 
 
-
-
 def delete_user_for_staff(request, pk, mo, year):
     user = CustomUser.objects.get(id=pk)
     user.delete()
@@ -476,7 +480,6 @@ def delete_user_for_staff(request, pk, mo, year):
 
 def update_user_for_staff(request, pk):
     user = CustomUser.objects.get(id=pk)
-
 
     profile = Profile.objects.get(user=user)
     if request.method == 'POST':
@@ -558,7 +561,6 @@ def setting_app(request):
                   {'month': month, 'year': year, 'profile_users': profile_users})
 
 
-
 def confirmation_vacation(request):
     staff = request.user
 
@@ -591,4 +593,3 @@ def accepted_vacation(request, pk):
     vacation.check_by_employer = True
     vacation.save()
     return redirect(reverse('managing:check_vacation_confirmation'))
-

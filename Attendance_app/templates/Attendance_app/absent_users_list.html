@@ -1,0 +1,104 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پرسنل های غایب</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/app.css' %}">
+
+    <style>
+
+
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            direction: rtl;
+            text-align: right;
+
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+
+
+<div class="container">
+
+    <div class="table-responsive">
+        <table>
+        <a href="{% url 'managing:delete_monthly_non_progress' month year  %}">
+            <button type="button">حذف گزارش های این ماه</button>
+        </a>
+        </br></br>
+            <thead>
+            <tr>
+                <th scope="col">تاریخ</th>
+                <th scope="col">تعداد غایبین</th>
+                <th scope="col">حذف</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for record in Absences_users_record %}
+{#                {% for user in absents.absent_users.all %}#}
+{#                    <tr>#}
+{#                        <td>{{ user }}</td>#}
+{#                        <td>{{ user.last_name }}</td>#}
+{#                        <td>{{ user.possit }}</td>#}
+{#                        <td>{{ user.user_attendance.last.job_time }}</td>#}
+{#                        <td>{{ user.user_incomes.last }}</td>#}
+{#                        <td>{{ nonprogress.created_date }}</td>#}
+{#                        <td><a>#}
+{#            <button type="button">حذف</button>#}
+{#        </a></td>#}
+{##}
+{#                    </tr>#}
+{#                {% endfor %}#}
+                <tr>
+                <td>{{ record.created_date }}</td>
+                <td>{{ record.absent_users.count }}</td>
+                <td><a><button type="button">حذف</button></a></td>
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+
+    <form method="POST" action="{% url 'Attendance:start' %}">
+        {% csrf_token %}
+        <a href="{% url 'Attendance:redirected_view' %}">
+            <button type="button">بازگشت به خانه</button>
+        </a>
+        <button type="submit">شروع</button>
+        {#        <a href="{% url 'managing:download_excel' user.id month year %}">#}
+{#        <button type="button">مشاهده در اکسل</button>#}
+{#        </a>#}
+        <a href="{% url 'managing:setting_app' %}" target="_blank">
+            <button type="button">تنظیمات حضور غیاب</button>
+        </a>
+
+    </form>
+
+    <br>
+    <div class="month-navigation">
+        {% for month_num, month_name in months.items %}
+            {% if month_num == month %}
+                <span class="btn btn-primary">{{ month_name }}</span>
+            {% else %}
+                <a href="{% url 'managing:non_progress' month_num year %}"
+                   class="btn btn-outline-primary">{{ month_name }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
