@@ -16,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         current_time = now()
-        today = jdatetime.date.fromgregorian(date=now)
+        today = jdatetime.date.fromgregorian(date=current_time.date())
         present_users = AttendanceUser.objects.filter(created_date=today).values_list('user', flat=True)
         print(f'present_users: {len(present_users)}')
         absent_users = User.objects.filter(created_who__isnull=False, is_staff=False).exclude(id__in=present_users).values_list('id', flat=True)
