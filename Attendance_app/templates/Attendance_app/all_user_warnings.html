@@ -1,0 +1,21 @@
+{% if warnings %}
+    <div class="warning-box">
+        {% for warning in warnings %}
+            <div class="warning-message">
+                <p>{{ warning.message }}</p>
+                {% if warning.is_seen %}
+                    <form action="{% url 'Attendance:delete_user_warning' warning.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit">حذف</button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'Attendance:mark_warning_seen' warning.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit">متوجه شدم</button>
+                    </form>
+                {% endif %}
+
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

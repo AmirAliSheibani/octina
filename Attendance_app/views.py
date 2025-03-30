@@ -457,8 +457,20 @@ def user_warnings_view(request):
     return render(request, 'Attendance_app/user_warnings.html', {'warnings': warnings})
 
 
+def all_user_warnings_view(request):
+    warnings = AbsenceWarning.objects.filter(user=request.user)
+    return render(request, 'Attendance_app/all_user_warnings.html', {'warnings': warnings})
+
+
+def delete_user_warning(request, warning_id):
+    warning = AbsenceWarning.objects.get(id=warning_id, user=request.user)
+    warning.delete()
+    return redirect('Attendance:all_user_warnings_view')
+
+
 def mark_warning_seen(request, warning_id):
     warning = AbsenceWarning.objects.get(id=warning_id, user=request.user)
     warning.is_seen = True
     warning.save()
     return redirect('Attendance:user_warnings_view')
+

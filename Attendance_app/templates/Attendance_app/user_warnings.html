@@ -11,3 +11,7 @@
         {% endfor %}
     </div>
 {% endif %}
+<form action="{% url 'Attendance:all_user_warnings_view' %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">همه ی پیام ها</button>
+</form>

@@ -15,6 +15,8 @@ urlpatterns = [
     path('holiday_list/', views.list_holidays, name='list_holidays'),
     path('get_vacation/', views.getting_vacation, name='get_vacation'),
     path('warnings/', views.user_warnings_view, name='user_warnings_view'),
+    path('all_warnings/', views.all_user_warnings_view, name='all_user_warnings_view'),
+    path('delete_user_warning/<int:warning_id>/', views.delete_user_warning, name='delete_user_warning'),
     path('warnings/seen/<int:warning_id>/', views.mark_warning_seen, name='mark_warning_seen'),
     path('', views.restricted_view, name='redirected_view')
 
