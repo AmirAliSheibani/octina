@@ -82,7 +82,7 @@ class AbsenceWarning(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="warnings")
     message = models.TextField()
     is_seen = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = jmodels.jDateField(auto_now_add=True)
 
     def __str__(self):
         return f"Warning for {self.user.username} - Seen: {self.is_seen}"

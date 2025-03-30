@@ -7,6 +7,11 @@
                     {% csrf_token %}
                     <button type="submit">متوجه شدم</button>
                 </form>
+                <form action="{% url 'managing:absent_users_list' warning.created_at %}" method="POST">
+
+                    {% csrf_token %}
+                    <button type="submit">مشاهده چزییات</button>
+                </form>
             </div>
         {% endfor %}
     </div>
