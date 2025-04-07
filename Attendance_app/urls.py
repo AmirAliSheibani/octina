@@ -18,6 +18,7 @@ urlpatterns = [
     path('all_warnings/', views.all_user_warnings_view, name='all_user_warnings_view'),
     path('delete_user_warning/<int:warning_id>/', views.delete_user_warning, name='delete_user_warning'),
     path('warnings/seen/<int:warning_id>/', views.mark_warning_seen, name='mark_warning_seen'),
+    path('absent_record_list/<int:month>/<int:year>/', views.absent_record_user_list_view, name='absent_record_list'),
     path('', views.restricted_view, name='redirected_view')
 
 ]

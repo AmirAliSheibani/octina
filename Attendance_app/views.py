@@ -474,3 +474,21 @@ def mark_warning_seen(request, warning_id):
     warning.save()
     return redirect('Attendance:user_warnings_view')
 
+
+def absent_record_user_list_view(request, month, year):
+    user = request.user
+    MONTH_NAMES = get_month_names()
+
+    # رکوردهایی که این یوزر غایب بوده
+    absence_records = AbsenceRecord.objects.filter(
+        absent_users=user, month=month, year=year
+    ).order_by('created_date')
+
+    return render(request, 'Attendance_app/absent_users_list.html', {
+        'absence_records': absence_records,
+        'months': MONTH_NAMES,
+        'month': month,
+        'year': year,
+    })
+
+
