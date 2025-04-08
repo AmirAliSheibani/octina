@@ -30,7 +30,7 @@ from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 from .utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users, get_month_names, \
-    handle_progress_and_none_progress_user, extract_time_ranges, has_access
+    handle_progress_and_none_progress_user, extract_time_ranges, has_access, format_jalali_date_with_weekday
 from django.http import HttpResponse
 from django.db.models import Q
 
@@ -64,9 +64,9 @@ def create_attendance_view(request):
     income = Income.objects.filter(month=month, year=year, user=request.user).values_list('user_income',
                                                                                           flat=True).first()
     warnings = AbsenceWarning.objects.filter(user=request.user, is_seen=False)
-    #todo there is two ways to use the AbsenceRecord, first to show the staff users to see their absents users
-    #todo second is for showing the user how many absents they had
-    #todo users should see their absents data and they have to send a reason for they absents to their staff
+    # todo there is two ways to use the AbsenceRecord, first to show the staff users to see their absents users
+    # todo second is for showing the user how many absents they had
+    # todo users should see their absents data and they have to send a reason for they absents to their staff
     if request.user.is_staff:
         location_exists = Location.objects.filter(created_by=request.user).exists()
         users = CustomUser.objects.filter(created_who=request.user)
@@ -479,10 +479,12 @@ def absent_record_user_list_view(request, month, year):
     user = request.user
     MONTH_NAMES = get_month_names()
 
-    # رکوردهایی که این یوزر غایب بوده
     absence_records = AbsenceRecord.objects.filter(
         absent_users=user, month=month, year=year
     ).order_by('created_date')
+
+    for record in absence_records:
+        record.jalali_str = format_jalali_date_with_weekday(record.created_date)
 
     return render(request, 'Attendance_app/absent_users_list.html', {
         'absence_records': absence_records,
@@ -490,5 +492,3 @@ def absent_record_user_list_view(request, month, year):
         'month': month,
         'year': year,
     })
-
-

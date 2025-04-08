@@ -29,6 +29,11 @@ def get_day_mapping():
         4: 6,  # Friday
     }
 
+def format_jalali_date_with_weekday(jdate):
+    weekdays = ['شنبه', 'یک‌شنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه']
+    weekday = weekdays[jdate.weekday()]
+    return f"{jdate.year}/{jdate.month}/{jdate.day} {weekday}"
+
 
 def get_current_shift(shiftwork, reversed_day_number):
     return shiftwork.filter(work_days__day_of_week=reversed_day_number).last()

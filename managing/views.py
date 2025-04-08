@@ -30,7 +30,7 @@ from openpyxl.utils import get_column_letter
 
 from Attendance_app.utils import get_jalali_date, get_day_mapping, get_current_shift, handle_non_progress_users, \
     get_month_names, \
-    handle_progress_and_none_progress_user
+    handle_progress_and_none_progress_user, format_jalali_date_with_weekday
 from django.http import HttpResponse
 from django.db.models import Q
 
@@ -192,8 +192,31 @@ def absent_record_detail_view(request,date):
     # users = CustomUser.objects.filter(created_who=request.user)
     Absences_record = AbsenceRecord.objects.get(created_date=date)
     absent_users = Absences_record.absent_users.filter(created_who=request.user)
+    month, year = get_jalali_date()
     return render(request, 'Attendance_app/absent_users_detail.html',
-                  {'absent_users': absent_users})
+                  {'absent_users': absent_users, 'month': month,
+        'year': year,})
+
+
+def manager_view_absences_for_user(request, user_id, month, year):
+    user = get_object_or_404(CustomUser, id=user_id, created_who=request.user)
+    MONTH_NAMES = get_month_names()
+
+    absence_records = AbsenceRecord.objects.filter(
+        absent_users=user, month=month, year=year
+    ).order_by('created_date')
+
+    for record in absence_records:
+        record.jalali_str = format_jalali_date_with_weekday(record.created_date)
+
+    return render(request, 'Attendance_app/manager_absent_detail.html', {
+        'target_user': user,
+        'absence_records': absence_records,
+        'months': MONTH_NAMES,
+        'month': month,
+        'year': year,
+    })
+
 
 
 def non_progress(request, month, year):

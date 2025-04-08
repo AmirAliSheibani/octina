@@ -31,41 +31,22 @@
     <div class="container">
 
         <div class="table-responsive">
-            <table>
-                {#        <a href="{% url 'managing:delete_monthly_non_progress' month year  %}">#}
-                {#            <button type="button">حذف گزارش های این ماه</button>#}
-                {#        </a>#}
+            <table class="table table-striped table-bordered">
+            <p>تعداد کل غیبت‌ها: {{ absence_records|length }}</p>
                 </br></br>
                 <thead>
                 <tr>
-                    <th scope="col">نام کاربری</th>
-                    <th scope="col">نام خانوادگی</th>
-                    <th scope="col">گروه شغلی</th>
-                    <th scope="col">مجموع زمان کار</th>
-                    <th scope="col">مجموع درآمد ماه جاری</th>
-                    <th scope="col">تاریخ ایجاد</th>
-                    <th>جزییات</th>
-                    <th scope="col">حذف</th>
+                    <th scope="col">تاریخ</th>
+                    <th>#</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for user in absent_users %}
+                {% for record in absence_records %}
                     <tr>
-                        <td>{{ user }}</td>
-                        <td>{{ user.last_name }}</td>
-                        <td>{{ user.possit }}</td>
-                        <td>{{ user.user_attendance.last.job_time }}</td>
-                        <td>{{ user.user_incomes.last }}</td>
-                        <td>date</td>
                         <td>
-                            <a href="{% url 'managing:manager_user_absence_detail' user.id month year %}">
-                                مشاهده غیبت‌ها
-                            </a>
+                            {{ record.jalali_str }}
                         </td>
-                        <td><a>
-                            <button type="button">حذف</button>
-                        </a></td>
-
+                        <td>{{ forloop.counter }}</td>
                     </tr>
                 {% endfor %}
 

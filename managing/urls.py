@@ -14,6 +14,7 @@ urlpatterns = [
     path('none_progress/<int:month>/<int:year>/', views.non_progress, name='non_progress'),
     path('absent_record_list/<int:month>/<int:year>/', views.absent_record_list_view, name='absent_record_list'),
     path('absent_users_list/<str:date>/', views.absent_record_detail_view, name='absent_users_list'),
+    path('absences/<int:user_id>/<int:month>/<int:year>/', views.manager_view_absences_for_user, name='manager_user_absence_detail'),
     path('delete_none_progress/<int:pk>/<int:month>/<int:year>/', views.delete_non_progress, name='delete_none_progress'),
     path('delete_monthly_non_progress/<int:month>/<int:year>/', views.delete_monthly_non_progress, name='delete_monthly_non_progress'),
     path('all_vacations/', views.all_vacations, name='all_vacations'),
