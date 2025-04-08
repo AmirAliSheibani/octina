@@ -152,6 +152,9 @@
         <a href="{% url 'Attendance:personal_info' %}">
             <button type="button">اطلاعات کاربر</button>
         </a>
+         <a href="{% url 'Attendance:absent_record_list' month year %}">
+            <button type="button"> غیبت ها</button>
+        </a>
     {% endif %}
 
 </div>
