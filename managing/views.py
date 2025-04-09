@@ -185,7 +185,7 @@ def absent_record_list_view(request, month, year):
     Absences_users = AbsenceRecord.objects.filter(absent_users__in=users, month=month, year=year).distinct()
     print(Absences_users)
     return render(request, 'Attendance_app/absent_users_list.html',
-                  {'Absences_users_record': Absences_users, 'months': MONTH_NAMES, 'month': month, 'year': year})
+                  {'absence_records': Absences_users, 'months': MONTH_NAMES, 'month': month, 'year': year})
 
 
 def absent_record_detail_view(request,date):

@@ -95,8 +95,14 @@
                 {% if month_num == month %}
                     <span class="btn btn-primary">{{ month_name }}</span>
                 {% else %}
-                    <a href="{% url 'Attendance:absent_record_list' month_num year %}"
+                    {% if request.user.is_staff %}
+                        <a href="{% url 'managing:absent_record_list' month_num year %}"
+                            class="btn btn-outline-primary">{{ month_name }}</a>
+                    {% else %}
+                        <a href="{% url 'Attendance:absent_record_list' month_num year %}"
                        class="btn btn-outline-primary">{{ month_name }}</a>
+                    {% endif %}
+
                 {% endif %}
             {% endfor %}
         </div>
