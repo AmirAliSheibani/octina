@@ -58,7 +58,7 @@
         <P> شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a
                 href="{% url 'managing:no_confirmation_check' %}">کلیک کنید<a/></P>
     {% endif %}
-{% if profile_users %}
+    {% if profile_users %}
         <P style="color: darkred">هشدار!</P>
         <P> شما تعدادی پرسنل ثبت شده بدون ثبت پروفایل دارید! برای ثبت پروفایل برای آنها <a
                 href="{% url 'managing:create_profile' %}">کلیک کنید<a/></P>
@@ -75,7 +75,7 @@
     <a href="{% url 'managing:create_position' %}">
         <button type="button">ساخت گروه کاری</button>
     </a>
- <a href="{% url 'managing:create_user' %}">
+    <a href="{% url 'managing:create_user' %}">
         <button type="button">ساخت پرسنل</button>
     </a>
     <a href="{% url 'managing:create_profile' %}">
@@ -94,25 +94,25 @@
     <a href="{% url 'managing:list_position' %}">
         <button type="button">لیست گروه های کاری</button>
     </a>
-<a href="{% url 'managing:user_list' request.user.id month year %}">
+    <a href="{% url 'managing:user_list' request.user.id month year %}">
         <button type="button">لیست پرسنل</button>
     </a>
     <a href="{% url 'managing:list_profile' %}">
         <button type="button">لیست پروفایل ها</button>
     </a>
-<a href="{% url 'managing:all_vacations' %}">
-        <button type="button">لیست مرخصی های تایید شده </button>
+    <a href="{% url 'managing:all_vacations' %}">
+        <button type="button">لیست مرخصی های تایید شده</button>
     </a>
     <a href="{% url 'managing:absent_record_list' month year %}">
         <button type="button">لیست غیبت های پرسنل</button>
     </a>
 
     <p></p>
-<a href="{% url 'locations:get_staff_location' %}">
-        <button type="button">لوکیشن کاری </button>
+    <a href="{% url 'locations:get_staff_location' %}">
+        <button type="button">لوکیشن کاری</button>
     </a>
 
-<p></p>
+    <p></p>
     <a href="{% url 'Attendance:redirected_view' %}">
         <button type="button">بازگشت به خانه</button>
     </a>
