@@ -339,7 +339,7 @@ class ShowResult(TemplateView):
             'monthly': income.position.profile_position.monthly,
             'income': income,
             'inc': income.user_income if income.position.profile_position.monthly else round(
-                income.position.profile_position.position_income * (job_time_duration.total_seconds() / 3600), 4)
+                income.position.profile_position.position_income * attend.job_time.total_seconds() / 3600,4)
         })
 
         return context
