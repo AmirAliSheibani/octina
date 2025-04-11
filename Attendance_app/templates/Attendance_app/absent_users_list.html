@@ -60,7 +60,7 @@
                     {#                    </tr>#}
                     {#                {% endfor %}#}
                     <tr>
-                        <td>{{ record.created_date }}</td>
+                        <td>{% if request.user.is_staff %}<a href="{% url 'managing:absent_users_list' record.created_date  %}">{{ record.created_date }}</a> {% else %} {{ record.created_date }}{% endif %}</td>
                         <td>{{ record.absent_users.count }}</td>
                         <td><a>
                             <button type="button">حذف</button>
