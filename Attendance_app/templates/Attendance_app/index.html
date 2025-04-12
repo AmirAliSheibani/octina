@@ -90,6 +90,9 @@
         <a href="{% url 'Attendance:get_vacation' %}">
             <button type="button">مرخصی</button>
         </a>
+     <a href="{% url 'Attendance:all_user_warnings_view'  %}">
+            <button type="button"> نمایش نوتیفیکشن ها</button>
+        </a>
 
         <p></p>
 
@@ -156,6 +159,7 @@
             <button type="button"> غیبت ها</button>
         </a>
     {% endif %}
+
 
 </div>
 </body>

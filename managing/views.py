@@ -218,7 +218,6 @@ def manager_view_absences_for_user(request, user_id, month, year):
     })
 
 
-
 def non_progress(request, month, year):
     MONTH_NAMES = get_month_names()
     now = timezone.now()
