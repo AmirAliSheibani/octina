@@ -64,9 +64,6 @@ def create_attendance_view(request):
     income = Income.objects.filter(month=month, year=year, user=request.user).values_list('user_income',
                                                                                           flat=True).first()
     warnings = AbsenceWarning.objects.filter(user=request.user, is_seen=False)
-    # todo there is two ways to use the AbsenceRecord, first to show the staff users to see their absents users
-    # todo second is for showing the user how many absents they had
-    # todo users should see their absents data and they have to send a reason for they absents to their staff
     if request.user.is_staff:
         location_exists = Location.objects.filter(created_by=request.user).exists()
         users = CustomUser.objects.filter(created_who=request.user)
@@ -91,6 +88,14 @@ def create_attendance_view(request):
             'location': location_exists,
             'warnings': warnings,
         })
+    # Check if the user is late.
+    day_mapping = get_day_mapping()
+    reversed_day_number = day_mapping[now.weekday()]
+    shiftwork = position.profile_position.shift_work
+    current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
+    late = False
+    if now.time() > current_shift.work_start_time:
+        late = True
 
     return render(request, 'Attendance_app/index.html', {
         'position': position,
@@ -98,6 +103,8 @@ def create_attendance_view(request):
         'year': year,
         'month': month,
         'warnings': warnings,
+        'current_shift': current_shift,
+        'late': late
     })
 
 

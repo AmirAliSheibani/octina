@@ -54,8 +54,17 @@
     <h2>{{ request.user }}</h2>
     <h4>{{ position }}</h4>
     <h5>درآمد ماه جاری: {% if income %}
-    	{{ income }} {% else %}خالی
-{% endif %} </h5>
+        {{ income }} {% else %}خالی
+
+    {% endif %} </h5>
+    {% if current_shift %}
+        <h5 {% if late %}
+            style="color: red;"
+        {% endif %} >شروع شیفت امروز:{{ current_shift.work_start_time }}</h5>
+        <h5{% if late %}
+            style="color: red;"
+        {% endif %}>پایان شیفت امروز:{{ current_shift.work_end_time }}</h5>
+    {% endif %}
     <form method="post" action="{% url 'Attendance:start' %}">
         {% csrf_token %}
         {% if request.user.is_staff %}
@@ -81,16 +90,16 @@
                         href="{% url 'managing:non_progress' month year %}">کلیک کنید</a></p>
             {% endif %}
         {% endif %}
-    {% if warnings %}
-    	<P style="color: darkred">هشدار!</P>
-                <p> شما {{ warnings.count }} تعداد پیام بررسی نشده دارید! برای بررسی  <a
-                        href="{% url 'Attendance:user_warnings_view'  %}">کلیک کنید</a></p>
-    {% endif %}
+        {% if warnings %}
+            <P style="color: darkred">هشدار!</P>
+            <p> شما {{ warnings.count }} تعداد پیام بررسی نشده دارید! برای بررسی <a
+                    href="{% url 'Attendance:user_warnings_view' %}">کلیک کنید</a></p>
+        {% endif %}
         <button type="submit">شروع کار</button>
         <a href="{% url 'Attendance:get_vacation' %}">
             <button type="button">مرخصی</button>
         </a>
-     <a href="{% url 'Attendance:all_user_warnings_view'  %}">
+        <a href="{% url 'Attendance:all_user_warnings_view' %}">
             <button type="button"> نمایش نوتیفیکشن ها</button>
         </a>
 
@@ -134,19 +143,19 @@
                 </div>
             </a>
             <a href="{% url 'managing:info_users'  month year %}" class="box red" style="text-decoration: none;">
-                <div >
+                <div>
 
                     <p class="box-text">غایبین</p>
-                    <p class="box-count">{{ none_progression_count}}</p>
+                    <p class="box-count">{{ none_progression_count }}</p>
 
                 </div>
             </a>
             <a href="{% url 'managing:info_users'  month year %}" class="box light-blue" style="text-decoration: none;">
-            <div >
-                <p class="box-text">تعداد پرسنل</p>
-                <p class="box-count">{{ users|length }}</p>
-            </div>
-                </a>
+                <div>
+                    <p class="box-text">تعداد پرسنل</p>
+                    <p class="box-count">{{ users|length }}</p>
+                </div>
+            </a>
         </div>
     {% else %}
         <a href="{% url 'Attendance:list_holidays' %}">
@@ -155,7 +164,7 @@
         <a href="{% url 'Attendance:personal_info' %}">
             <button type="button">اطلاعات کاربر</button>
         </a>
-         <a href="{% url 'Attendance:absent_record_list' month year %}">
+        <a href="{% url 'Attendance:absent_record_list' month year %}">
             <button type="button"> غیبت ها</button>
         </a>
     {% endif %}
