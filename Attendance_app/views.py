@@ -254,11 +254,10 @@ def start_attendance_view(request):
         # check for delay users
         delay_check = start < current_shift.work_start_time
         print(f'delay_check={delay_check}')
-        print(attendance_obj.delay)
+        print(f'attendance_obj.delay: {attendance_obj.delay}')
         if delay_check and not attendance_obj.delay:
             delay_time = datetime.combine(datetime.min, current_shift.work_start_time) - datetime.combine(datetime.min,
                                                                                                           start)
-            print(delay_check)
             delay_object = Delay.objects.create(user=request.user, delay_time=delay_time)
             attendance_obj.delay = delay_object
             print(f'delay_object={delay_object}')
