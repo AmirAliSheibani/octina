@@ -24,20 +24,21 @@
 <body>
 <div class="container">
     <h1>حضور و غیاب اُکتینا</h1>
-    <h3 style="color: {% if work_in_holi %}red{% else %}#1abc9c{% endif %};">{{ current_day }}</h3>
+    <h3 style="color: {% if work_in_holiday %}red{% else %}#1abc9c{% endif %};">{{ current_day }}</h3>
     <p>در حال کار: <span id="duration">در حال بارگیری...</span></p>
 
     {% if not at.confirmation %}
         <h5 style="color: red">نیاز به تایید توسط مدیر به علت عدم دریافت موقعیت مکانی</h5>
     {% endif %}
 
-    {% if at.overtime_check %}
+    {% if at.holiday_check %}
+        <h5 style="color: gold">امروز تعطیل است و حقوق اضافه دریافت می‌کنید</h5>
+
+    {% elif at.overtime_check %}
         <h5 style="color: gold">شما بیش از حد مجاز کار کرده‌اید و حقوق اضافه دریافت می‌کنید</h5>
     {% endif %}
 
-    {% if at.holiday_check %}
-        <h5 style="color: gold">امروز تعطیل است و حقوق اضافه دریافت می‌کنید</h5>
-    {% endif %}
+
 
     <h6>می‌توانید از این صفحه خارج شوید</h6>
 
@@ -48,42 +49,42 @@
 </div>
 <script>
 
-        var protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-        var socketUrl = protocol + window.location.host + "/ws/myapp/";
-        console.log("WebSocket URL:", socketUrl);  // بررسی URL
+    var protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+    var socketUrl = protocol + window.location.host + "/ws/myapp/";
+    console.log("WebSocket URL:", socketUrl);  // بررسی URL
 
-        var socket = new WebSocket(socketUrl);
+    var socket = new WebSocket(socketUrl);
 
-        socket.onopen = function (event) {
-            console.log("WebSocket connection opened!");  // اگر وصل شد این لاگ باید بیاد
-            socket.send(JSON.stringify({action: "test"}));  // ارسال پیام تستی
-        };
+    socket.onopen = function (event) {
+        console.log("WebSocket connection opened!");  // اگر وصل شد این لاگ باید بیاد
+        socket.send(JSON.stringify({action: "test"}));  // ارسال پیام تستی
+    };
 
-        socket.onerror = function (error) {
-            console.error("WebSocket Error:", error);  // اگر خطایی هست نمایش بده
-        };
+    socket.onerror = function (error) {
+        console.error("WebSocket Error:", error);  // اگر خطایی هست نمایش بده
+    };
 
-        socket.onclose = function (event) {
-            console.warn("WebSocket Closed:", event);  // اگر بسته شد، دلیلش رو نمایش بده
-        };
-        socket.onopen = function (event) {
-            console.log('socket open');
-            console.log("اتصال وب‌سوکت برقرار شد");
-            socket.send(JSON.stringify({action: "test"}));  // ارسال یک پیام تستی
-        };
-        socket.onmessage = function (event) {
-            var data = JSON.parse(event.data);
-            console.log('Received data:', data);
+    socket.onclose = function (event) {
+        console.warn("WebSocket Closed:", event);  // اگر بسته شد، دلیلش رو نمایش بده
+    };
+    socket.onopen = function (event) {
+        console.log('socket open');
+        console.log("اتصال وب‌سوکت برقرار شد");
+        socket.send(JSON.stringify({action: "test"}));  // ارسال یک پیام تستی
+    };
+    socket.onmessage = function (event) {
+        var data = JSON.parse(event.data);
+        console.log('Received data:', data);
 
-            if (data.duration) {
-                $('#duration').text(data.duration);
-            } else {
-                console.log('Error or no duration:', data.error);
-            }
-        };
-        socket.onclose = function (event) {
-            console.error("اتصال وب‌سوکت قطع شد", event);
-        };
-    </script>
+        if (data.duration) {
+            $('#duration').text(data.duration);
+        } else {
+            console.log('Error or no duration:', data.error);
+        }
+    };
+    socket.onclose = function (event) {
+        console.error("اتصال وب‌سوکت قطع شد", event);
+    };
+</script>
 </body>
 </html>

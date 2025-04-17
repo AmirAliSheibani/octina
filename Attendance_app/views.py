@@ -94,8 +94,9 @@ def create_attendance_view(request):
     shiftwork = position.profile_position.shift_work
     current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
     late = False
-    if now.time() > current_shift.work_start_time:
-        late = True
+    if current_shift:
+        if now.time() > current_shift.work_start_time:
+            late = True
 
     return render(request, 'Attendance_app/index.html', {
         'position': position,
@@ -214,15 +215,6 @@ def start_attendance_view(request):
     check_holidays = Holidays.objects.filter(date=date).exists()
     location = Location.objects.filter(created_by=request.user.created_who, active=True).exists()
 
-    # اطلاعات شیفت کاری
-    profile = Profile.objects.get(user=request.user)
-    shiftwork = profile.profile_position.shift_work
-    current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
-
-    work_holi_day = check_holidays or current_shift is None
-    overtime = work_holi_day or not (
-            current_shift.work_start_time < start < current_shift.work_end_time) if current_shift else True
-
     # ارسال شناسه کاربر به WebSocket
     async_to_sync(get_channel_layer().group_send)(
         'group_name', {'type': 'send_user_id', 'user_id': request.user.id}
@@ -234,10 +226,20 @@ def start_attendance_view(request):
         defaults={'token': uuid.uuid4(), 'start': start, 'in_progress': True}
     )
 
+    # اطلاعات شیفت کاری
+    profile = Profile.objects.get(user=request.user)
+    shiftwork = profile.profile_position.shift_work
+    current_shift = shiftwork.filter(work_days__day_of_week=reversed_day_number).last()
+    # بررسی تعطیل بودن یا اضافه کاری
+    work_holi_day = check_holidays or current_shift is None
+    overtime = work_holi_day or not (
+            current_shift.work_start_time < start < current_shift.work_end_time) if current_shift else True
+
+    if location and attendance_obj.confirmation is None:
+        return redirect(reverse('locations:get_user_location'))
+
     # تنظیم وضعیت حضور
     if created or not attendance_obj.in_progress:
-        if not created and attendance_obj.confirmation is None and location:
-            return redirect(reverse('Attendance:get_user_location'))
 
         if not created and not str(attendance_obj.end)[:8] in attendance_obj.last_info:
             attendance_obj.last_info += f"\n start={str(attendance_obj.start)[:8]}, end={str(attendance_obj.end)[:8]}*"
@@ -246,10 +248,9 @@ def start_attendance_view(request):
         attendance_obj.in_progress = True
 
     # تنظیم وضعیت تعطیلی و اضافه‌کاری
-    attendance_obj.holiday_check = check_holidays
+    attendance_obj.holiday_check = work_holi_day
 
-    if current_shift and attendance_obj.job_time >= current_shift.required_time:
-        attendance_obj.overtime_check = overtime
+    if current_shift:
         # check for delay users
         delay_check = start < current_shift.work_start_time
         print(f'delay_check={delay_check}')
@@ -260,16 +261,19 @@ def start_attendance_view(request):
             delay_object = Delay.objects.create(user=request.user, delay_time=delay_time)
             attendance_obj.delay = delay_object
             print(f'delay_object={delay_object}')
+        if attendance_obj.job_time >= current_shift.required_time:
+            attendance_obj.overtime_check = True
+    elif overtime:
+        attendance_obj.overtime_check = True
     else:
         attendance_obj.overtime_check = False
     attendance_obj.save(required_time=current_shift.required_time if current_shift else timedelta())
 
-    if location and attendance_obj.confirmation is None:
-        return redirect(reverse('locations:get_user_location'))
+
 
     return render(request, 'Attendance_app/start.html', {
         'started': attendance_obj.start, 'pk': attendance_obj.token, 'at': attendance_obj,
-        'work_in_holi': work_holi_day, 'current_day': current_day, 'monthly': profile.profile_position.monthly
+        'work_in_holiday': work_holi_day, 'current_day': current_day, 'monthly': profile.profile_position.monthly
     })
 
 
