@@ -33,6 +33,7 @@
     {% if shiftwork %}
   {% for shift in shiftwork %}
   <tr>
+    <td> نام شیفت کاری  <hr>{{ shift.name }}</td>
     <td> شروع ساعت کاری  <hr>{{ shift.work_start_time }}</td>
     <td>  پایان ساعت کاری  <hr>{{ shift.work_end_time }}</td>
     <td>  پایان ساعت کاری  <hr>{{ shift.required_time }}</td>
