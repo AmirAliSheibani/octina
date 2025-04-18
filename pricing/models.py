@@ -229,8 +229,12 @@ class CustomUser(AbstractUser):
 
 def recalculate_income(user, month, year):
     """بازمحاسبه درآمد بر اساس تمام ورود و خروج‌های تأیید شده"""
-    attendances = AttendanceUser.objects.filter(user=user, month=month, year=year, confirmation=True)
-    total_job_time = sum((at.job_time for at in attendances), timedelta())
+    attendances = AttendanceUser.objects.filter(user=user, month=month, year=year)
+
+    #total = timedelta()
+    # for at in attendances:
+    #     total += at.job_time
+    total_job_time = sum((at.job_time for at in attendances), timedelta()) # better version
 
     try:
         income = Income.objects.get(user=user, month=month, year=year)
@@ -241,7 +245,10 @@ def recalculate_income(user, month, year):
     overtime_income = income.position.profile_position.overtime_position_income
 
     if not income.position.profile_position.monthly:
-
+        #total_income = Decimal(0)
+        # for at in attendances:
+        #     hours = Decimal(at.job_time.total_seconds()) / Decimal(3600)
+        #     total_income += Decimal(hourly_income) * hours
         total_income = sum(
             [Decimal(hourly_income) * Decimal(at.job_time.total_seconds()) / Decimal(3600) for at in attendances],
             Decimal(0)

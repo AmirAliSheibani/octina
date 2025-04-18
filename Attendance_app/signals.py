@@ -7,8 +7,7 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=AttendanceUser)
 def update_income_on_save(sender, instance, **kwargs):
-    if instance.confirmation:  # فقط اگر تأیید شده بود
-        recalculate_income(instance.user, instance.month, instance.year)
+    recalculate_income(instance.user, instance.month, instance.year)
 
 
 @receiver(post_delete, sender=AttendanceUser)
