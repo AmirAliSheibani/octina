@@ -169,7 +169,7 @@ class Income(models.Model):
                                    null=True)
 
     def __str__(self):
-        return f'{self.user_income}'
+        return f'{self.user_income}, {self.month}, {self.year}, {self.user}'
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Only set the month if the object is being created
@@ -230,16 +230,16 @@ class CustomUser(AbstractUser):
 def recalculate_income(user, month, year):
     """بازمحاسبه درآمد بر اساس تمام ورود و خروج‌های تأیید شده"""
     attendances = AttendanceUser.objects.filter(user=user, month=month, year=year)
-
     #total = timedelta()
     # for at in attendances:
     #     total += at.job_time
     total_job_time = sum((at.job_time for at in attendances), timedelta()) # better version
-
     try:
         income = Income.objects.get(user=user, month=month, year=year)
+        print(income)
     except Income.DoesNotExist:
-        income = Income(user=user, month=month, year=year, position=Profile.objects.get(user=user))
+        print('Income.DoesNotExist')
+        income = Income(user=user, month=int(month), year=int(year), position=Profile.objects.get(user=user))
 
     hourly_income = income.position.profile_position.position_income
     overtime_income = income.position.profile_position.overtime_position_income

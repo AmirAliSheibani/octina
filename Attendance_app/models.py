@@ -39,12 +39,6 @@ class AttendanceUser(models.Model):
 
     def save(self, *args, **kwargs):
         required_time = kwargs.pop('required_time', None)
-        print(f'required_time: {required_time}')
-        # مقدار `month` و `year` را همیشه از `created_date` بگیر
-        if self.created_date:
-            self.month = self.created_date.month
-            self.year = self.created_date.year
-
         if self.job_time:
             self.job_time = timedelta(seconds=int(self.job_time.total_seconds()))
         if self.end:

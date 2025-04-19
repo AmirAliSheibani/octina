@@ -47,7 +47,7 @@ admin_site = MyAdminSite(name='myadmin')
 
 class AttendanceUserAdmin(admin.ModelAdmin):
 
-    list_display = ['user', 'created_date', 'start', 'end', 'month', 'year', 'job_time', 'in_progress', 'confirmation']
+    list_display = ['user', 'created_date', 'start', 'end', 'month', 'year', 'job_time', 'in_progress', 'confirmation', 'month', 'year']
 
     ordering = ['-created_date']
 

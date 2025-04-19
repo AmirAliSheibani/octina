@@ -443,7 +443,7 @@ def getting_vacation(request):
             userprofile = Profile.objects.get(user=user)
             userprofile.vacation.add(vacation)
             if userprofile.vacation.count() >= 30:
-                raise AttendanceUser('تعداد مرخصی های شما بیش از حد مجاز میباشد')
+                raise ValueError('تعداد مرخصی های شما بیش از حد مجاز میباشد')
             userprofile.save()
 
             form.save_m2m()

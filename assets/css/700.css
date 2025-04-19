@@ -1,3 +1,17 @@
+@font-face {
+    font-family: 'Shabnam';
+    src: url('../fonts/Shabnam.ttf') format('truetype');
+}
+
+body {
+    font-family: 'Shabnam', sans-serif;
+    height: 100%;
+    direction: rtl;
+    text-align: right;
+    background: #F3F3F3;
+    overflow: hidden;
+}
+
 #working-hours {
     font-weight: bold;
 
@@ -6,13 +20,6 @@
 form {
     text-align: center;
     margin-top: 30px;
-}
-
-body {
-    background-color: #F3F3F3;
-    font-family: 'Shabnam', sans-serif;
-    direction: rtl;
-    text-align: right;
 }
 
 .container {
@@ -94,6 +101,7 @@ th {
 tr:nth-child(even) {
     background-color: #e1f5fe;
 }
+
 
 .month-navigation {
     display: flex;
@@ -201,44 +209,45 @@ tr:nth-child(even) {
 }
 
 .time-field {
-  position: relative;
-  margin-bottom: 20px;
+    position: relative;
+    margin-bottom: 20px;
     justify-content: center;
 }
 
 .time-field label {
-  display: block;
-  margin-bottom: 5px;
-  color: #333;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
 }
 
 .time-field input[type="time"] {
-  width: 200px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f7f7f7;
-  color: #333;
-  font-size: 14px;
+    width: 200px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f7f7f7;
+    color: #333;
+    font-size: 14px;
 }
 
 .time-field input[type="time"]:focus {
-  outline: none;
-  border-color: #66afe9;
-  box-shadow: 0 0 5px #66afe9;
+    outline: none;
+    border-color: #66afe9;
+    box-shadow: 0 0 5px #66afe9;
 }
 
 .time-field::after {
-  content: "\f017";
-  position: absolute;
-  top: 50%;
-  right: 15px;
-  transform: translateY(-50%);
-  font-family: 'Shabnam', sans-serif;
-  font-weight: 900;
-  font-size: 12px;
-  color: #aaa;
+    content: "\f017";
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    font-family: 'Shabnam', sans-serif;
+    font-weight: 900;
+    font-size: 12px;
+    color: #aaa;
 }
+
 .work-days {
     display: flex;
     flex-wrap: wrap;
@@ -294,70 +303,148 @@ tr:nth-child(even) {
 
 /* Form field styles */
 .form-field {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
     font-family: 'Shabnam', sans-serif;
 }
 
 .form-field label {
-  display: block;
-  font-size: 16px;
-  margin-bottom: 8px;
-  color: #333;
+    display: block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #333;
     font-family: 'Shabnam', sans-serif;
 }
 
 .form-field select,
 .form-field input[type="text"],
 .form-field input[type="number"] {
-  width: 50%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  transition: border-color 0.3s ease;
+    width: 50%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
     font-family: 'Shabnam', sans-serif;
 }
 
 .form-field select:focus,
 .form-field input[type="text"]:focus,
 .form-field input[type="number"]:focus {
-  border-color: #555;
+    border-color: #555;
     font-family: 'Shabnam', sans-serif;
 }
 
 /* ManyToMany field styles */
 .form-field .m2m-select {
-  height: 200px;
-  overflow-y: auto;
+    height: 200px;
+    overflow-y: auto;
     font-family: 'Shabnam', sans-serif;
 }
 
 .form-field .m2m-select option {
-  padding: 5px;
+    padding: 5px;
     font-family: 'Shabnam', sans-serif;
 }
 
 .form-textbox {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
     font-family: 'Shabnam', sans-serif;
 }
 
 .form-textbox label {
-  display: block;
-  font-size: 16px;
-  margin-bottom: 8px;
-  color: #333;
+    display: block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #333;
     font-family: 'Shabnam', sans-serif;
 }
 
 .form-textbox select,
 .form-textbox input[type="text"],
 .form-textbox input[type="number"] {
-  width: 40%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  transition: border-color 0.3s ease;
+    width: 40%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
     font-family: 'Shabnam', sans-serif;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    font-family: 'Shabnam', sans-serif;
+    border-collapse: collapse;
+    color: #333;
+    overflow-x: auto;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #007bff;
+    font-weight: bold;
+    color: #fff;
+    font-family: 'Shabnam', sans-serif;
+}
+
+/* Alternating Row Colors */
+tr:nth-child(even) {
+    background-color: #e1f5fe;
+}
+
+.month-navigation {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+}
+
+.container {
+    padding: 20px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+input[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
 }
