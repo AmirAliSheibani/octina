@@ -41,13 +41,13 @@ class Command(BaseCommand):
                     absent_users=user_id, month=current_month, year=current_year
                 ).count()
 
-                if absence_count > 3:
-                    message = f"شما بیش از ۳ بار در این ماه غایب بوده‌اید! لطفاً علت را توضیح دهید."
+                if absence_count > 2:
+                    message = f"شما بیش از 2 بار در این ماه غایب بوده‌اید! لطفاً علت را توضیح دهید."
                     AbsenceWarning.objects.create(user_id=user_id, message=message)
 
                     # ارسال پیام برای مدیر
                     user = User.objects.get(id=user_id)
                     if user.created_who:  # یعنی کارمند یک مدیر داره
-                        manager_message = f"کارمند {username} بیش از ۳ بار در این ماه غایب بوده است."
+                        manager_message = f"کارمند {username} بیش از 2 بار در این ماه غایب بوده است."
                         AbsenceWarning.objects.create(user=user.created_who, message=manager_message)
 
