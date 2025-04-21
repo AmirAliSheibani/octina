@@ -1,0 +1,11 @@
+<div class="bg-white shadow p-4 flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-indigo-600">تنظیمات حضور و غیاب اُکتینا</h1>
+        <p class="text-sm text-gray-600">{{ request.user }}</p>
+    </div>
+    {% if request.resolver_match.url_name == 'home' %}
+        <a href="{% url 'home:home' %}" class="text-red-600 hover:underline">بازگشت به سایت</a>
+    {% else %}
+        <a href="{% url 'Attendance:home' %}" class="text-red-600 hover:underline">بازگشت به صفحه خانه</a>
+    {% endif %}
+</div>

@@ -1,24 +1,8 @@
+{% extends 'app_base/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fa" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سیستم حضور و غیاب اُکتینا</title>
-    <link rel="stylesheet" href="{% static '/css/styles.css' %}">
-</head>
-<body class="bg-gray-100 font-sans">
 
-    <!-- Navbar -->
-    <div class="bg-white shadow p-4 flex flex-col md:flex-row items-center justify-between mb-6">
-        <div>
-            <h1 class="text-2xl font-bold text-indigo-600">حضور و غیاب اُکتینا</h1>
-            <p class="text-sm text-gray-600">{{ request.user }} - {{ position }}</p>
-        </div>
-        <div class="mt-2 md:mt-0">
-            <a href="{% url 'user:logout' %}" class="text-red-600 hover:underline">خروج از حساب</a>
-        </div>
-    </div>
+{% block content %}
+
 
     <!-- اطلاعات کلی -->
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow space-y-4">
@@ -75,7 +59,7 @@
         <a href="{% url 'Attendance:result_list' request.user.id month year %}" class="btn">📄 لیست نتایج</a>
         {% if request.user.is_staff %}
         <a href="/admin" class="btn" target="_blank">🛠️ پنل مدیریت</a>
-        <a href="{% url 'managing:setting_app' %}" class="btn" target="_blank">⚙️ تنظیمات</a>
+        <a href="{% url 'managing:setting_app' %}" class="btn" >⚙️ تنظیمات</a>
         {% endif %}
         <a href="{% url 'home:home' %}" class="btn">🏠 بازگشت</a>
     </div>
@@ -103,6 +87,4 @@
         <a href="{% url 'Attendance:absent_record_list' month year %}" class="btn">❌ غیبت‌ها</a>
     </div>
     {% endif %}
-
-</body>
-</html>
+{% endblock %}
