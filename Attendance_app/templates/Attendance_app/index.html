@@ -1,136 +1,114 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="fa" dir="rtl">
 <head>
-    <title>سیستم حضور غیاب</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
+    <title>سیستم حضور و غیاب اُکتینا</title>
+    <link rel="stylesheet" href="{% static '/css/styles.css' %}">
 </head>
-<!-- اضافه کردن کتابخانه jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<body>
+<body class="bg-gray-100 font-sans">
 
-<div class="container">
-    <h1> حضور و غیاب اُکتینا</h1>
-    <h2>{{ request.user }}</h2>
-    <h4>{{ position }}</h4>
-    <h5>درآمد ماه جاری: {% if income %}
-        {{ income }} {% else %}خالی
-
-    {% endif %} </h5>
-    {% if current_shift %}
-        <h5 {% if late %}
-            style="color: red;"
-        {% endif %} >شروع شیفت امروز:{{ current_shift.work_start_time }}</h5>
-        <h5{% if late %}
-            style="color: red;"
-        {% endif %}>پایان شیفت امروز:{{ current_shift.work_end_time }}</h5>
-    {% endif %}
-    <form method="post" action="{% url 'Attendance:start' %}">
-        {% csrf_token %}
-        {% if request.user.is_staff %}
-
-
-            {% if not location %}
-                <p style="color: red"> لوکیشن شما ثبت نشده است!<a href="{% url 'locations:get_staff_location' %}"> برای
-                    تغییر کلیک کنید </a></p>
-            {% endif %}
-            {% if not_accepted_vacation %}
-                <p> شما تعدادی درخواست مرخصی برسی نشده دارید! برای تایید کردن آنها <a
-                        href="{% url 'managing:check_vacation_confirmation' %}">کلیک کنید</a></p>
-            {% endif %}
-            {% if no_confirmation_users %}
-                <P style="color: darkred">هشدار!</P>
-                <p> شما تعدادی ورود ثبت شده خارج از محدوده دارید! برای تایید کردن آنها <a
-                        href="{% url 'managing:no_confirmation_check' %}">کلیک کنید</a></p>
-            {% endif %}
-
-            {% if filter_non_progress %}
-                <P style="color: darkred">هشدار!</P>
-                <p> شما تعدادی پرسنل غایب در روز های اخیر دارید! برای بررسی <a
-                        href="{% url 'managing:non_progress' month year %}">کلیک کنید</a></p>
-            {% endif %}
-        {% endif %}
-        {% if warnings %}
-            <P style="color: darkred">هشدار!</P>
-            <p> شما {{ warnings.count }} تعداد پیام بررسی نشده دارید! برای بررسی <a
-                    href="{% url 'Attendance:user_warnings_view' %}">کلیک کنید</a></p>
-        {% endif %}
-        <button type="submit">شروع کار</button>
-        <a href="{% url 'Attendance:get_vacation' %}">
-            <button type="button">مرخصی</button>
-        </a>
-        <a href="{% url 'Attendance:all_user_warnings_view' %}">
-            <button type="button"> نمایش نوتیفیکشن ها</button>
-        </a>
-
-        <p></p>
-
-        <a href="{% url 'user:logout' %}">
-            <button type="button">خروج از اکانت</button>
-        </a>
-
-
-        <a href="{% url 'Attendance:result_list' request.user.id month year %}">
-            <button type="button">لیست نتایج</button>
-        </a>
-        {% if request.user.is_staff %}
-
-            <a href="/admin" target="_blank">
-                <button type="button">پنل مدیریت</button>
-            </a>
-            <a href="{% url 'managing:setting_app' %}" target="_blank">
-                <button type="button">تنظیمات حضور غیاب</button>
-            </a>
-        {% endif %}
-
-        <p></p>
-        <a href="{% url 'home:home' %}">
-            <button type="button"> بازگشت به سایت</button>
-        </a>
-
-
-    </form>
-    {% if request.user.is_staff %}
-
-
-        <div class="boxes">
-            <a href="{% url 'managing:info_users'  month year %}" class="box green" style="text-decoration: none;">
-                <div>
-                    <p class="box-text">حاضرین</p>
-                    <p class="box-count">{{ in_progress_users|length }}</p>
-
-
-                </div>
-            </a>
-            <a href="{% url 'managing:info_users'  month year %}" class="box red" style="text-decoration: none;">
-                <div>
-
-                    <p class="box-text">غایبین</p>
-                    <p class="box-count">{{ none_progression_count }}</p>
-
-                </div>
-            </a>
-            <a href="{% url 'managing:info_users'  month year %}" class="box light-blue" style="text-decoration: none;">
-                <div>
-                    <p class="box-text">تعداد پرسنل</p>
-                    <p class="box-count">{{ users|length }}</p>
-                </div>
-            </a>
+    <!-- Navbar -->
+    <div class="bg-white shadow p-4 flex flex-col md:flex-row items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-indigo-600">حضور و غیاب اُکتینا</h1>
+            <p class="text-sm text-gray-600">{{ request.user }} - {{ position }}</p>
         </div>
+        <div class="mt-2 md:mt-0">
+            <a href="{% url 'user:logout' %}" class="text-red-600 hover:underline">خروج از حساب</a>
+        </div>
+    </div>
+
+    <!-- اطلاعات کلی -->
+    <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow space-y-4">
+        <h2 class="text-lg font-semibold">درآمد ماه جاری:
+            <span class="text-green-600">{% if income %}{{ income }}{% else %}خالی{% endif %}</span>
+        </h2>
+
+        {% if current_shift %}
+        <div class="space-y-1">
+            <p class="text-sm {% if late %}text-red-600{% endif %}">شروع شیفت امروز: {{ current_shift.work_start_time }}</p>
+            <p class="text-sm {% if late %}text-red-600{% endif %}">پایان شیفت امروز: {{ current_shift.work_end_time }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- هشدارها -->
+    <div class="max-w-4xl mx-auto mt-4 space-y-3">
+        {% if not location %}
+        <div class="bg-red-100 text-red-700 p-3 rounded shadow">
+            لوکیشن ثبت نشده! <a href="{% url 'locations:get_staff_location' %}" class="underline">برای تغییر کلیک کنید</a>
+        </div>
+        {% endif %}
+
+        {% if not_accepted_vacation %}
+        <div class="bg-yellow-100 text-yellow-800 p-3 rounded shadow">
+            درخواست مرخصی بررسی نشده! <a href="{% url 'managing:check_vacation_confirmation' %}" class="underline">بررسی</a>
+        </div>
+        {% endif %}
+
+        {% if no_confirmation_users %}
+        <div class="bg-red-200 text-red-800 p-3 rounded shadow">
+            ورود ثبت شده خارج از محدوده دارید! <a href="{% url 'managing:no_confirmation_check' %}" class="underline">بررسی</a>
+        </div>
+        {% endif %}
+
+        {% if filter_non_progress %}
+        <div class="bg-red-200 text-red-800 p-3 rounded shadow">
+            تعدادی پرسنل غایب دارید! <a href="{% url 'managing:non_progress' month year %}" class="underline">بررسی</a>
+        </div>
+        {% endif %}
+
+        {% if warnings %}
+        <div class="bg-orange-100 text-orange-800 p-3 rounded shadow">
+            شما {{ warnings.count }} پیام بررسی نشده دارید! <a href="{% url 'Attendance:user_warnings_view' %}" class="underline">بررسی</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- دکمه‌های اصلی -->
+    <div class="max-w-4xl mx-auto mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+        <a href="{% url 'Attendance:start' %}" class="btn">✅ شروع کار</a>
+        <a href="{% url 'Attendance:get_vacation' %}" class="btn">🛌 مرخصی</a>
+        <a href="{% url 'Attendance:all_user_warnings_view' %}" class="btn">🔔 نوتیفیکیشن‌ها</a>
+        <a href="{% url 'Attendance:result_list' request.user.id month year %}" class="btn">📄 لیست نتایج</a>
+        {% if request.user.is_staff %}
+        <a href="/admin" class="btn" target="_blank">🛠️ پنل مدیریت</a>
+        <a href="{% url 'managing:setting_app' %}" class="btn" target="_blank">⚙️ تنظیمات</a>
+        {% endif %}
+        <a href="{% url 'home:home' %}" class="btn">🏠 بازگشت</a>
+    </div>
+
+    <!-- آمار کاربران -->
+    {% if request.user.is_staff %}
+    <div class="max-w-4xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-green-100 text-green-800 p-4 rounded-xl shadow text-center">
+            <p class="text-lg font-bold">حاضرین</p>
+            <p class="text-3xl">{{ in_progress_users|length }}</p>
+        </div>
+        <div class="bg-red-100 text-red-800 p-4 rounded-xl shadow text-center">
+            <p class="text-lg font-bold">غایبین</p>
+            <p class="text-3xl">{{ none_progression_count }}</p>
+        </div>
+        <div class="bg-blue-100 text-blue-800 p-4 rounded-xl shadow text-center">
+            <p class="text-lg font-bold">تعداد پرسنل</p>
+            <p class="text-3xl">{{ users|length }}</p>
+        </div>
+    </div>
     {% else %}
-        <a href="{% url 'Attendance:list_holidays' %}">
-            <button type="button">روز های تعطیل</button>
-        </a>
-        <a href="{% url 'Attendance:personal_info' %}">
-            <button type="button">اطلاعات کاربر</button>
-        </a>
-        <a href="{% url 'Attendance:absent_record_list' month year %}">
-            <button type="button"> غیبت ها</button>
-        </a>
+    <div class="max-w-4xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="{% url 'Attendance:list_holidays' %}" class="btn">📅 روزهای تعطیل</a>
+        <a href="{% url 'Attendance:personal_info' %}" class="btn">👤 اطلاعات کاربر</a>
+        <a href="{% url 'Attendance:absent_record_list' month year %}" class="btn">❌ غیبت‌ها</a>
+    </div>
     {% endif %}
 
+    <style>
+        .btn {
+            @apply bg-white border border-gray-300 text-gray-800 rounded-lg p-3 text-center hover:bg-gray-100 shadow;
+        }
+    </style>
 
-</div>
 </body>
 </html>

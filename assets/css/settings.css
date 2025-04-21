@@ -1,1 +1,8 @@
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.btn {
+   @apply bg-white border border-gray-300 text-gray-800 rounded-lg p-3 text-center hover:bg-gray-100 shadow;
+}
