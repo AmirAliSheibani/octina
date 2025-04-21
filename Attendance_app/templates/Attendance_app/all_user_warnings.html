@@ -1,24 +1,36 @@
-{% if warnings %}
-    <div class="warning-box">
-        {% for warning in warnings %}
-            <div class="warning-message">
-                <p>{{ warning.message }}</p>
-                {% if warning.is_seen %}
-                    <form action="{% url 'Attendance:delete_user_warning' warning.id %}" method="POST">
-                        {% csrf_token %}
-                        <button type="submit">حذف</button>
-                    </form>
-                {% else %}
-                    <form action="{% url 'Attendance:mark_warning_seen' warning.id %}" method="POST">
-                        {% csrf_token %}
-                        <button type="submit">متوجه شدم</button>
-                    </form>
-                {% endif %}
-                <form action="{% url 'managing:absent_users_list' warning.created_at %}" method="POST">
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
-                    {% csrf_token %}
-                    <button type="submit">مشاهده چزییات</button>
-                </form>
+{% if warnings %}
+    <div class="w-full max-w-3xl mx-auto mt-6 space-y-4">
+        {% for warning in warnings %}
+            <div class="bg-blue-50 border border-blue-300 shadow-md rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between">
+                <div class="text-blue-900 text-base font-medium mb-4 md:mb-0">
+                    {{ warning.message }}
+                </div>
+                <div class="flex flex-col md:flex-row md:gap-4 gap-2">
+                    {% if warning.is_seen %}
+                        <form action="{% url 'Attendance:delete_user_warning' warning.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition duration-200 cursor-pointer">
+                                حذف
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="{% url 'Attendance:mark_warning_seen' warning.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition duration-200 cursor-pointer">
+                                متوجه شدم
+                            </button>
+                        </form>
+                    {% endif %}
+                    <form action="{% url 'managing:absent_users_list' warning.created_at %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition duration-200 cursor-pointer">
+                            مشاهده جزئیات
+                        </button>
+                    </form>
+                </div>
             </div>
         {% endfor %}
     </div>
