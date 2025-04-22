@@ -1,91 +1,88 @@
+{% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پرسنل های غایب</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
-</head>
-<body>
-<div class="header">
 
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
-    <div class="container">
+<div class="w-full max-w-6xl mx-auto px-4 mt-10 space-y-8">
 
-        <div class="table-responsive">
-            <table>
-                {#        <a href="{% url 'managing:delete_monthly_non_progress' month year  %}">#}
-                {#            <button type="button">حذف گزارش های این ماه</button>#}
-                {#        </a>#}
-                </br></br>
-                <thead>
-                <tr>
-                    <th scope="col">نام کاربری</th>
-                    <th scope="col">نام خانوادگی</th>
-                    <th scope="col">گروه شغلی</th>
-                    <th scope="col">مجموع زمان کار</th>
-                    <th scope="col">مجموع درآمد ماه جاری</th>
-                    <th scope="col">تاریخ ایجاد</th>
-                    <th>جزییات</th>
-                    <th scope="col">حذف</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for user in absent_users %}
-                    <tr>
-                        <td>{{ user }}</td>
-                        <td>{{ user.last_name }}</td>
-                        <td>{{ user.possit }}</td>
-                        <td>{{ user.user_attendance.last.job_time }}</td>
-                        <td>{{ user.user_incomes.last }}</td>
-                        <td>date</td>
-                        <td>
-                            <a href="{% url 'managing:manager_user_absence_detail' user.id month year %}">
-                                مشاهده غیبت‌ها
-                            </a>
-                        </td>
-                        <td><a>
-                            <button type="button">حذف</button>
-                        </a></td>
-
-                    </tr>
-                {% endfor %}
-
-                </tbody>
-            </table>
-        </div>
-
-
-        <form method="POST" action="{% url 'Attendance:start' %}">
-            {% csrf_token %}
-            <a href="{% url 'Attendance:redirected_view' %}">
-                <button type="button">بازگشت به خانه</button>
+    <!-- هدر و دکمه‌ها -->
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <h1 class="text-xl font-semibold text-gray-800">لیست پرسنل‌های غایب</h1>
+        <div class="flex flex-wrap gap-3">
+            <form method="POST" action="{% url 'Attendance:start' %}">
+                {% csrf_token %}
+                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow transition">
+                    شروع
+                </button>
+            </form>
+            <a href="{% url 'Attendance:home' %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition">
+                بازگشت به خانه
             </a>
-            <button type="submit">شروع</button>
-            {#        <a href="{% url 'managing:download_excel' user.id month year %}">#}
-            {#        <button type="button">مشاهده در اکسل</button>#}
-            {#        </a>#}
-            <a href="{% url 'managing:setting_app' %}" target="_blank">
-                <button type="button">تنظیمات حضور غیاب</button>
+            <a href="{% url 'managing:setting_app' %}" target="_blank" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow transition">
+                تنظیمات حضور و غیاب
             </a>
-
-        </form>
-
-        <br>
-        <div class="month-navigation">
-            {% for month_num, month_name in months.items %}
-                {% if month_num == month %}
-                    <span class="btn btn-primary">{{ month_name }}</span>
-                {% else %}
-                    <a href="{% url 'managing:non_progress' month_num year %}"
-                       class="btn btn-outline-primary">{{ month_name }}</a>
-                {% endif %}
-            {% endfor %}
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- جدول -->
+    <div class="overflow-x-auto rounded-2xl shadow-md">
+        <table class="min-w-full text-sm text-gray-800 bg-white">
+            <thead class="bg-gray-100 text-gray-700 text-right">
+                <tr>
+                    <th class="px-4 py-3">نام کاربری</th>
+                    <th class="px-4 py-3">نام خانوادگی</th>
+                    <th class="px-4 py-3">گروه شغلی</th>
+                    <th class="px-4 py-3">مجموع زمان کار</th>
+                    <th class="px-4 py-3">مجموع درآمد</th>
+                    <th class="px-4 py-3">تاریخ ایجاد</th>
+                    <th class="px-4 py-3">جزئیات</th>
+                    <th class="px-4 py-3">حذف</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in absent_users %}
+                    <tr class="hover:bg-gray-50 transition border-t border-gray-200">
+                        <td class="px-4 py-3">{{ user }}</td>
+                        <td class="px-4 py-3">{{ user.last_name }}</td>
+                        <td class="px-4 py-3">{{ user.possit }}</td>
+                        <td class="px-4 py-3">{{ user.user_attendance.last.job_time }}</td>
+                        <td class="px-4 py-3">{{ user.user_incomes.last }}</td>
+                        <td class="px-4 py-3">date</td>
+                        <td class="px-4 py-3">
+                            <a href="{% url 'managing:manager_user_absence_detail' user.id month year %}" class="text-indigo-600 hover:underline">
+                                مشاهده
+                            </a>
+                        </td>
+                        <td class="px-4 py-3">
+                            <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg shadow transition">
+                                حذف
+                            </button>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-gray-500 py-6">هیچ کاربری در این لیست وجود ندارد.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ناوبری ماه‌ها -->
+    <div class="flex flex-wrap justify-center gap-2 mt-6">
+        {% for month_num, month_name in months.items %}
+            {% if month_num == month %}
+                <span class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl shadow text-sm">
+                    {{ month_name }}
+                </span>
+            {% else %}
+                <a href="{% url 'managing:non_progress' month_num year %}" class="px-4 py-2 border border-blue-500 text-blue-600 hover:bg-blue-50 rounded-2xl text-sm transition shadow-sm">
+                    {{ month_name }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,72 +1,49 @@
+{% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پرسنل های غایب</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
-</head>
-<body>
-<div class="header">
 
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-10">
 
-    <div class="container">
-
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered">
-            <p>تعداد کل غیبت‌ها: {{ absence_records|length }}</p>
-                </br></br>
-                <thead>
-                <tr>
-                    <th scope="col">تاریخ</th>
-                    <th>#</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for record in absence_records %}
-                    <tr>
-                        <td>
-                            {{ record.jalali_str }}
-                        </td>
-                        <td>{{ forloop.counter }}</td>
-                    </tr>
-                {% endfor %}
-
-                </tbody>
-            </table>
-        </div>
-
-
-        <form method="POST" action="{% url 'Attendance:start' %}">
-            {% csrf_token %}
-            <a href="{% url 'Attendance:redirected_view' %}">
-                <button type="button">بازگشت به خانه</button>
-            </a>
-            <button type="submit">شروع</button>
-            {#        <a href="{% url 'managing:download_excel' user.id month year %}">#}
-            {#        <button type="button">مشاهده در اکسل</button>#}
-            {#        </a>#}
-            <a href="{% url 'managing:setting_app' %}" target="_blank">
-                <button type="button">تنظیمات حضور غیاب</button>
-            </a>
-
-        </form>
-
-        <br>
-        <div class="month-navigation">
-            {% for month_num, month_name in months.items %}
-                {% if month_num == month %}
-                    <span class="btn btn-primary">{{ month_name }}</span>
-                {% else %}
-                    <a href="{% url 'managing:non_progress' month_num year %}"
-                       class="btn btn-outline-primary">{{ month_name }}</a>
-                {% endif %}
-            {% endfor %}
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800">تعداد کل غیبت‌ها: {{ absence_records|length }}</h2>
+        <div class="flex flex-wrap gap-3">
+            <form method="POST" action="{% url 'Attendance:start' %}" class="inline-block">
+                {% csrf_token %}
+                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow transition">شروع</button>
+            </form>
+            <a href="{% url 'Attendance:redirected_view' %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition">بازگشت به خانه</a>
+            <a href="{% url 'managing:setting_app' %}" target="_blank" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow transition">تنظیمات حضور و غیاب</a>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <div class="overflow-x-auto bg-white shadow-lg rounded-2xl">
+        <table class="w-full text-right border border-gray-200 rounded-2xl">
+            <thead class="bg-gray-100 text-gray-700 text-sm">
+                <tr>
+                    <th class="p-4 border-b">تاریخ</th>
+                    <th class="p-4 border-b">#</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-800 text-sm">
+                {% for record in absence_records %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4 border-b">{{ record.jalali_str }}</td>
+                        <td class="p-4 border-b">{{ forloop.counter }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-10 flex flex-wrap gap-2 justify-center">
+        {% for month_num, month_name in months.items %}
+            {% if month_num == month %}
+                <span class="px-4 py-2 bg-blue-600 text-white rounded-xl shadow text-sm">{{ month_name }}</span>
+            {% else %}
+                <a href="{% url 'managing:non_progress' month_num year %}" class="px-4 py-2 border border-blue-500 text-blue-600 hover:bg-blue-50 rounded-xl shadow text-sm transition">{{ month_name }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
