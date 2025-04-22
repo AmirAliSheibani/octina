@@ -100,7 +100,7 @@
         </div>
     {% endif %}
 
-    <div class="flex flex-wrap gap-3 mt-6">
+    <div class="flex flex-wrap gap-3 mt-6 justify-center">
         <a href="{% url 'Attendance:redirected_view' %}" class="btn bg-blue-500 hover:bg-blue-600 text-white rounded-xl px-4 py-2">بازگشت به خانه</a>
         <a href="{% url 'managing:setting_app' %}" class="btn bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl px-4 py-2">منوی تنظیمات</a>
         <a href="{% url 'managing:download_excel' user.id month year %}" class="btn bg-green-500 hover:bg-green-600 text-white rounded-xl px-4 py-2">مشاهده در اکسل</a>
