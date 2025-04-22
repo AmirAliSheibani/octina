@@ -1,35 +1,39 @@
+
+{% extends 'app_base/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ساخت پروفایل </title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
-</head>
-<!-- اضافه کردن کتابخانه jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<body>
+{% load humanize %}
 
+{% block content %}
 
-<div class="container">
-    <h1>ساخت سمت کاری</h1>
-    <form method="post" class="position-form">
-    {% csrf_token %}
+<div class="max-w-xl mx-auto mt-12 p-6 bg-white rounded-2xl shadow-xl border border-blue-200 space-y-6">
 
-  <div class="form-textbox ">
-    <label for="{{ form.user.id_for_label }}">user:</label>
-    {{ form.user }}
-  </div>
+    <h2 class="text-2xl font-bold text-center text-teal-600 mb-4">ساخت سمت کاری</h2>
 
- <div class="form-textbox ">
-    <label for="{{ form.profile_position.id_for_label }}">position:</label>
-    {{ form.profile_position }}
-  </div>
-  <button type="submit">Save</button>
-</form> <a href="{% url 'managing:setting_app' %}">
-            <button type="button">منوی تنظیمات</button>
-        </a>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
 
+        <div class="flex flex-col">
+            <label for="{{ form.user.id_for_label }}}" class="text-sm font-medium text-teal-600 mb-1">کاربر:</label>
+            {{ form.user }}
+        </div>
+
+        <div class="flex flex-col">
+            <label for="{{  form.profile_position.id_for_label }}" class="text-sm font-medium text-teal-600 mb-1">سمت کاری:</label>
+           {{ form.profile_position }}
+        </div>
+
+        <button type="submit"
+                class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition cursor-pointer">
+            ثبت پروفایل
+        </button>
+    </form>
+
+        <a href="{% url 'managing:setting_app' %}">
+        <button type="button"
+                class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-xl transition cursor-pointer">
+            منوی تنظیمات
+        </button>
+    </a>
 </div>
-</body>
-</html>
+{% endblock %}
+

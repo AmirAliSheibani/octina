@@ -6,32 +6,32 @@
 
 <div class="max-w-xl mx-auto mt-12 p-6 bg-white rounded-2xl shadow-xl border border-blue-200 space-y-6">
 
-    <h2 class="text-2xl font-bold text-center text-blue-800 mb-4">ثبت تعطیلی جدید</h2>
+    <h2 class="text-2xl font-bold text-center text-teal-600 mb-4">ثبت تعطیلی جدید</h2>
 
     <form method="post" class="space-y-4">
         {% csrf_token %}
 
         <div class="flex flex-col">
-            <label for="{{ form.date.id_for_label }}" class="text-sm font-medium text-blue-900 mb-1">تاریخ:</label>
+            <label for="{{ form.date.id_for_label }}" class="text-sm font-medium text-teal-600 mb-1">تاریخ:</label>
             {{ form.date }}
         </div>
 
         <div class="flex flex-col">
-            <label for="{{ form.name.id_for_label }}" class="text-sm font-medium text-blue-900 mb-1">علت:</label>
+            <label for="{{ form.name.id_for_label }}" class="text-sm font-medium text-teal-600 mb-1">علت:</label>
             {{ form.name }}
         </div>
 
         <button type="submit"
-                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-xl shadow transition">
+                class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition cursor-pointer">
             ثبت تعطیلی
         </button>
     </form>
 
-    <div class="text-center">
-        <a href="{% url 'managing:setting_app' %}"
-           class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2">
-            بازگشت به منوی تنظیمات
-        </a>
-    </div>
+        <a href="{% url 'managing:setting_app' %}">
+        <button type="button"
+                class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-xl transition cursor-pointer">
+            منوی تنظیمات
+        </button>
+    </a>
 </div>
 {% endblock %}

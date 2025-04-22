@@ -69,8 +69,9 @@ class ShiftWorkForm(forms.ModelForm):
 
 
 class PositionForm(forms.ModelForm):
-
-    shift_work = forms.ModelMultipleChoiceField(queryset=ShiftWork.objects.none())
+    shift_work = forms.ModelMultipleChoiceField(
+        queryset=ShiftWork.objects.none()
+    )
 
     class Meta:
         model = Positions
@@ -79,7 +80,16 @@ class PositionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
+
+        # فیلتر شیفت‌ها بر اساس کاربر
         self.fields['shift_work'].queryset = ShiftWork.objects.filter(created_by=request.user)
+
+        # افزودن کلاس‌های Tailwind به تمام فیلدها
+        for field_name, field in self.fields.items():
+            widget = field.widget
+            widget.attrs.update({
+                'class': 'w-full p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500',
+            })
 
 
 class ProfileForm(forms.ModelForm):
@@ -93,8 +103,17 @@ class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
+
+        # فیلتر کردن querysetها
         self.fields['user'].queryset = CustomUser.objects.filter(created_who=request.user, possit__isnull=True)
         self.fields['profile_position'].queryset = Positions.objects.filter(created_by=request.user)
+
+        # اضافه کردن کلاس‌های Tailwind
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                'class': 'w-full p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500'
+            })
+
 
 
 class UpdateProfileForm(forms.ModelForm):
