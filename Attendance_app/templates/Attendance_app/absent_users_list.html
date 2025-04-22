@@ -54,21 +54,21 @@
     </div>
 
     <!-- فرم و دکمه‌ها -->
-    <div class="flex flex-wrap items-center justify-between gap-4 mt-6">
+    <div class="flex flex-wrap items-center justify-center gap-4 mt-6">
         <form method="POST" action="{% url 'Attendance:start' %}">
             {% csrf_token %}
             <div class="flex flex-wrap gap-3">
                 <a href="{% url 'Attendance:redirected_view' %}">
-                    <button type="button" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl shadow">
+                    <button type="button" class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2">
                         بازگشت به خانه
                     </button>
                 </a>
-                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow">
+                <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2">
                     شروع
                 </button>
                 {% if request.user.is_staff %}
                     <a href="{% url 'managing:setting_app' %}">
-                        <button type="button" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow">
+                        <button type="button" class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2">
                             منوی تنظیمات
                         </button>
                     </a>
@@ -77,25 +77,16 @@
         </form>
     </div>
 
-    <!-- ناوبری ماه‌ها -->
-    <div class="flex flex-wrap justify-center gap-2 mt-8">
+
+<div class="month-navigation flex flex-wrap gap-2 justify-center mt-6">
         {% for month_num, month_name in months.items %}
             {% if month_num == month %}
-                <span class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl shadow text-sm">
-                    {{ month_name }}
-                </span>
+                <span class="bg-blue-600 text-white px-4 py-2 rounded-xl shadow">{{ month_name }}</span>
             {% else %}
-                {% if request.user.is_staff %}
-                    <a href="{% url 'managing:absent_record_list' month_num year %}"
-                       class="px-4 py-2 border border-blue-500 text-blue-600 hover:bg-blue-50 rounded-2xl text-sm transition shadow-sm">
-                        {{ month_name }}
-                    </a>
-                {% else %}
-                    <a href="{% url 'Attendance:absent_record_list' month_num year %}"
-                       class="px-4 py-2 border border-blue-500 text-blue-600 hover:bg-blue-50 rounded-2xl text-sm transition shadow-sm">
-                        {{ month_name }}
-                    </a>
-                {% endif %}
+                <a href="{% url 'managing:absent_record_list' month_num year %}"
+                   class="bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-xl shadow transition">
+                    {{ month_name }}
+                </a>
             {% endif %}
         {% endfor %}
     </div>

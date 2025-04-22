@@ -107,24 +107,15 @@
         <a href="{% url 'managing:create_user' %}" class="btn bg-purple-500 hover:bg-purple-600 text-white rounded-xl px-4 py-2">ساخت پرسنل</a>
     </div>
 
-    <div class="flex flex-wrap justify-center gap-2 mt-8">
+     <div class="month-navigation flex flex-wrap gap-2 justify-center mt-6">
         {% for month_num, month_name in months.items %}
             {% if month_num == month %}
-                <span class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl shadow text-sm">
-                    {{ month_name }}
-                </span>
+                <span class="bg-blue-600 text-white px-4 py-2 rounded-xl shadow">{{ month_name }}</span>
             {% else %}
-                {% if request.user.is_staff %}
-                    <a href="{% url 'managing:user_list' user.id month_num year %}"
-                       class="px-4 py-2 border border-blue-500 text-blue-600 hover:bg-blue-50 rounded-2xl text-sm transition shadow-sm">
-                        {{ month_name }}
-                    </a>
-                {% else %}
-                    <a href="{% url 'managing:user_list' user.id month_num year %}"
-                       class="px-4 py-2 border border-blue-500 text-blue-600 hover:bg-blue-50 rounded-2xl text-sm transition shadow-sm">
-                        {{ month_name }}
-                    </a>
-                {% endif %}
+                <a href="{% url 'managing:user_list' user.id month_num year %}"
+                   class="bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-xl shadow transition">
+                    {{ month_name }}
+                </a>
             {% endif %}
         {% endfor %}
     </div>

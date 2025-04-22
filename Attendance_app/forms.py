@@ -124,9 +124,17 @@ class HolidayForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(HolidayForm, self).__init__(*args, **kwargs)
-        self.fields['date'] = JalaliDateField(label=('date'),
-                                              widget=AdminJalaliDateWidget
-                                              )
+
+        self.fields['date'] = JalaliDateField(
+            label='تاریخ',
+            widget=AdminJalaliDateWidget(attrs={
+                'class': 'p-2 border border-gray-300 rounded-xl w-full'
+            })
+        )
+
+        self.fields['name'].widget.attrs.update({
+            'class': 'p-2 border border-gray-300 rounded-xl w-full'
+        })
 
 
 class VacationForm(forms.ModelForm):

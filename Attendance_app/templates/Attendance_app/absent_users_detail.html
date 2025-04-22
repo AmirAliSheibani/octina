@@ -13,14 +13,14 @@
         <div class="flex flex-wrap gap-3">
             <form method="POST" action="{% url 'Attendance:start' %}">
                 {% csrf_token %}
-                <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl shadow transition">
+                <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2">
                     شروع
                 </button>
             </form>
-            <a href="{% url 'Attendance:home' %}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow transition">
+            <a href="{% url 'Attendance:home' %}" class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2">
                 بازگشت به خانه
             </a>
-            <a href="{% url 'managing:setting_app' %}" target="_blank" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow transition">
+            <a href="{% url 'managing:setting_app' %}" target="_blank" class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2">
                 تنظیمات حضور و غیاب
             </a>
         </div>
