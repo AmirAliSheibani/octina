@@ -19,7 +19,7 @@
                     {% endif %}
                 </div>
             {% endfor %}
-            <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl transition">Create user</button>
+            <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl transition cursor-pointer">ثبت پرسنل</button>
         </form>
 
         {% if form2 %}
@@ -35,13 +35,13 @@
                 {{ form2.profile_position }}
             </div>
 
-            <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl transition">Save</button>
+            <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl transition cursor-pointer">ذخیره</button>
         </form>
         {% endif %}
     {% endif %}
 
-    <a href="{% url 'managing:setting_app' %}" target="_blank">
-        <button type="button" class="mt-6 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-xl transition">تنظیمات حضور غیاب</button>
+    <a href="{% url 'managing:setting_app' %}" >
+        <button type="button" class="mt-6 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-xl transition cursor-pointer">تنظیمات حضور غیاب</button>
     </a>
 </div>
 {% endblock %}
