@@ -185,7 +185,19 @@ class HolidayForm(forms.ModelForm):
 class VacationForm(forms.ModelForm):
     vacation_type = forms.ModelChoiceField(
         queryset=VacationType.objects.all(),
-        widget=forms.RadioSelect  # Use RadioSelect widget for single selection
+        widget=forms.RadioSelect(attrs={
+            'class': 'space-y-2 text-gray-700',
+        }),
+        label="نوع مرخصی"
+    )
+
+    reason = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'w-full mt-1 border border-gray-300 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-teal-500',
+            'placeholder': 'دلیل مرخصی را وارد کنید',
+            'rows': 3,
+        }),
+        label="دلیل"
     )
 
     class Meta:

@@ -1,35 +1,46 @@
+{% extends 'app_base/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>درخواست مرخصی</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
-</head>
-<!-- اضافه کردن کتابخانه jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<body>
+{% load humanize %}
 
+{% block content %}
+    <div class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white shadow-xl rounded-2xl p-6 space-y-6">
+            <h1 class="text-2xl font-bold text-teal-600 border-b border-gray-200 pb-2">ساخت سمت کاری</h1>
 
-<div class="container">
-    <h1>ساخت سمت کاری</h1>
-    <form method="post" class="position-form">
-        {% csrf_token %}
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
 
-        <div class="form-textbox ">
-            {{ form.vacation_type }}
+                <div class="form-textbox">
+                    {{ form.vacation_type.label_tag }}
+                    {{ form.vacation_type }}
+                    {% if form.vacation_type.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.vacation_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-textbox">
+                    <label for="{{ form.reason.id_for_label }}" class="block font-medium text-gray-700">دلیل:</label>
+                    {{ form.reason }}
+                    {% if form.reason.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.reason.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div class="flex flex-row justify-between">
+                    <button type="submit"
+                            class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition cursor-pointer">
+                        ذخیره
+                    </button>
+
+                    <a href="{% url 'Attendance:redirected_view' %}">
+                        <button type="button"
+                                class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-xl transition cursor-pointer">
+                            بازگشت به خانه
+                        </button>
+                    </a>
+                </div>
+            </form>
+
         </div>
+    </div>
 
-        <div class="form-textbox ">
-            <label for="{{ form.reason.id_for_label }}">Reason:</label>
-            {{ form.reason }}
-        </div>
-        <button type="submit">Save</button>
-    </form>
-    <a href="{% url 'Attendance:redirected_view' %}" target="_blank">
-        <button type="button">بازگشت به خانه</button>
-    </a>
-</div>
-
-</body>
-</html>
+{% endblock %}
