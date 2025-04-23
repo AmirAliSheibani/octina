@@ -12,6 +12,10 @@ from django import forms
 
 
 class StaffCreateUser(forms.ModelForm):
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'placeholder': 'رمز عبور را تأیید کنید'})
+    )
+
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'password']
@@ -23,7 +27,14 @@ class StaffCreateUser(forms.ModelForm):
             'password': forms.PasswordInput(attrs={'placeholder': 'رمز عبور را ایجاد کنید'}),
         }
 
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'رمز عبور را تأیید کنید'}))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # کلاس‌های Tailwind برای فیلدهای فرم
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'w-full p-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200'
+            })
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -44,9 +55,8 @@ class StaffCreateUser(forms.ModelForm):
         password2 = self.cleaned_data.get('password2')
         if len(password2) < 8:
             raise forms.ValidationError('رمز عبور باید حداقل شامل 8 کاراکتر باشد')
-        else:
-            if password != password2:
-                raise forms.ValidationError('رمز عبورها مطابقت ندارند')
+        elif password != password2:
+            raise forms.ValidationError('رمز عبورها مطابقت ندارند')
         return password2
 
 
@@ -65,7 +75,23 @@ class ShiftWorkForm(forms.ModelForm):
 
     class Meta:
         model = ShiftWork
-        fields = ['work_start_time', 'work_end_time', 'work_days', 'name']
+        fields = ['name', 'work_start_time', 'work_end_time', 'work_days']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['name'].widget.attrs.update({
+            'class': 'mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-teal-500 focus:border-teal-500'
+        })
+        self.fields['work_start_time'].widget.attrs.update({
+            'class': 'mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-teal-500 focus:border-teal-500'
+        })
+        self.fields['work_end_time'].widget.attrs.update({
+            'class': 'mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-teal-500 focus:border-teal-500'
+        })
+        self.fields['work_days'].widget.attrs.update({
+            'class': 'space-y-2 text-sm text-gray-800'  # کلاس کلی برای لیست چک‌باکس‌ها
+        })
 
 
 class PositionForm(forms.ModelForm):

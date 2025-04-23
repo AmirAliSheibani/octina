@@ -1,43 +1,47 @@
+{% extends 'app_base/base.html' %}
 {% load static %}
-<title>ساخت پرسنل</title>
-<link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
-<div class="container">
-    <h1>ساخت پرسنل</h1>
+{% load humanize %}
+
+{% block content %}
+<div class="container mx-auto max-w-xl p-6 bg-white rounded-2xl shadow-md">
+    <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">ساخت پرسنل</h1>
+
     {% if check_User %}
-        <p>تعداد پرسنل های شما به حد نصاب رسیده است </p>
+        <p class="text-red-600 text-center">تعداد پرسنل های شما به حد نصاب رسیده است</p>
     {% else %}
-        <form method="post">
-            {% csrf_token %}{% for field in form %}
-                <br/>
-                {{ field }}<br/>
-                {% if field.errors %}
-                    <div class="error-message">
-                        {% for error in field.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </div>
-                {% endif %}
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+                <div>
+                    {{ field }}
+                    {% if field.errors %}
+                        <p class="text-red-500 text-sm mt-1">{% for error in field.errors %}{{ error }}{% endfor %}</p>
+                    {% endif %}
+                </div>
             {% endfor %}
-            <button type="submit">Create user</button>
+            <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl transition">Create user</button>
         </form>
-{% if form2 %}
-         <form method="post" class="position-form">
-    {% csrf_token %}
 
-  <div class="form-textbox ">
-    <label for="{{ form2.user.id_for_label }}">user:</label>
-    {{ form2.user }}
-  </div>
+        {% if form2 %}
+        <form method="post" class="space-y-4 mt-8">
+            {% csrf_token %}
+            <div>
+                <label for="{{ form2.user.id_for_label }}" class="block text-sm font-medium text-gray-700">کاربر:</label>
+                {{ form2.user }}
+            </div>
 
- <div class="form-textbox ">
-    <label for="{{ form2.profile_position.id_for_label }}">position:</label>
-    {{ form2.profile_position }}
-  </div>
-  <button type="submit">Save</button>
-</form>
-{% endif %}
+            <div>
+                <label for="{{ form2.profile_position.id_for_label }}" class="block text-sm font-medium text-gray-700">سمت:</label>
+                {{ form2.profile_position }}
+            </div>
+
+            <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl transition">Save</button>
+        </form>
+        {% endif %}
     {% endif %}
-<a href="{% url 'managing:setting_app' %}" target="_blank">
-                <button type="button">تنظیمات حضور غیاب</button>
-            </a>
+
+    <a href="{% url 'managing:setting_app' %}" target="_blank">
+        <button type="button" class="mt-6 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-xl transition">تنظیمات حضور غیاب</button>
+    </a>
 </div>
+{% endblock %}
