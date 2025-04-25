@@ -1,46 +1,70 @@
+{% extends 'app_base/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>لیست پروفایل ها</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
-</head>
-<!-- اضافه کردن کتابخانه jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% load humanize %}
 
-<body>
+{% block content %}
+<div class="max-w-6xl mx-auto px-6 py-8 bg-white shadow-xl rounded-xl border border-blue-100">
+    <h1 class="text-3xl font-bold text-center text-blue-700 mb-8">👥 لیست پروفایل‌های پرسنل</h1>
 
+    {% if profile %}
+        <!-- Desktop Table -->
+        <div class="hidden md:block overflow-x-auto rounded-xl shadow">
+            <table class="min-w-full divide-y divide-blue-100 text-sm text-gray-800 bg-white">
+                <thead class="bg-blue-600 text-white font-semibold">
+                    <tr>
+                        <th class="px-6 py-3 text-right">نام خانوادگی</th>
+                        <th class="px-6 py-3 text-right">گروه کاری</th>
+                        <th class="px-6 py-3 text-right">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-blue-50 bg-white">
+                    {% for prof in profile %}
+                        <tr class="hover:bg-blue-50 transition">
+                            <td class="px-6 py-4 font-medium">{{ prof.user.last_name }}</td>
+                            <td class="px-6 py-4">
+                                <a href="{% url 'managing:update_position' prof.profile_position.id %}" class="text-blue-600 hover:underline">
+                                    {{ prof.profile_position }}
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 space-x-2 text-sm">
+                                <a href="{% url 'managing:update_profile' prof.id %}" class="text-indigo-600 hover:underline">✏️ تغییر</a>
+                                <a href="{% url 'managing:delete_profile' prof.id %}" class="text-red-600 hover:underline">🗑 حذف</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-<div class="container">
-    <table>
-  {% for prof in profile %}
-  <tr>
-    <td>  نام خانوادگی <hr>{{ prof.user.last_name }} </td>
-{#    <td>  نام کاربری <hr>{{ prof.user}} </td>#}
-    <td>  گروه کاری <hr><a href="{% url 'managing:update_position'  prof.profile_position.id %}">{{ prof.profile_position }}</a></td>
-    <td>
-      <a href="{% url 'managing:delete_profile' prof.id %}">
-        <button type="button">حذف</button>
-      </a>
-      <a href="{% url 'managing:update_profile' prof.id %}">
-        <button type="button">تغییر</button>
-      </a>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+        <!-- Mobile Cards -->
+        <div class="md:hidden space-y-6 mt-6">
+            {% for prof in profile %}
+                <div class="bg-white border border-blue-100 rounded-xl shadow p-4">
+                    <div class="text-lg font-bold text-blue-700 mb-2">{{ prof.user.last_name }}</div>
+                    <p class="text-sm">
+                        👷‍♂️ گروه کاری:
+                        <a href="{% url 'managing:update_position' prof.profile_position.id %}" class="text-blue-600 hover:underline">
+                            {{ prof.profile_position }}
+                        </a>
+                    </p>
+                    <div class="flex justify-between items-center mt-4 text-sm">
+                        <a href="{% url 'managing:update_profile' prof.id %}" class="text-indigo-600 hover:underline">✏️ تغییر</a>
+                        <a href="{% url 'managing:delete_profile' prof.id %}" class="text-red-600 hover:underline">🗑 حذف</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center text-blue-600 mt-6">
+            <p>😐 هنوز هیچ پروفایلی ثبت نشده.</p>
+            <a href="{% url 'managing:create_profile' %}" class="text-indigo-600 hover:underline">ساخت پروفایل برای پرسنل</a>
+        </div>
+    {% endif %}
 
- <a href="{% url 'managing:setting_app' %}">
-            <button type="button">منوی تنظیمات</button>
-        </a>
-
- <a href="{% url 'Attendance:redirected_view' %}">
-            <button type="button">برگشت به خانه</button>
-        </a>
-<a href="{% url 'managing:create_profile' %}">
-        <button type="button">ساخت پروفایل برای پرسنل</button>
-    </a>
+    <div class="mt-10 flex flex-wrap justify-center gap-4">
+        <a href="{% url 'managing:setting_app' %}" class="btn">⚙️ منوی تنظیمات</a>
+        <a href="{% url 'Attendance:redirected_view' %}" class="btn">🏠 برگشت به خانه</a>
+        <a href="{% url 'managing:create_profile' %}" class="bg-indigo-500 hover:bg-indigo-600 border border-gray-300 text-white rounded-lg p-3 text-center hover:bg-gray-100 shadow cursor-pointer">➕ ساخت پروفایل</a>
+    </div>
 </div>
-</body>
-</html>
+{% endblock %}
