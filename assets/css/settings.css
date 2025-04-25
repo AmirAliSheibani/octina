@@ -9,5 +9,5 @@
 }
 
 .add-btn {
-    @apply bg-indigo-500 hover:bg-indigo-600 border border-gray-300 text-white rounded-lg p-3 text-center hover:bg-gray-100 shadow cursor-pointer
+    @apply bg-teal-500 hover:bg-teal-600 border border-gray-300 text-white rounded-lg p-3 text-center hover:bg-gray-100 shadow cursor-pointer
 }

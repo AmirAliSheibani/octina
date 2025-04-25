@@ -1514,7 +1514,7 @@
   border-style: var(--tw-border-style);
   border-width: 1px;
   border-color: var(--color-gray-300);
-  background-color: var(--color-indigo-500);
+  background-color: var(--color-teal-500);
   padding: calc(var(--spacing) * 3);
   text-align: center;
   color: var(--color-white);
@@ -1527,7 +1527,7 @@
   }
   &:hover {
     @media (hover: hover) {
-      background-color: var(--color-indigo-600);
+      background-color: var(--color-teal-600);
     }
   }
 }
