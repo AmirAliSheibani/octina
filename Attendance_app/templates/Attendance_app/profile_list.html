@@ -10,7 +10,7 @@
         <!-- Desktop Table -->
         <div class="hidden md:block overflow-x-auto rounded-xl shadow">
             <table class="min-w-full divide-y divide-blue-100 text-sm text-gray-800 bg-white">
-                <thead class="bg-blue-600 text-white font-semibold">
+                <thead class="bg-blue-100 text-blue-900 font-semibold">
                     <tr>
                         <th class="px-6 py-3 text-right">نام خانوادگی</th>
                         <th class="px-6 py-3 text-right">گروه کاری</th>
@@ -64,7 +64,7 @@
     <div class="mt-10 flex flex-wrap justify-center gap-4">
         <a href="{% url 'managing:setting_app' %}" class="btn">⚙️ منوی تنظیمات</a>
         <a href="{% url 'Attendance:redirected_view' %}" class="btn">🏠 برگشت به خانه</a>
-        <a href="{% url 'managing:create_profile' %}" class="badd-btn">➕ ساخت پروفایل</a>
+        <a href="{% url 'managing:create_profile' %}" class="add-btn">➕ ساخت پروفایل</a>
     </div>
 </div>
 {% endblock %}
