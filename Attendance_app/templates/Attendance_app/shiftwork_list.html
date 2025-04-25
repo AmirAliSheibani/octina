@@ -1,57 +1,79 @@
+{% extends 'app_base/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>لیست شیفت های کاری</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
-</head>
-<!-- اضافه کردن کتابخانه jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% load humanize %}
 
-<body>
+{% block content %}
+<div class="max-w-6xl mx-auto px-6 py-8 bg-white shadow-xl rounded-xl border border-blue-100">
+    <h1 class="text-3xl font-bold text-center text-blue-700 mb-8">🕘 لیست شیفت‌های کاری</h1>
 
-
-<div class="container">
-    <table>
     {% if shiftwork %}
-  {% for shift in shiftwork %}
-  <tr>
-    <td> نام شیفت کاری  <hr>{{ shift.name }}</td>
-    <td> شروع ساعت کاری  <hr>{{ shift.work_start_time }}</td>
-    <td>  پایان ساعت کاری  <hr>{{ shift.work_end_time }}</td>
-    <td>  پایان ساعت کاری  <hr>{{ shift.required_time }}</td>
-    <td>
-      {% for work_day in shift.work_days.all %}
-        {{ work_day }},
-      {% endfor %}
-    </td>
-    <td>
-      <a href="{% url 'managing:delete_shift_work' shift.id %}">
-        <button type="button">حذف</button>
-      </a>
-      <a href="{% url 'managing:update_shift_work' shift.id %}">
-        <button type="button">تغییر</button>
-      </a>
+        <!-- Desktop Table -->
+        <div class="hidden md:block overflow-x-auto rounded-xl shadow">
+            <table class="min-w-full divide-y divide-blue-100 text-sm text-gray-800 bg-white">
+                <thead class="bg-blue-600 text-white font-semibold">
+                    <tr>
+                        <th class="px-6 py-3 text-right">نام شیفت</th>
+                        <th class="px-6 py-3 text-right">شروع ساعت کاری</th>
+                        <th class="px-6 py-3 text-right">پایان ساعت کاری</th>
+                        <th class="px-6 py-3 text-right">⏱ زمان موردنیاز</th>
+                        <th class="px-6 py-3 text-right">روزهای کاری</th>
+                        <th class="px-6 py-3 text-right">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-blue-50 bg-white">
+                    {% for shift in shiftwork %}
+                        <tr class="hover:bg-blue-50 transition">
+                            <td class="px-6 py-4 font-medium">{{ shift.name }}</td>
+                            <td class="px-6 py-4">{{ shift.work_start_time }}</td>
+                            <td class="px-6 py-4">{{ shift.work_end_time }}</td>
+                            <td class="px-6 py-4">{{ shift.required_time }}</td>
+                            <td class="px-6 py-4">
+                                {% for work_day in shift.work_days.all %}
+                                    <span class="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full mr-1">{{ work_day }}</span>
+                                {% endfor %}
+                            </td>
+                            <td class="px-6 py-4 space-x-2 text-sm">
+                                <a href="{% url 'managing:update_shift_work' shift.id %}" class="text-indigo-600 hover:underline">✏️ تغییر</a>
+                                <a href="{% url 'managing:delete_shift_work' shift.id %}" class="text-red-600 hover:underline">🗑 حذف</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-    </td>
-  </tr>
-  {% endfor %}
-</table>
-        {% else %}
-        <h5> بنظر میرسه که شما هیچ شیفت کاری برای نمایش ندارید!  <a href="{% url 'managing:create_shift_work' %}"> برای ساخت شیفت کاری کلیک کنید</a> </h5>
+        <!-- Mobile Cards -->
+        <div class="md:hidden space-y-6">
+            {% for shift in shiftwork %}
+                <div class="bg-white border border-blue-100 rounded-xl shadow p-4">
+                    <div class="text-lg font-bold text-blue-700 mb-2">{{ shift.name }}</div>
+                    <p>🕘 شروع: {{ shift.work_start_time }}</p>
+                    <p>🕔 پایان: {{ shift.work_end_time }}</p>
+                    <p>⏱ زمان موردنیاز: {{ shift.required_time }}</p>
+                    <div class="mt-2">
+                        <p class="font-semibold text-gray-600 mb-1">روزهای کاری:</p>
+                        {% for day in shift.work_days.all %}
+                            <span class="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full mr-1">{{ day }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="flex justify-between items-center mt-4 text-sm">
+                        <a href="{% url 'managing:update_shift_work' shift.id %}" class="text-indigo-600 hover:underline">✏️ تغییر</a>
+                        <a href="{% url 'managing:delete_shift_work' shift.id %}" class="text-red-600 hover:underline">🗑 حذف</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center text-blue-600 mt-6">
+            <p>👀 هنوز هیچ شیفتی ثبت نشده.</p>
+            <a href="{% url 'managing:create_shift_work' %}" class="text-indigo-600 hover:underline">برای ساخت شیفت کاری کلیک کن</a>
+        </div>
     {% endif %}
- <a href="{% url 'managing:setting_app' %}">
-            <button type="button">منوی تنظیمات</button>
-        </a>
 
- <a href="{% url 'Attendance:redirected_view' %}">
-            <button type="button">برگشت به خانه</button>
-        </a>
-<a href="{% url 'managing:create_shift_work' %}">
-        <button type="button">ساخت شیفت کاری</button>
-    </a>
-
+    <div class="mt-10 flex flex-wrap justify-center gap-4">
+        <a href="{% url 'managing:setting_app' %}" class="btn">⚙️ منوی تنظیمات</a>
+        <a href="{% url 'Attendance:redirected_view' %}" class="btn">🏠 برگشت به خانه</a>
+        <a href="{% url 'managing:create_shift_work' %}" class="bg-indigo-500 hover:bg-indigo-600 border border-gray-300 text-white rounded-lg p-3 text-center hover:bg-gray-100 shadow cursor-pointer">➕ ساخت شیفت کاری</a>
+    </div>
 </div>
-</body>
-</html>
+{% endblock %}
