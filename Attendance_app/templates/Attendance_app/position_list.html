@@ -3,14 +3,14 @@
 {% load humanize %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 py-10 bg-gradient-to-br from-white via-blue-50 to-white rounded-xl shadow-lg border border-blue-100">
-    <h1 class="text-3xl font-bold text-center text-blue-700 mb-10">🌟 لیست سمت‌های کاری</h1>
+    <div class="max-w-6xl mx-auto px-4 py-10 bg-gradient-to-br from-white via-blue-50 to-white rounded-xl shadow-lg border border-blue-100">
+        <h1 class="text-3xl font-bold text-center text-blue-700 mb-10">🌟 لیست سمت‌های کاری</h1>
 
-    {% if position %}
-        <!-- Desktop Table -->
-        <div class="hidden md:block overflow-x-auto rounded-xl shadow">
-            <table class="min-w-full text-sm text-gray-800 bg-white rounded-xl overflow-hidden">
-                <thead class="bg-blue-100 text-blue-900">
+        {% if position %}
+            <!-- Desktop Table -->
+            <div class="hidden md:block overflow-x-auto rounded-xl shadow">
+                <table class="min-w-full text-sm text-gray-800 bg-white rounded-xl overflow-hidden">
+                    <thead class="bg-blue-100 text-blue-900">
                     <tr>
                         <th class="px-6 py-3 text-right">📌 نام سمت</th>
                         <th class="px-6 py-3 text-right">💰 درآمد</th>
@@ -19,10 +19,11 @@
                         <th class="px-6 py-3 text-right">🕘 شیفت‌ها</th>
                         <th class="px-6 py-3 text-right">⚙️ عملیات</th>
                     </tr>
-                </thead>
-                <tbody class="divide-y divide-blue-100">
+                    </thead>
+                    <tbody class="divide-y divide-blue-100">
                     {% for poss in position %}
-                        <tr class="hover:bg-blue-50 transition">
+                        <tr class="hover:bg-blue-50 transition cursor-pointer"
+                            onclick="window.location.href='{% url 'managing:update_position' poss.id %}'">
                             <td class="px-6 py-4 font-semibold">{{ poss.positions }}</td>
                             <td class="px-6 py-4">{{ poss.position_income }}</td>
                             <td class="px-6 py-4">{{ poss.overtime_position_income }}</td>
@@ -46,60 +47,61 @@
                                 {% endfor %}
                             </td>
                             <td class="px-6 py-4 space-y-2 text-right">
-                                <a href="{% url 'managing:update_position' poss.id %}" class="text-indigo-600 hover:underline">✏️ تغییر</a><br>
-                                <a href="{% url 'managing:delete_position' poss.id %}" class="text-red-600 hover:underline">🗑 حذف</a>
+                                <a href="{% url 'managing:delete_position' poss.id %}"
+                                   class="text-red-600 hover:underline">🗑 حذف</a>
                             </td>
                         </tr>
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    </tbody>
+                </table>
+            </div>
 
-        <!-- Mobile View -->
-        <div class="md:hidden space-y-6">
-            {% for poss in position %}
-                <div class="bg-white border border-blue-100 rounded-xl shadow-sm p-4">
-                    <div class="text-lg font-bold text-blue-700">{{ poss.positions }}</div>
-                    <p class="mt-1">💰 درآمد: {{ poss.position_income }}</p>
-                    <p>⏱ اضافه‌کاری: {{ poss.overtime_position_income }}</p>
+            <!-- Mobile View -->
+            <div class="md:hidden space-y-6">
+                {% for poss in position %}
+                    <div class="bg-white border border-blue-100 rounded-xl shadow-sm p-4 cursor-pointer"
+                         onclick="window.location.href='{% url 'managing:update_position' poss.id %}'">
+                        <div class="text-lg font-bold text-blue-700">{{ poss.positions }}</div>
+                        <p class="mt-1">💰 درآمد: {{ poss.position_income }}</p>
+                        <p>⏱ اضافه‌کاری: {{ poss.overtime_position_income }}</p>
 
+                        {% if poss.shift_work.all %}
+                            <div class="mt-3">
+                                <p class="font-semibold text-indigo-600 mb-1">🕘 شیفت‌ها:</p>
+                                {% for shift in poss.shift_work.all %}
+                                    <div class="border border-gray-200 bg-gray-50 rounded p-2 mb-2">
+                                        <p class="text-sm font-medium text-blue-600">{{ shift.name }}</p>
+                                        <p>📅 روزهای کاری:
+                                            {% for wd in shift.work_days.all %}
+                                                {{ wd }}{% if not forloop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </p>
+                                        <p>شروع: {{ shift.work_start_time }}</p>
+                                        <p>پایان: {{ shift.work_end_time }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
 
-                    {% if poss.shift_work.all %}
-                        <div class="mt-3">
-                            <p class="font-semibold text-indigo-600 mb-1">🕘 شیفت‌ها:</p>
-                            {% for shift in poss.shift_work.all %}
-                                <div class="border border-gray-200 bg-gray-50 rounded p-2 mb-2">
-                                    <p class="text-sm font-medium text-blue-600">{{ shift.name }}</p>
-                                    <p>📅 روزهای کاری:
-                                        {% for wd in shift.work_days.all %}
-                                            {{ wd }}{% if not forloop.last %}, {% endif %}
-                                        {% endfor %}
-                                    </p>
-                                    <p>شروع: {{ shift.work_start_time }}</p>
-                                    <p>پایان: {{ shift.work_end_time }}</p>
-                                </div>
-                            {% endfor %}
+                        <div class="flex justify-between mt-4 text-sm">
+                            <a href="{% url 'managing:delete_position' poss.id %}" class="text-red-600 hover:underline">🗑
+                                حذف</a>
                         </div>
-                    {% endif %}
-
-                    <div class="flex justify-between mt-4 text-sm">
-                        <a href="{% url 'managing:update_position' poss.id %}" class="text-indigo-600 hover:underline">✏️ تغییر</a>
-                        <a href="{% url 'managing:delete_position' poss.id %}" class="text-red-600 hover:underline">🗑 حذف</a>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="text-center text-blue-600 mt-10">
-            <p>سمتی برای نمایش وجود ندارد.</p>
-            <a href="{% url 'managing:create_position' %}" class="text-indigo-600 hover:underline">👈 کلیک کن برای ساخت سمت جدید</a>
-        </div>
-    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center text-blue-600 mt-10">
+                <p>سمتی برای نمایش وجود ندارد.</p>
+                <a href="{% url 'managing:create_position' %}" class="text-indigo-600 hover:underline">👈 کلیک کن برای
+                    ساخت سمت جدید</a>
+            </div>
+        {% endif %}
 
-    <div class="mt-10 flex flex-wrap justify-center gap-4">
-        <a href="{% url 'managing:setting_app' %}" class="btn">⚙️ منوی تنظیمات</a>
-        <a href="{% url 'Attendance:redirected_view' %}" class="btn">🏠 برگشت به خانه</a>
-        <a href="{% url 'managing:create_position' %}" class="add-btn">➕ ساخت گروه کاری</a>
+        <div class="mt-10 flex flex-wrap justify-center gap-4">
+            <a href="{% url 'managing:setting_app' %}" class="btn">⚙️ منوی تنظیمات</a>
+            <a href="{% url 'Attendance:redirected_view' %}" class="btn">🏠 برگشت به خانه</a>
+            <a href="{% url 'managing:create_position' %}" class="add-btn">➕ ساخت گروه کاری</a>
+        </div>
     </div>
-</div>
 {% endblock %}

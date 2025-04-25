@@ -13,22 +13,18 @@
                     <th class="px-4 py-2">تاریخ</th>
                     <th class="px-4 py-2">علت</th>
                     {% if request.user.is_staff %}
-                        <th class="px-4 py-2">حذف</th>
-                        <th class="px-4 py-2">تغییر</th>
+                        <th class="px-4 py-2">عملیات</th>
                     {% endif %}
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-blue-50">
                 {% for holiday in holidays %}
-                    <tr class="hover:bg-blue-50">
+                    <tr class="hover:bg-blue-50 cursor-pointer" onclick="window.location.href='{% url 'managing:update_holiday' holiday.id %}'">
                         <td class="px-4 py-2">{{ holiday.date }}</td>
                         <td class="px-4 py-2">{{ holiday.name }}</td>
                         {% if request.user.is_staff %}
                             <td class="px-4 py-2">
                                 <a href="{% url 'managing:delete_holiday' holiday.id %}" class="text-red-600 hover:underline">حذف</a>
-                            </td>
-                            <td class="px-4 py-2">
-                                <a href="{% url 'managing:update_holiday' holiday.id %}" class="text-green-600 hover:underline">تغییر</a>
                             </td>
                         {% endif %}
                     </tr>
