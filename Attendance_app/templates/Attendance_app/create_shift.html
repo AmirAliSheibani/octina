@@ -14,7 +14,8 @@
 
                 <!-- نام شیفت -->
                 <div>
-                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">نام شیفت کاری:</label>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">نام شیفت
+                        کاری:</label>
                     {{ form.name }}
                 </div>
 
@@ -56,11 +57,17 @@
                         ثبت شیفت
                     </button>
                     <a href="{% url 'managing:setting_app' %}">
-        <button type="button"
-                class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-xl transition cursor-pointer">
-            منوی تنظیمات
-        </button>
-    </a>
+                        <button type="button"
+                                class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-xl transition cursor-pointer">
+                            منوی تنظیمات
+                        </button>
+                    </a>
+                    <a href="{% url 'managing:list_shift_work' %}">
+                        <button type="button"
+                                class="mt-4 bg-blue-100 hover:bg-blue-300 text-gray-800 font-medium py-2 px-4 rounded-xl transition cursor-pointer">
+                            لیست شیفت کاری
+                        </button>
+                    </a>
                 </div>
             </form>
         {% endif %}
