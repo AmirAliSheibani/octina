@@ -1,87 +1,87 @@
+{% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پرسنل های غایب</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
-</head>
-<body>
-<div class="header">
 
+{% block content %}
+<div class="p-4">
 
-<div class="container">
-
-    <div class="table-responsive">
-        <table>
-        <a href="{% url 'managing:delete_monthly_non_progress' month year  %}">
-            <button type="button">حذف گزارش های این ماه</button>
+    <!-- دکمه حذف گزارش‌های این ماه -->
+    <div class="mb-4">
+        <a href="{% url 'managing:delete_monthly_non_progress' month year %}">
+            <button type="button" class="btn btn-danger">حذف گزارش‌های این ماه</button>
         </a>
-        </br></br>
-            <thead>
-            <tr>
-                <th scope="col">نام کاربری</th>
-                <th scope="col">نام خانوادگی</th>
-                <th scope="col">گروه شغلی</th>
-                <th scope="col">مجموع زمان کار</th>
-                <th scope="col">مجموع درآمد ماه جاری</th>
-                <th scope="col">تاریخ ایجاد</th>
-                <th scope="col">حذف</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for nonprogress in filter_non_progress %}
-                {% for user in nonprogress.user.all %}
-                    <tr>
-                        <td>{{ user }}</td>
-                        <td>{{ user.last_name }}</td>
-                        <td>{{ user.possit }}</td>
-                        <td>{{ user.user_attendance.last.job_time }}</td>
-                        <td>{{ user.user_incomes.last }}</td>
-                        <td>{{ nonprogress.created_date }}</td>
-                        <td><a href="{% url 'managing:delete_none_progress' nonprogress.id month year %}">
-            <button type="button">حذف</button>
-        </a></td>
-
-                    </tr>
-                {% endfor %}
-            {% endfor %}
-
-            </tbody>
-        </table>
     </div>
 
+    <!-- جدول پرسنل‌های غایب -->
+    <div class="card shadow rounded-3">
+        <div class="card-header bg-primary text-white fw-bold">
+            لیست پرسنل‌های غایب - ماه {{ months.month }}
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center align-middle mb-0">
+                <thead class="table-light">
+                <tr>
+                    <th>نام کاربری</th>
+                    <th>نام خانوادگی</th>
+                    <th>گروه شغلی</th>
+                    <th>مجموع زمان کار</th>
+                    <th>مجموع درآمد ماه جاری</th>
+                    <th>تاریخ ایجاد</th>
+                    <th>حذف</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for nonprogress in filter_non_progress %}
+                    {% for user in nonprogress.user.all %}
+                        <tr>
+                            <td>{{ user }}</td>
+                            <td>{{ user.last_name }}</td>
+                            <td>{{ user.possit }}</td>
+                            <td>{{ user.user_attendance.last.job_time }}</td>
+                            <td>{{ user.user_incomes.last }}</td>
+                            <td>{{ nonprogress.created_date|date:"Y/m/d" }}</td>
+                            <td>
+                                <form method="POST" action="{% url 'managing:delete_none_progress' nonprogress.id month year %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">حذف</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-muted">هیچ کاربر غایبی یافت نشد.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    <form method="POST" action="{% url 'Attendance:start' %}">
-        {% csrf_token %}
-        <a href="{% url 'Attendance:redirected_view' %}">
-            <button type="button">بازگشت به خانه</button>
-        </a>
-        <button type="submit">شروع</button>
-        {#        <a href="{% url 'managing:download_excel' user.id month year %}">#}
-{#        <button type="button">مشاهده در اکسل</button>#}
-{#        </a>#}
-        <a href="{% url 'managing:setting_app' %}" target="_blank">
-            <button type="button">تنظیمات حضور غیاب</button>
-        </a>
+    <!-- دکمه‌های پایین صفحه -->
+    <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
+        <form method="POST" action="{% url 'Attendance:start' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">شروع</button>
+        </form>
 
-    </form>
+        <a href="{% url 'Attendance:redirected_view' %}" class="btn btn-secondary">بازگشت به خانه</a>
 
-    <br>
-    <div class="month-navigation">
+        <a href="{% url 'managing:setting_app' %}" class="btn btn-warning" target="_blank">تنظیمات حضور غیاب</a>
+    </div>
+
+    <!-- ناوبری ماه‌ها -->
+    <div class="mt-5 text-center">
         {% for month_num, month_name in months.items %}
             {% if month_num == month %}
-                <span class="btn btn-primary">{{ month_name }}</span>
+                <span class="btn btn-primary disabled">{{ month_name }}</span>
             {% else %}
-                <a href="{% url 'managing:non_progress' month_num year %}"
-                   class="btn btn-outline-primary">{{ month_name }}</a>
+                <a href="{% url 'managing:non_progress' month_num year %}" class="btn btn-outline-primary mx-1">
+                    {{ month_name }}
+                </a>
             {% endif %}
         {% endfor %}
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

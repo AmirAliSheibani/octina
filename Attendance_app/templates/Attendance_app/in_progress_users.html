@@ -1,158 +1,122 @@
+{% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پرسنل های فعال</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/66.css' %}">
 
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-8 bg-white rounded-xl shadow-xl border border-blue-100">
 
-</head>
-<body>
-<div class="header">
-    <div class="filter-form">
-        <form method="GET">
-            <label for="last_name_filter">جست و جو با نام خانوادگی:</label>
-            <input type="text" id="last_name_filter" name="last_name_filter" value="{{ request.GET.last_name_filter }}"
-                   size="16px">
-            <button type="submit">اعمال</button>
+    <h1 class="text-2xl font-bold text-blue-700 mb-8 text-center">پرسنل‌های فعال</h1>
+
+    <div class="flex flex-wrap gap-4 mb-6">
+        <form method="GET" class="flex items-center gap-2">
+            <label for="last_name_filter" class="text-sm">نام خانوادگی:</label>
+            <input type="text" id="last_name_filter" name="last_name_filter"
+                   class="input input-sm input-bordered"
+                   value="{{ request.GET.last_name_filter }}">
+            <button type="submit" class="btn btn-sm bg-blue-500 text-white hover:bg-blue-600">اعمال</button>
         </form>
-    </div>
 
-    <div class="filter-form">
-        <form method="GET">
-            <label for="job_time_filter">نمایش به ترتیب زمان کار:</label>
-            <select id="job_time_filter" name="job_time_filter">
+        <form method="GET" class="flex items-center gap-2">
+            <label for="job_time_filter" class="text-sm">ترتیب زمان کار:</label>
+            <select id="job_time_filter" name="job_time_filter" class="select select-sm select-bordered">
                 <option value="">همه</option>
-                <option value="greater" {% if request.GET.job_time_filter == "greater" %}selected{% endif %}>بیشترین
-                    زمان کار
-                </option>
-                <option value="smaller" {% if request.GET.job_time_filter == "smaller" %}selected{% endif %}>کمترین زمان
-                    کار
-                </option>
+                <option value="greater" {% if request.GET.job_time_filter == "greater" %}selected{% endif %}>بیشترین</option>
+                <option value="smaller" {% if request.GET.job_time_filter == "smaller" %}selected{% endif %}>کمترین</option>
             </select>
-            <button type="submit">اعمال</button>
+            <button type="submit" class="btn btn-sm bg-blue-500 text-white hover:bg-blue-600">اعمال</button>
         </form>
-    </div>
 
-    <div class="filter-form">
-        <form method="GET">
-            <label for="income_filter">نمایش به ترتیب درآمد:</label>
-            <select id="income_filter" name="income_filter">
+        <form method="GET" class="flex items-center gap-2">
+            <label for="income_filter" class="text-sm">ترتیب درآمد:</label>
+            <select id="income_filter" name="income_filter" class="select select-sm select-bordered">
                 <option value="">همه</option>
-                <option value="greater" {% if request.GET.income_filter == "greater" %}selected{% endif %}>بیشترین
-                    درآمد
-                </option>
-                <option value="smaller" {% if request.GET.income_filter == "smaller" %}selected{% endif %}>کمترین
-                    درآمد
-                </option>
+                <option value="greater" {% if request.GET.income_filter == "greater" %}selected{% endif %}>بیشترین</option>
+                <option value="smaller" {% if request.GET.income_filter == "smaller" %}selected{% endif %}>کمترین</option>
             </select>
-            <button type="submit">اعمال</button>
+            <button type="submit" class="btn btn-sm bg-blue-500 text-white hover:bg-blue-600">اعمال</button>
         </form>
     </div>
-</div>
 
-<div class="container">
-
-    <div class="table-responsive">
-        <table>
-            <thead>
-            <tr>
-                <th scope="col">نام کاربری</th>
-                <th scope="col">نام خانوادگی</th>
-                <th scope="col">سمت</th>
-                <th scope="col">مجموع زمان کار</th>
-                <th scope="col">مجموع درآمد ماه جاری</th>
-                <th scope="col">جزئیات</th>
-                <th scope="col">حذف</th>
-                <th scope="col">آپدیت</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for user in in_progress_users %}
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-blue-200 text-sm text-center">
+            <thead class="bg-blue-100 text-blue-900 font-semibold">
                 <tr>
+                    <th>نام کاربری</th>
+                    <th>نام خانوادگی</th>
+                    <th>سمت</th>
+                    <th>زمان کار</th>
+                    <th>درآمد ماه جاری</th>
+                    <th>جزئیات</th>
+                    <th>حذف</th>
+                    <th>آپدیت</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for user in in_progress_users %}
+                <tr class="hover:bg-blue-50">
                     <td>{{ user }}</td>
                     <td>{{ user.last_name }}</td>
                     <td>{{ user.possit }}</td>
                     <td>{{ user.user_attendance.last.job_time }}</td>
                     <td>{{ user.user_incomes.last }}</td>
-                    <td><a href="{% url 'Attendance:result_list' user.id month year %}">بیشتر</a></td>
-                    <td><a href="{% url 'managing:delete_user_for_staff' user.id month year %}">حذف یوزر</a></td>
-                    <td><a href="{% url 'managing:update_user_for_staff' user.id %}"> آپدیت</a></td>
+                    <td><a class="text-blue-600 hover:underline" href="{% url 'Attendance:result_list' user.id month year %}">بیشتر</a></td>
+                    <td><a class="text-red-600 hover:underline" href="{% url 'managing:delete_user_for_staff' user.id month year %}">حذف</a></td>
+                    <td><a class="text-green-600 hover:underline" href="{% url 'managing:update_user_for_staff' user.id %}">آپدیت</a></td>
                 </tr>
-            {% endfor %}
-
+                {% endfor %}
             </tbody>
         </table>
     </div>
 
-
-
     {% if non_progress_users %}
-        <Br><Br><Br><Br>
-        <h5>بدون فعالیت</h5>
-        <table>
-            <thead>
-            <tr>
-
-                <th scope="col">نام کاربری</th>
-                <th scope="col">نام خانوادگی</th>
-                <th scope="col">سمت</th>
-                <th scope="col">جزئیات</th>
-                <th scope="col">حذف</th>
-                <th scope="col">آپدیت</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for user in non_progress_users %}
+    <div class="mt-10">
+        <h2 class="text-xl font-bold text-red-700 mb-4">پرسنل بدون فعالیت</h2>
+        <table class="min-w-full divide-y divide-blue-200 text-sm text-center">
+            <thead class="bg-red-100 text-red-800 font-semibold">
                 <tr>
-                    <td style="color: red">{{ user }}</td>
-                    <td style="color: red">{{ user.last_name }}</td>
-                    <td style="color: red">{{ user.possit }}</td>
-                    <td style="color: red"><a href="{% url 'Attendance:result_list' user.id month year %}">بیشتر</a>
-                    <td><a href="{% url 'managing:delete_user_for_staff' user.id month year %}">حذف یوزر</a></td>
-                    <td><a href="{% url 'managing:update_user_for_staff' user.id %}"> آپدیت</a></td>
-
+                    <th>نام کاربری</th>
+                    <th>نام خانوادگی</th>
+                    <th>سمت</th>
+                    <th>جزئیات</th>
+                    <th>حذف</th>
+                    <th>آپدیت</th>
                 </tr>
-            {% endfor %}
-
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for user in non_progress_users %}
+                <tr class="hover:bg-red-50">
+                    <td>{{ user }}</td>
+                    <td>{{ user.last_name }}</td>
+                    <td>{{ user.possit }}</td>
+                    <td><a class="text-blue-600 hover:underline" href="{% url 'Attendance:result_list' user.id month year %}">بیشتر</a></td>
+                    <td><a class="text-red-600 hover:underline" href="{% url 'managing:delete_user_for_staff' user.id month year %}">حذف</a></td>
+                    <td><a class="text-green-600 hover:underline" href="{% url 'managing:update_user_for_staff' user.id %}">آپدیت</a></td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
+    </div>
     {% endif %}
 
+    <div class="flex flex-wrap justify-center gap-4 mt-8">
+        <a href="{% url 'Attendance:redirected_view' %}" class="btn bg-blue-500 hover:bg-blue-600 text-white">خانه</a>
+        <form method="POST" action="{% url 'Attendance:start' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn bg-green-500 hover:bg-green-600 text-white">شروع</button>
+        </form>
+        <a href="{% url 'managing:download_excel' user.id month year %}" class="btn bg-gray-500 hover:bg-gray-600 text-white">اکسل</a>
+        <a href="{% url 'managing:setting_app' %}" target="_blank" class="btn bg-indigo-500 hover:bg-indigo-600 text-white">تنظیمات</a>
+    </div>
 
-
-    <form method="POST" action="{% url 'Attendance:start' %}">
-        {% csrf_token %}
-        <a href="{% url 'Attendance:redirected_view' %}">
-            <button type="button">بازگشت به خانه</button>
-        </a>
-        <button type="submit">شروع</button>
-        <a href="{% url 'managing:download_excel' user.id month year %}">
-            <button type="button">مشاهده در اکسل</button>
-        </a>
-        <a href="{% url 'managing:setting_app' %}" target="_blank">
-                <button type="button">تنظیمات حضور غیاب</button>
-            </a>
-        <button type="submit">شروع</button>
-
-    </form>
-
-    <br>
-    <div class="month-navigation">
+    <div class="flex flex-wrap gap-2 justify-center mt-10">
         {% for month_num, month_name in months.items %}
             {% if month_num == month %}
-                <span class="btn btn-primary">{{ month_name }}</span>
+                <span class="btn bg-blue-700 text-white">{{ month_name }}</span>
             {% else %}
-                <a href="{% url 'managing:info_users' month_num year %}"
-                   class="btn btn-outline-primary">{{ month_name }}</a>
+                <a href="{% url 'managing:info_users' month_num year %}" class="btn btn-outline-primary">{{ month_name }}</a>
             {% endif %}
         {% endfor %}
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}
