@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     # 'django_recaptcha',
     'django.contrib.humanize',
     'jalali_date',
+    'widget_tweaks',
+
 
     #my_apps
     'home.apps.HomeConfig',

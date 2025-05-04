@@ -1,0 +1,35 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ورود / ثبت‌نام{% endblock %}</title>
+
+    <style>
+        @font-face {
+            font-family: 'Shabnam';
+            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
+        }
+
+        body {
+            font-family: 'Shabnam', sans-serif;
+            background-color: #f0f4f8;
+            direction: rtl;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <main class="flex items-center justify-center min-h-screen px-4">
+        {% block content %}
+        <!-- محتوای صفحات ورود و ثبت‌نام -->
+        {% endblock %}
+    </main>
+</body>
+</html>

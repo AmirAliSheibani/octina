@@ -1,69 +1,55 @@
+{% extends 'auth_form/auth_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود به سایت</title>
-    <link rel="stylesheet" href="{% static 'css/user-form2.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+{% load widget_tweaks %}
 
-    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet"/>
-    <style>
-        @font-face {
-            font-family: 'Shabnam';
-            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
-        }
+{% block title %}ورود به سایت{% endblock %}
 
-        body {
-            font-family: 'Vazir', sans-serif;
+{% block content %}
+<div class="max-w-md w-full bg-white p-6 rounded-2xl shadow-xl">
+    <h2 class="text-xl font-bold text-blue-600 text-center mb-6">ورود به حساب کاربری</h2>
 
-            text-align: right;
-        }
+    {% if messages %}
+        <ul class="bg-red-100 text-red-800 p-3 rounded-xl mb-4 text-sm">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-        .error-message {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="container">
-
-    <div class="wrapper">
-        <div class="title"><span>فرم ورود به سایت</span></div>
-        <form method="post">
-
-            {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
-            <div class="error-message">
-                {{ form.non_field_errors }}
-            </div>
-            <div class="row">
-                <i class="fas fa-user"></i>
-                {{ form.username }}
-            </div>
-            <div class="row">
-                <i class="fas fa-lock"></i>
-                {{ form.password }}
-            </div>
-            <div class="pass"><a href="{% url 'user:get_email_pass' %}">پسوردت رو فراموش کردی؟</a></div>
-            <div class="row button">
-                <input type="submit" value="ورود به سایت">
-            </div>
-            <div class="signup-link">عضو نشدی؟ <a href="{% url 'user:register' %}">الان عضو شو</a></div>
-            <div class="signup-link">برو به <a href="{% url 'home:home' %}">صفحه اصلی</a></div>
+    <form method="post" class="space-y-5">
         {% csrf_token %}
-        </form>
-    </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">نام کاربری</label>
+            {{ form.username|add_class:"w-full px-4 py-2 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-blue-400" }}
+            {% for error in form.username.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">رمز عبور</label>
+            {{ form.password|add_class:"w-full px-4 py-2 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-blue-400" }}
+            {% for error in form.password.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="text-sm text-right text-blue-500 hover:underline">
+            <a href="{% url 'user:get_email_pass' %}">رمز عبورت رو فراموش کردی؟</a>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-xl transition duration-200">
+            ورود
+        </button>
+
+        <div class="text-center text-sm text-gray-600 mt-4">
+            حساب نداری؟ <a href="{% url 'user:register' %}" class="text-blue-500 hover:underline">ثبت‌نام کن</a>
+        </div>
+        <div class="text-center text-sm text-gray-500 mt-2">
+            <a href="{% url 'home:home' %}" class="hover:underline text-blue-400">بازگشت به صفحه اصلی</a>
+        </div>
+    </form>
 </div>
-</body>
-</html>
+{% endblock %}
