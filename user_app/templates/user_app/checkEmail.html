@@ -1,46 +1,44 @@
+{% extends 'auth_form/auth_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<!-- Coding By CodingNepal - codingnepalweb.com -->
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>چک کردن ایمیل</title>
-    <link rel="stylesheet" href="{% static 'css/user-form.css' %}">
-      <style>
-    @font-face {
-            font-family: 'Shabnam';
-            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
-        }
-    body {
-        font-family: 'Vazir', sans-serif;
+{% load widget_tweaks %}
 
+{% block title %}تغییر رمز عبور{% endblock %}
 
-    }
+{% block content %}
+<div class="max-w-md w-full bg-white p-6 rounded-2xl shadow-xl">
+    <h2 class="text-xl font-bold text-blue-600 text-center mb-6">
+        تغییر رمز عبور
+    </h2>
 
-        .error-message {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-    </style>
-   </head>
-<body>
-  <div class="wrapper">
-    <h2> {{ request.user.email|truncatechars:7 }}  اعتبار سنجی ایمیل </h2>
-
-    <form method="post">
+    <form method="post" class="space-y-5">
         {% csrf_token %}
-    {{ form.code.errors }}
-      <div class="input-box">
-          {{ form.code }}
-      </div>
-      <div class="input-box button">
-        <input type="submit" value="برو">
-      </div>
-      <div class="text">
-      </div>
+
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <p class="text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">رمز عبور جدید</label>
+            {{ form.password|add_class:"w-full px-4 py-2 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-blue-400" }}
+            {% for error in form.password.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">تکرار رمز عبور</label>
+            {{ form.password2|add_class:"w-full px-4 py-2 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-blue-400" }}
+            {% for error in form.password2.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-xl transition duration-200">
+            تغییر رمز عبور
+        </button>
     </form>
-  </div>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -43,7 +43,12 @@ def email_form_context(request):
         return redirect(reverse("home:home"))
 
     user = request.user
-    email = request.session['send_email']
+    try:
+        email = request.session['send_email']
+    except KeyError:
+        request.session['send_email'] = user.email
+        email = request.session['send_email']
+
     current_time = timezone.now()
     two_minutes_ago = current_time - timezone.timedelta(minutes=2)
 
@@ -55,6 +60,8 @@ def email_form_context(request):
     except EmailCode.DoesNotExist:
         code = random.randint(1000, 9999)
         emailcode = EmailCode.objects.create(user=user, code=code)
+
+        print(emailcode.code)
 
         send_mail(
             subject=f'!{user.username}به اکتینا خوش آمدید ',

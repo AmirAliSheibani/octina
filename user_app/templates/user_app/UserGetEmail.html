@@ -1,60 +1,53 @@
+{% extends 'auth_form/auth_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>دریافت ایمیل</title>
-    <link rel="stylesheet" href="{% static 'css/user-form2.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+{% load widget_tweaks %}
 
-    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet"/>
-    <style>
-    @font-face {
-            font-family: 'Shabnam';
-            src: url('{% static 'fonts/Shabnam.ttf' %}') format('truetype');
-        }
-    body {
-        font-family: 'Vazir', sans-serif;
+{% block title %}دریافت ایمیل{% endblock %}
 
-        text-align: right;
-    }
+{% block content %}
+<div class="max-w-md w-full bg-white p-6 rounded-2xl shadow-xl">
+    <h2 class="text-xl font-bold text-blue-600 text-center mb-6">بازیابی حساب کاربری</h2>
 
-        .error-message {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
+    <form method="post" class="space-y-5">
+        {% csrf_token %}
 
-<div class="container">
-
-    <div class="wrapper">
-        <div class="title"><span>فرم دریافت ایمیل</span></div>
-        <form method="post">
-            {% csrf_token %}
-            <div class="error-message">
-                {{ form.non_field_errors }}
+        {% if form.non_field_errors %}
+            <div class="bg-red-100 text-red-800 p-3 rounded-xl text-sm">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
             </div>
-            <div class="row">
-                <i class="fas fa-user"></i>
-                {{ form.username }}
-            </div>
-            <div class="row">
-                <i class="fas fa-user"></i>
-                {{ form.email }}
-            </div>
+        {% endif %}
 
-            <div class="pass"><a href="{% url 'user:login' %}">پسوردت رو داری؟</a></div>
-            <div class="row button">
-                <input type="submit" value="برو">
-            </div>
-            <div class="signup-link">عضو نشدی؟ <a href="{% url 'user:register' %}">الان عضو شو</a></div>
-            <div class="signup-link">برو به <a href="{% url 'home:home' %}">صفحه اصلی</a></div>
-        </form>
-    </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">نام کاربری</label>
+            {{ form.username|add_class:"w-full px-4 py-2 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-blue-400" }}
+            {% for error in form.username.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">ایمیل</label>
+            {{ form.email|add_class:"w-full px-4 py-2 border border-gray-300 rounded-xl text-right focus:ring-2 focus:ring-blue-400" }}
+            {% for error in form.email.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <button type="submit"
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 rounded-xl transition duration-200">
+            ارسال
+        </button>
+
+        <div class="text-center text-sm text-gray-600 mt-4">
+            پسوردت رو پیدا کردی؟ <a href="{% url 'user:login' %}" class="text-blue-500 hover:underline">برگرد به ورود</a>
+        </div>
+
+        <div class="text-center text-sm text-gray-500 mt-2">
+            <a href="{% url 'user:register' %}" class="text-blue-500 hover:underline">ثبت‌نام</a> |
+            <a href="{% url 'home:home' %}" class="text-blue-500 hover:underline">صفحه اصلی</a>
+        </div>
+    </form>
 </div>
-</body>
-</html>
+{% endblock %}
