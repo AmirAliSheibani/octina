@@ -226,6 +226,9 @@ def start_attendance_view(request):
         defaults={'token': uuid.uuid4(), 'start': start, 'in_progress': True}
     )
 
+    if location and attendance_obj.confirmation is None:
+        return redirect(reverse('locations:get_user_location'))
+
     # اطلاعات شیفت کاری
     profile = Profile.objects.get(user=request.user)
     shiftwork = profile.profile_position.shift_work
@@ -235,8 +238,6 @@ def start_attendance_view(request):
     overtime = work_holi_day or not (
             current_shift.work_start_time < start < current_shift.work_end_time) if current_shift else True
 
-    if location and attendance_obj.confirmation is None:
-        return redirect(reverse('locations:get_user_location'))
 
     # تنظیم وضعیت حضور
     if created or not attendance_obj.in_progress:
