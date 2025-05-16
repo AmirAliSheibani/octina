@@ -1,7 +1,7 @@
 {% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-
+{% load jformat %}
 {% block content %}
 <div class="w-full max-w-6xl mx-auto px-4 mt-10 space-y-8">
 
@@ -31,10 +31,10 @@
                         <td class="px-4 py-3">
                             {% if request.user.is_staff %}
                                 <a href="{% url 'managing:absent_users_list' record.created_date %}" class="text-blue-600 hover:underline">
-                                    {{ record.created_date }}
+                                    {{ record.created_date|jformat:"%Y/%m/%d" }}
                                 </a>
                             {% else %}
-                                {{ record.created_date }}
+                                {{ record.created_date|jformat:"%Y/%m/%d" }}
                             {% endif %}
                         </td>
                         <td class="px-4 py-3">{{ record.absent_users.count }}</td>

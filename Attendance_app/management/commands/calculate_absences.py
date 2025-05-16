@@ -3,7 +3,7 @@ import jdatetime
 from django.contrib.auth import get_user_model
 from django.utils.timezone import now
 from django.core.management.base import BaseCommand
-from Attendance_app.models import AttendanceUser, AbsenceRecord, AbsenceWarning
+from Attendance_app.models import AttendanceUser, AttendanceStatus, AbsenceWarning
 
 User = get_user_model()
 
@@ -27,20 +27,18 @@ class Command(BaseCommand):
             # جدا کردن فقط IDها برای اضافه شدن به رکورد غیبت
             absent_user_ids = [user[0] for user in absent_users]
 
-            absent_record, created = AbsenceRecord.objects.get_or_create(created_date=today)
-            absent_record.absent_users.add(*absent_user_ids)
-            absent_record.save()
-            print(f'absent_record: {absent_record}')
-
             # بررسی تعداد غیبت‌ها در ماه جاری برای هر کاربر غایب
             current_month = today.month
             current_year = today.year
 
             for user_id, username in absent_users:
-                absence_count = AbsenceRecord.objects.filter(
-                    absent_users=user_id, month=current_month, year=current_year
-                ).count()
-
+                # ذخیره AttendanceStatus برای غیبت
+                AttendanceStatus.objects.create(
+                    user_id=user_id,
+                    status='absent',
+                    detail="غیبت کامل در روز کاری"
+                )
+                absence_count = AttendanceStatus.objects.filter(created_date=today).count()
                 if absence_count > 2:
                     message = f"شما بیش از 2 بار در این ماه غایب بوده‌اید! لطفاً علت را توضیح دهید."
                     AbsenceWarning.objects.create(user_id=user_id, message=message)

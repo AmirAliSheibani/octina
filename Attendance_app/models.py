@@ -72,7 +72,7 @@ class AttendanceStatus(models.Model):
     year = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.status} - {self.date}"
+        return f"{self.user.username} - {self.status} - {self.created_date}"
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Only set the month if the object is being created
