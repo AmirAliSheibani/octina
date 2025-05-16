@@ -15,7 +15,7 @@ from jalali_date import datetime2jalali
 
 from Attendance_app.forms import StaffCreateUser, ShiftWorkForm, PositionForm, ProfileForm, HolidayForm, VacationForm, \
     UpdateProfileForm
-from Attendance_app.models import AttendanceUser, AbsenceRecord
+from Attendance_app.models import AttendanceUser, AttendanceStatus
 from Attendance_app.mixin import CustomizedRquirementLogin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from pricing.models import Profile, User, CustomUser, Income, ShiftWork, Positions, Holidays, Vacation, \
@@ -182,7 +182,7 @@ def not_accepted_confirmation(request, pk):
 def absent_record_list_view(request, month, year):
     MONTH_NAMES = get_month_names()
     users = CustomUser.objects.filter(created_who=request.user)
-    Absences_users = AbsenceRecord.objects.filter(absent_users__in=users, month=month, year=year).distinct()
+    Absences_users = AttendanceStatus.objects.filter(user__in=users, month=month, year=year).distinct()
     print(Absences_users)
     return render(request, 'Attendance_app/absent_users_list.html',
                   {'absence_records': Absences_users, 'months': MONTH_NAMES, 'month': month, 'year': year})
@@ -190,11 +190,11 @@ def absent_record_list_view(request, month, year):
 
 def absent_record_detail_view(request,date):
     # users = CustomUser.objects.filter(created_who=request.user)
-    Absences_record = AbsenceRecord.objects.get(created_date=date)
-    absent_users = Absences_record.absent_users.filter(created_who=request.user)
+    Absences_record = AttendanceStatus.objects.filter(created_date=date, user__created_who=request.user)
+    # absent_users = Absences_record.user.filter(created_who=request.user)
     month, year = get_jalali_date()
     return render(request, 'Attendance_app/absent_users_detail.html',
-                  {'absent_users': absent_users, 'month': month,
+                  {'absent_users': Absences_record, 'month': month,
         'year': year,})
 
 
@@ -202,8 +202,8 @@ def manager_view_absences_for_user(request, user_id, month, year):
     user = get_object_or_404(CustomUser, id=user_id, created_who=request.user)
     MONTH_NAMES = get_month_names()
 
-    absence_records = AbsenceRecord.objects.filter(
-        absent_users=user, month=month, year=year
+    absence_records = AttendanceStatus.objects.filter(
+        user=user, month=month, year=year
     ).order_by('created_date')
 
     for record in absence_records:

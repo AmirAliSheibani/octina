@@ -1,6 +1,6 @@
 from django.contrib import admin
 # from django.contrib.auth.models import User
-from .models import AttendanceUser, AbsenceRecord, AbsenceWarning
+from .models import AttendanceUser, AttendanceStatus, AbsenceWarning
 from pricing.models import CustomUser, Income, recalculate_income
 from decimal import Decimal
 
@@ -67,7 +67,7 @@ class AttendanceUserAdmin(admin.ModelAdmin):
         return qs
 
 
-class AbsenceRecordAdmin(admin.ModelAdmin):
+class AttendanceStatusAdmin(admin.ModelAdmin):
     list_display = ['created_date']
     ordering = ['-created_date']
 
@@ -78,6 +78,6 @@ class AbsenceWarningsAdmin(admin.ModelAdmin):
 
 admin.site.register(AttendanceUser, AttendanceUserAdmin)
 
-admin.site.register(AbsenceRecord, AbsenceRecordAdmin)
+admin.site.register(AttendanceStatus, AttendanceStatusAdmin)
 admin.site.register(AbsenceWarning, AbsenceWarningsAdmin)
 

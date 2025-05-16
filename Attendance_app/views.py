@@ -15,7 +15,7 @@ from jalali_date import datetime2jalali
 from django.utils.decorators import method_decorator
 from .forms import StaffCreateUser, ShiftWorkForm, PositionForm, ProfileForm, HolidayForm, VacationForm, \
     UpdateProfileForm
-from .models import AttendanceUser, AbsenceRecord, AbsenceWarning
+from .models import AttendanceUser, AttendanceStatus, AbsenceWarning
 from .mixin import CustomizedRquirementLogin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from pricing.models import Profile, User, CustomUser, Income, ShiftWork, Positions, Holidays, Vacation, \
@@ -490,8 +490,8 @@ def absent_record_user_list_view(request, month, year):
     user = request.user
     MONTH_NAMES = get_month_names()
 
-    absence_records = AbsenceRecord.objects.filter(
-        absent_users=user, month=month, year=year
+    absence_records = AttendanceStatus.objects.filter(
+        user=user, month=month, year=year
     ).order_by('created_date')
 
     for record in absence_records:
