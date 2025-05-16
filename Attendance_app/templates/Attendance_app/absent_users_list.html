@@ -26,18 +26,18 @@
                 </tr>
             </thead>
             <tbody>
-                {% for record in absence_records %}
+                {% for days in unique_days %}
                     <tr class="hover:bg-gray-50 transition border-t border-gray-200">
                         <td class="px-4 py-3">
                             {% if request.user.is_staff %}
-                                <a href="{% url 'managing:absent_users_list' record.created_date %}" class="text-blue-600 hover:underline">
-                                    {{ record.created_date|jformat:"%Y/%m/%d" }}
+                                <a href="{% url 'managing:absent_users_list' days %}" class="text-blue-600 hover:underline">
+                                    {{ days }}
                                 </a>
                             {% else %}
-                                {{ record.created_date|jformat:"%Y/%m/%d" }}
+                                {{ days }}
                             {% endif %}
                         </td>
-                        <td class="px-4 py-3">{{ record.absent_users.count }}</td>
+                        <td class="px-4 py-3">{{ records_count }}</td>
                         <td class="px-4 py-3">
                             <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg shadow">
                                 حذف

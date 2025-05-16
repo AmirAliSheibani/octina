@@ -182,11 +182,18 @@ def not_accepted_confirmation(request, pk):
 def absent_record_list_view(request, month, year):
     MONTH_NAMES = get_month_names()
     users = CustomUser.objects.filter(created_who=request.user)
-    Absences_users = AttendanceStatus.objects.filter(user__in=users, month=month, year=year).distinct()
-    print(Absences_users)
-    return render(request, 'Attendance_app/absent_users_list.html',
-                  {'absence_records': Absences_users, 'months': MONTH_NAMES, 'month': month, 'year': year})
 
+    # فیلتر رکوردهای اون ماه
+    records = AttendanceStatus.objects.filter(user__in=users, month=month, year=year)
+    unique_days = records.order_by('created_date').values_list('created_date', flat=True).distinct()
+
+    return render(request, 'Attendance_app/absent_users_list.html', {
+        'unique_days': unique_days,
+        'months': MONTH_NAMES,
+        'records_count' : records.count(),
+        'month': month,
+        'year': year,
+    })
 
 def absent_record_detail_view(request,date):
     # users = CustomUser.objects.filter(created_who=request.user)

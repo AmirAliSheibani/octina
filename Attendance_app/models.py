@@ -67,7 +67,7 @@ class AttendanceStatus(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     detail = models.TextField(blank=True, null=True)  # مثلاً مدت تاخیر، یا توضیحی برای اضافه‌کاری
-    created_date = jmodels.jDateTimeField(auto_now_add=True)
+    created_date = jmodels.jDateField(auto_now_add=True)
     month = models.PositiveSmallIntegerField(null=True)
     year = models.PositiveSmallIntegerField(null=True)
 
