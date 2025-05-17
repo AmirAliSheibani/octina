@@ -195,6 +195,7 @@ def absent_record_list_view(request, month, year):
         'year': year,
     })
 
+
 def absent_record_detail_view(request,date):
     # users = CustomUser.objects.filter(created_who=request.user)
     Absences_record = AttendanceStatus.objects.filter(created_date=date, user__created_who=request.user)

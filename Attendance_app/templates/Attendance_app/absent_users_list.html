@@ -31,10 +31,10 @@
                         <td class="px-4 py-3">
                             {% if request.user.is_staff %}
                                 <a href="{% url 'managing:absent_users_list' days %}" class="text-blue-600 hover:underline">
-                                    {{ days }}
+                                    {{ days|jformat:"%Y/%m/%d" }}
                                 </a>
                             {% else %}
-                                {{ days }}
+                                {{ days|jformat:"%Y/%m/%d" }}
                             {% endif %}
                         </td>
                         <td class="px-4 py-3">{{ records_count }}</td>
