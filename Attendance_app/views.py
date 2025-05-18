@@ -42,8 +42,7 @@ from django.utils import timezone
 from django.db.models import Q
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
-import re
-
+from django.core.paginator import Paginator
 
 @subscription_required
 @profile_required
@@ -464,13 +463,20 @@ def personal_info(request):
 
 
 def user_warnings_view(request):
-    warnings = AbsenceWarning.objects.filter(user=request.user, is_seen=False)
+    warnings = AbsenceWarning.objects.filter(user=request.user, is_seen=False).order_by('-created_at')
     return render(request, 'Attendance_app/user_warnings.html', {'warnings': warnings})
 
 
 def all_user_warnings_view(request):
-    warnings = AbsenceWarning.objects.filter(user=request.user)
-    return render(request, 'Attendance_app/all_user_warnings.html', {'warnings': warnings})
+    warnings_list = AbsenceWarning.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(warnings_list, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'Attendance_app/all_user_warnings.html', {
+        'page_obj': page_obj,
+        'warnings': page_obj.object_list,
+    })
 
 
 def delete_user_warning(request, warning_id):

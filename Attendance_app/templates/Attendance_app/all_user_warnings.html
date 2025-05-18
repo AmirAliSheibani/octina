@@ -2,47 +2,107 @@
 {% load static %}
 
 {% block content %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
-<link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
-{% if warnings %}
     <div class="w-full max-w-4xl mx-auto mt-6 space-y-4">
-        {% for warning in warnings %}
-            <div class="bg-blue-50 border border-blue-200 shadow-lg rounded-2xl p-5 space-y-4">
-                <div class="flex flex-col md:flex-row md:items-center justify-between">
-                    <div class="text-blue-900 text-sm md:text-base font-medium leading-relaxed">
-                        {{ warning.message }}
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
-                        {% if warning.is_seen %}
-                            <form action="{% url 'Attendance:delete_user_warning' warning.id %}" method="POST">
+
+        {% if warnings %}
+            {% for warning in warnings %}
+                <div class="bg-blue-50 border border-blue-200 shadow-lg rounded-2xl p-5 space-y-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between">
+                        <div class="text-blue-900 text-sm md:text-base font-medium leading-relaxed">
+                            {{ warning.message }}
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+                            {% if warning.is_seen %}
+                                <form action="{% url 'Attendance:delete_user_warning' warning.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn bg-red-500 hover:bg-red-600 text-white">حذف
+                                    </button>
+                                </form>
+                            {% else %}
+                                <form action="{% url 'Attendance:mark_warning_seen' warning.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white">متوجه
+                                        شدم
+                                    </button>
+                                </form>
+                            {% endif %}
+                            <form action="{% url 'managing:absent_users_list' warning.created_at %}" method="POST">
                                 {% csrf_token %}
-                                <button type="submit" class="btn bg-red-500 hover:bg-red-600 text-white">
-                                    حذف
+                                <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white">مشاهده
+                                    جزئیات
                                 </button>
                             </form>
-                        {% else %}
-                            <form action="{% url 'Attendance:mark_warning_seen' warning.id %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white">
-                                    متوجه شدم
-                                </button>
-                            </form>
-                        {% endif %}
-                        <form action="{% url 'managing:absent_users_list' warning.created_at %}" method="POST">
-                            {% csrf_token %}
-                            <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white">
-                                مشاهده جزئیات
-                            </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            <div class="flex flex-wrap justify-center gap-2 mt-8">
+
+                {% with current=page_obj.number total=page_obj.paginator.num_pages %}
+
+                    {# صفحه اول #}
+                    {% if current == 1 %}
+                        <span class="px-4 py-2 bg-blue-600 text-white rounded-xl shadow">1</span>
+                    {% else %}
+                        <a href="?page=1"
+                           class="px-4 py-2 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl shadow transition">1</a>
+                    {% endif %}
+
+                    {# ... بعد از صفحه اول اگر فاصله زیاد بود #}
+                    {% if current > 3 %}
+                        <span class="px-3 text-gray-400">...</span>
+                    {% endif %}
+
+                    {# صفحه قبل فعلی #}
+                    {% if current|add:"-1" > 1 %}
+                        <a href="?page={{ current|add:"-1" }}"
+                           class="px-4 py-2 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl shadow transition">{{ current|add:"-1" }}</a>
+                    {% endif %}
+
+                    {# صفحه فعلی #}
+                    {% if current != 1 and current != total %}
+                        <span class="px-4 py-2 bg-blue-600 text-white rounded-xl shadow">{{ current }}</span>
+                    {% endif %}
+
+                    {# صفحه بعد فعلی #}
+                    {% if current|add:"1" < total %}
+                        <a href="?page={{ current|add:"1" }}"
+                           class="px-4 py-2 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl shadow transition">{{ current|add:"1" }}</a>
+                    {% endif %}
+
+                    {# ... قبل از آخر اگر فاصله زیاد بود #}
+                    {% if current < total|add:"-2" %}
+                        <span class="px-3 text-gray-400">...</span>
+                    {% endif %}
+
+                    {# صفحه آخر #}
+                    {% if total > 1 %}
+                        {% if current == total %}
+                            <span class="px-4 py-2 bg-blue-600 text-white rounded-xl shadow">{{ total }}</span>
+                        {% else %}
+                            <a href="?page={{ total }}"
+                               class="px-4 py-2 bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 rounded-xl shadow transition">{{ total }}</a>
+                        {% endif %}
+                    {% endif %}
+
+                {% endwith %}
             </div>
-        {% endfor %}
+
+
+
+
+
+
+
+        {% else %}
+            <div class="max-w-4xl mx-auto mt-10 text-center text-gray-600 text-sm">
+                هیچ هشداری برای شما ثبت نشده است.
+            </div>
+        {% endif %}
+
     </div>
-{% else %}
-    <div class="max-w-4xl mx-auto mt-10 text-center text-gray-600 text-sm">
-        هیچ هشداری برای شما ثبت نشده است.
-    </div>
-{% endif %}
 {% endblock %}
