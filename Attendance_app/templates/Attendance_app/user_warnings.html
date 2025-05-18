@@ -15,13 +15,15 @@
                     <div class="flex flex-col sm:flex-row gap-3">
                         <form action="{% url 'Attendance:mark_warning_seen' warning.id %}" method="POST">
                             {% csrf_token %}
-                            <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition duration-200">
+                            <button type="submit"
+                                    class="btn bg-blue-600 hover:bg-blue-700 text-white">
                                 متوجه شدم
                             </button>
                         </form>
                         <form action="{% url 'managing:absent_users_list' warning.created_at %}" method="POST">
                             {% csrf_token %}
-                            <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md transition duration-200">
+                            <button type="submit"
+                                    class="btn bg-indigo-600 hover:bg-indigo-700 text-white">
                                 مشاهده جزئیات
                             </button>
                         </form>
@@ -32,12 +34,81 @@
     </div>
 {% endif %}
 
+<!-- دکمه مشاهده همه پیام‌ها -->
 <div class="w-full max-w-4xl mx-auto mt-10 text-center">
     <form action="{% url 'Attendance:all_user_warnings_view' %}" method="POST">
         {% csrf_token %}
-        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-2xl shadow-xl transition-all duration-300">
+        <button type="submit"
+                class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-2xl shadow-xl transition-all duration-300">
             مشاهده‌ی همه‌ی پیام‌ها
         </button>
     </form>
 </div>
+
+<!-- pagination -->
+{% if page_obj.has_other_pages %}
+    <div class="flex flex-wrap justify-center gap-2 mt-8">
+
+        {% with current=page_obj.number total=page_obj.paginator.num_pages %}
+            {# صفحه اول #}
+            {% if current == 1 %}
+                <span class="bg-blue-600 text-white px-4 py-2 rounded-xl shadow">1</span>
+                {% if total >= 2 %}
+                    <a href="?page=2"
+                       class="bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-xl shadow transition">
+                        2
+                    </a>
+                {% endif %}
+                {% if total >= 3 %}
+                    <a href="?page=3"
+                       class="bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-xl shadow transition">
+                        3
+                    </a>
+                {% endif %}
+                {% if total > 4 %}
+                    <span class="px-3 text-gray-400">...</span>
+                {% endif %}
+            {% else %}
+
+                {# لینک به صفحه اول #}
+                <a href="?page=1"
+                   class="bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-xl shadow transition">
+                    1
+                </a>
+
+                {% if current > 3 %}
+                    <span class="px-3 text-gray-400">...</span>
+                {% endif %}
+
+                {# صفحه قبل #}
+                {% if current|add:"-1" > 1 %}
+                    <a href="?page={{ current|add:"-1" }}"
+                       class="bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-xl shadow transition">
+                        {{ current|add:"-1" }}
+                    </a>
+                {% endif %}
+
+                {# صفحه فعلی #}
+                <span class="bg-blue-600 text-white px-4 py-2 rounded-xl shadow">{{ current }}</span>
+
+                {# صفحه بعد #}
+                {% if current|add:"1" < total %}
+                    <a href="?page={{ current|add:"1" }}"
+                       class="bg-white border border-blue-300 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-xl shadow transition">
+                        {{ current|add:"1" }}
+                    </a>
+                {% endif %}
+
+                {% if current < total|add:"-2" %}
+                    <span class="px-3 text-gray-400">...</span>
+                {% endif %}
+            {% endif %}
+
+        {% endwith %}
+    </div>
+{% endif %}
+
+
+
+
 {% endblock %}

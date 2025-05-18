@@ -464,7 +464,13 @@ def personal_info(request):
 
 def user_warnings_view(request):
     warnings = AbsenceWarning.objects.filter(user=request.user, is_seen=False).order_by('-created_at')
-    return render(request, 'Attendance_app/user_warnings.html', {'warnings': warnings})
+    paginator = Paginator(warnings, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'Attendance_app/user_warnings.html', {
+        'page_obj': page_obj,
+        'warnings': page_obj.object_list,
+    })
 
 
 def all_user_warnings_view(request):
