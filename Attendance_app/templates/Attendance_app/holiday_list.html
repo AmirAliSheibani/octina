@@ -3,12 +3,12 @@
 {% load humanize %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto mt-10 px-6 py-8 bg-white shadow-xl rounded-xl border border-blue-100">
-    <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">لیست روزهای تعطیل</h1>
+    <div class="max-w-5xl mx-auto mt-10 px-6 py-8 bg-white shadow-xl rounded-xl border border-blue-100">
+        <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">لیست روزهای تعطیل</h1>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-blue-100 text-center text-sm">
-            <thead class="bg-blue-100 text-blue-900 font-semibold">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-blue-100 text-center text-sm">
+                <thead class="bg-blue-100 text-blue-900 font-semibold">
                 <tr>
                     <th class="px-4 py-2">تاریخ</th>
                     <th class="px-4 py-2">علت</th>
@@ -16,35 +16,32 @@
                         <th class="px-4 py-2">عملیات</th>
                     {% endif %}
                 </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-blue-50">
+                </thead>
+                <tbody class="bg-white divide-y divide-blue-50">
                 {% for holiday in holidays %}
-                    <tr class="hover:bg-blue-50 cursor-pointer" onclick="window.location.href='{% url 'managing:update_holiday' holiday.id %}'">
+                    <tr class="hover:bg-blue-50 cursor-pointer"
+                        onclick="window.location.href='{% url 'managing:update_holiday' holiday.id %}'">
                         <td class="px-4 py-2">{{ holiday.date }}</td>
                         <td class="px-4 py-2">{{ holiday.name }}</td>
                         {% if request.user.is_staff %}
                             <td class="px-4 py-2">
-                                <a href="{% url 'managing:delete_holiday' holiday.id %}" class="text-red-600 hover:underline">حذف</a>
+                                <a href="{% url 'managing:delete_holiday' holiday.id %}"
+                                   class="text-red-600 hover:underline">حذف</a>
                             </td>
                         {% endif %}
                     </tr>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
+        </div>
 
-    <div class="mt-8 flex flex-wrap justify-center gap-4">
-        {% if request.user.is_staff %}
-            <a href="{% url 'managing:setting_app' %}" class="btn">
-                منوی تنظیمات
-            </a>
-        {% endif %}
-        <a href="{% url 'Attendance:redirected_view' %}" class="btn">
-            برگشت به خانه
-        </a>
-        <a href="{% url 'managing:create_holiday' %}" class="add-btn">
-            ساخت روز تعطیل
-        </a>
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+            {% if request.user.is_staff %}
+
+                <a href="{% url 'managing:setting_app' %}" class="btn">⚙️ منوی تنظیمات</a>
+            {% endif %}
+            <a href="{% url 'Attendance:redirected_view' %}" class="btn">🏠 برگشت به خانه</a>
+            <a href="{% url 'managing:create_holiday' %}" class="add-btn">➕ ساخت روز تعطیل</a>
+        </div>
     </div>
-</div>
 {% endblock %}
