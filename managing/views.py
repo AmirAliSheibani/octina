@@ -213,6 +213,7 @@ def manager_view_absences_for_user(request, user_id, month, year):
     absence_records = AttendanceStatus.objects.filter(
         user=user, month=month, year=year
     ).order_by('created_date')
+    print(absence_records)
 
     for record in absence_records:
         record.jalali_str = format_jalali_date_with_weekday(record.created_date)
