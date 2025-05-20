@@ -38,7 +38,7 @@ class Command(BaseCommand):
                     status='absent',
                     detail="غیبت کامل در روز کاری"
                 )
-                absence_count = AttendanceStatus.objects.filter(created_date=current_month).count()
+                absence_count = AttendanceStatus.objects.filter(created_date=current_month, status='absent').count()
                 if absence_count > 2:
                     message = f"شما بیش از 2 بار در این ماه غایب بوده‌اید! لطفاً علت را توضیح دهید."
                     AbsenceWarning.objects.create(user_id=user_id, message=message)

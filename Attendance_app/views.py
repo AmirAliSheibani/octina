@@ -260,6 +260,11 @@ def start_attendance_view(request):
             attendance_obj.delay = delay_object
             delay_str = str(delay_time).split('.')[0]
             message = f'{request.user} به مدت {delay_str} تاخیر داشته است!'
+            AttendanceStatus.objects.create(
+                user_id=request.user.id,
+                status='delay',
+                detail="تاخیر در روز کاری"
+            )
             AbsenceWarning.objects.create(user_id=request.user.id , message=message)
             AbsenceWarning.objects.create(user_id=request.user.created_who.id, message=message)
         if attendance_obj.job_time >= current_shift.required_time:
