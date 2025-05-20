@@ -28,12 +28,14 @@
                                     </button>
                                 </form>
                             {% endif %}
-                            <form action="{% url 'managing:absent_users_list' warning.created_at %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white">مشاهده
-                                    جزئیات
-                                </button>
-                            </form>
+                        {% if warnings.related_status.status != 'absent' %}
+                                <a href="{% url 'managing:absent_users_list' warning.created_at %}"
+                                   class="btn bg-indigo-600 hover:bg-indigo-700 text-white">مشاهده جزئیات</a>
+
+                            {% else %}
+                                <a href="{% url 'Attendance:result_list' request.user.id month year %}"
+                                   class="btn bg-indigo-600 hover:bg-indigo-700 text-white">مشاهده جزئیات</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

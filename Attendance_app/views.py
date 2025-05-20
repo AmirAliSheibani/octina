@@ -44,6 +44,7 @@ from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
+
 @subscription_required
 @profile_required
 def restricted_view(request, *args, **kwargs):
@@ -237,7 +238,6 @@ def start_attendance_view(request):
     overtime = work_holi_day or not (
             current_shift.work_start_time < start < current_shift.work_end_time) if current_shift else True
 
-
     # تنظیم وضعیت حضور
     if created or not attendance_obj.in_progress:
 
@@ -260,13 +260,15 @@ def start_attendance_view(request):
             attendance_obj.delay = delay_object
             delay_str = str(delay_time).split('.')[0]
             message = f'{request.user} به مدت {delay_str} تاخیر داشته است!'
-            AttendanceStatus.objects.create(
+            attendance_status = AttendanceStatus.objects.create(
                 user_id=request.user.id,
                 status='delay',
                 detail="تاخیر در روز کاری"
             )
-            AbsenceWarning.objects.create(user_id=request.user.id , message=message)
-            AbsenceWarning.objects.create(user_id=request.user.created_who.id, message=message)
+
+            AbsenceWarning.objects.create(user_id=request.user.id, message=message, related_status=attendance_status)
+            AbsenceWarning.objects.create(user_id=request.user.created_who.id, message=message,
+                                          related_status=attendance_status)
         if attendance_obj.job_time >= current_shift.required_time:
             attendance_obj.overtime_check = True
     elif overtime:
@@ -278,7 +280,7 @@ def start_attendance_view(request):
 
     return render(request, 'Attendance_app/start.html', {
         'started': attendance_obj.start, 'pk': attendance_obj.token, 'at': attendance_obj,
-        'work_in_holiday': work_holi_day, 'current_day': current_day, 'monthly': profile.profile_position.monthly
+        'work_in_holiday': work_holi_day, 'current_day': current_day, 'monthly': profile.profile_position.monthly,
     })
 
 
@@ -355,7 +357,7 @@ class ShowResult(TemplateView):
             'monthly': income.position.profile_position.monthly,
             'income': income,
             'inc': income.user_income if income.position.profile_position.monthly else round(
-                income.position.profile_position.position_income * attend.job_time.total_seconds() / 3600,4)
+                income.position.profile_position.position_income * attend.job_time.total_seconds() / 3600, 4)
         })
 
         return context
@@ -473,9 +475,10 @@ def user_warnings_view(request):
     paginator = Paginator(warnings, 12)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    month, year = get_jalali_date()
     return render(request, 'Attendance_app/user_warnings.html', {
         'page_obj': page_obj,
-        'warnings': page_obj.object_list,
+        'warnings': page_obj.object_list,'month': month, 'year': year
     })
 
 
@@ -485,9 +488,11 @@ def all_user_warnings_view(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
+    month, year = get_jalali_date()
+
     return render(request, 'Attendance_app/all_user_warnings.html', {
         'page_obj': page_obj,
-        'warnings': page_obj.object_list,
+        'warnings': page_obj.object_list, 'month': month, 'year': year
     })
 
 
