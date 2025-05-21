@@ -44,16 +44,21 @@
                     <th class="px-4 py-2">نام خانوادگی</th>
                     <th class="px-4 py-2">تاریخ</th>
                     <th class="px-4 py-2">علت</th>
+                    <th class="px-4 py-2">وضعیت</th>
                     <th class="px-4 py-2">حذف</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-blue-50">
                 {% for vac in vacation %}
-                <tr class="hover:bg-red-50">
+                <tr class="hover:bg-red-50 ">
                     <td class="px-4 py-2">{{ vac.user }}</td>
                     <td class="px-4 py-2">{{ vac.user.last_name }}</td>
                     <td class="px-4 py-2">{{ vac.date }}</td>
                     <td class="px-4 py-2">{{ vac.reason }}</td>
+                    <td class="px-4 py-2">{% if vac.check_by_employer %}
+                        تایید شده
+                    	{% else %} <a href="{% url 'managing:accepted_vacation' vac.id %}" class=" text-blue-600">تایید</a>
+                    {% endif %}   </td>
                     <td class="px-4 py-2">
                         <a href="{% url 'managing:not_accepted_vacation' vac.id %}" class="text-red-600 hover:underline">حذف</a>
                     </td>
