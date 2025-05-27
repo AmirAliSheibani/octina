@@ -298,7 +298,11 @@ def create_shift_work(request):
 
 def delete_shift_work(request, pk):
     shift = ShiftWork.objects.get(id=pk)
+    related_positions = list(shift.Shift_work.all()) 
     shift.delete()
+    for position in related_positions:
+        if position.shift_work.count() == 0:
+            position.delete()
     return redirect(reverse('managing:list_shift_work'))
 
 
