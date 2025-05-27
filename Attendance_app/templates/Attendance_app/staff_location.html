@@ -7,7 +7,49 @@
 <html>
 <head>
     <style>
+        /**
+         * @license
+         * Copyright 2019 Google LLC. All Rights Reserved.
+         * SPDX-License-Identifier: Apache-2.0
+         */
+        /**
+         * Always set the map height explicitly to define the size of the div element
+         * that contains the map.
+         */
+        #map {
+            height: 100%;
+        }
 
+        /* Optional: Makes the sample page fill the window. */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .custom-map-control-button {
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 30px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .custom-map-control-button:hover {
+            background-color: #0056b3;
+        }
+
+        #submitLocationButton {
+            position: fixed;
+            top: 10px;
+            left: 25%;
+            transform: translateX(-50%);
+            z-index: 1;
+            display: none;
+        }
     </style>
     <title>دریافت لوکیشن محل کار</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
@@ -33,25 +75,25 @@
 
     function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
-        {% if location %}
-        	center: {lat: {{ location.latitude }}, lng: {{ location.longitude }}},
-            zoom: 18,
+            {% if location %}
+                center: {lat: {{ location.latitude }}, lng: {{ location.longitude }}},
+                zoom: 18,
             {% else %}
-            center: {lat: 32.4279, lng: 53.6880},
-            zoom: 6,
+                center: {lat: 32.4279, lng: 53.6880},
+                zoom: 6,
             {% endif %}
         });
 
 
         infoWindow = new google.maps.InfoWindow();
-            {% if location %}
-        const locationLatLng = { lat: {{ location.latitude }}, lng: {{ location.longitude }} };
-        infoWindow.setPosition(locationLatLng);
-        infoWindow.setContent("مکان ثبت شده");
-        infoWindow.open(map);
-        map.setCenter(locationLatLng);
-        map.setZoom(18);
-    {% endif %}
+        {% if location %}
+            const locationLatLng = {lat: {{ location.latitude }}, lng: {{ location.longitude }}};
+            infoWindow.setPosition(locationLatLng);
+            infoWindow.setContent("مکان ثبت شده");
+            infoWindow.open(map);
+            map.setCenter(locationLatLng);
+            map.setZoom(18);
+        {% endif %}
 
         // Add a click event listener to the map
         map.addListener("click", (event) => {

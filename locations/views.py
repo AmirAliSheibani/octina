@@ -14,6 +14,8 @@ from .models import Location
 
 
 def get_staff_location(request):
+    # if not request.user.is_staff:
+    #     return HttpResponseNotAllowed(['GET', 'POST'])
     try:
         location = Location.objects.get(created_by=request.user, active=True)
     except:
