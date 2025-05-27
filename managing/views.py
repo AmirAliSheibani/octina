@@ -417,7 +417,7 @@ def staff_user_list(request, pk, month, year):
     if not request.user.is_superuser:
         users = CustomUser.objects.filter(created_who=request.user)
         # positions = Profile.objects.filter(created_by=request.user)
-        income = Income.objects.get(
+        income = Income.objects.filter(
             month=month,
             year=year,
             user__in=users
