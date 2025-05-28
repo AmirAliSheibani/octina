@@ -296,9 +296,13 @@ def create_shift_work(request):
     return render(request, 'Attendance_app/create_shift.html', {'form': form, 'all_days': all_days})
 
 
+# def check_deleting_shift_work(request, pk):
+#     shift = ShiftWork.objects.get(id=pk)
+
+
 def delete_shift_work(request, pk):
     shift = ShiftWork.objects.get(id=pk)
-    related_positions = list(shift.Shift_work.all()) 
+    related_positions = list(shift.Shift_work.all())
     shift.delete()
     for position in related_positions:
         if position.shift_work.count() == 0:

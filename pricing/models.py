@@ -111,6 +111,9 @@ class Positions(models.Model):
     monthly = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_Positions', blank=True,
                                    null=True)
+    is_active = models.BooleanField(default=True)
+    deactivation_reason = models.TextField(null=True, blank=True)
+    deactivated_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.positions
