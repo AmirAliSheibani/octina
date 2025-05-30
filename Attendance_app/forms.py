@@ -4,7 +4,8 @@ from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
 from pricing.models import CustomUser, Vacation, VacationType
-
+from datetime import datetime, date
+from django.core.exceptions import ValidationError
 # from django_recaptcha.fields import ReCaptchaField
 User = CustomUser
 
@@ -92,6 +93,19 @@ class ShiftWorkForm(forms.ModelForm):
         self.fields['work_days'].widget.attrs.update({
             'class': 'space-y-2 text-sm text-gray-800'  # کلاس کلی برای لیست چک‌باکس‌ها
         })
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start = cleaned_data.get('work_start_time')
+        end = cleaned_data.get('work_end_time')
+
+        if start and end:
+            print('from clean')
+            delta = datetime.combine(date.min, end) - datetime.combine(date.min, start)
+            if delta.total_seconds() <= 0:
+                raise ValidationError("مدت زمان شیفت کاری نباید منفی یا صفر باشد.")
+
+        return cleaned_data
 
 
 class PositionForm(forms.ModelForm):

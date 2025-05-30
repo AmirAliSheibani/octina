@@ -37,7 +37,6 @@ from django.db.models import Q
 from Attendance_app.decorators import check_progress, profile_required, subscription_required
 from django.db.models.functions import ExtractMonth, ExtractYear
 from django.db.models import F
-from django.db.models import Count
 from pricing.services.positions import deactivate_position
 
 
@@ -310,7 +309,6 @@ def delete_shift_work(request, pk):
         if position.shift_work.count() == 0:
             deactivate_position(position, 'بدون شیفت کاری')
     return redirect(reverse('managing:list_shift_work'))
-
 
 
 def update_shift_work(request, pk):
