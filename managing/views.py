@@ -546,9 +546,17 @@ def create_user_for_staff(request):
 
 def delete_user_for_staff(request, pk, mo, year):
     user = CustomUser.objects.get(id=pk)
-    user.delete()
+    if request.method == 'POST':
 
-    return redirect(reverse('managing:user_list', kwargs={'pk': pk, 'month': mo, 'year': year}))
+        user.delete()
+        return redirect(reverse('managing:user_list', kwargs={'pk': pk, 'month': mo, 'year': year}))
+
+    context = {
+        "object_type": "کاربر",
+        "object_name": user.username,
+        "cancel_url": reverse('managing:user_list', kwargs={'pk': pk, 'month': mo, 'year': year})
+    }
+    return render(request, 'Attendance_app/confirm_delete.html', context)
 
 
 def update_user_for_staff(request, pk):
@@ -620,8 +628,17 @@ def update_profile(request, pk):
 
 def delete_profile(request, pk):
     profile = Profile.objects.get(id=pk)
-    profile.delete()
-    return redirect(reverse('managing:list_profile'))
+    if request.method == 'POST':
+
+        profile.delete()
+        return redirect(reverse('managing:list_profile'))
+
+    context = {
+        "object_type": "پروفایل",
+        "object_name": profile,
+        "cancel_url": reverse('managing:list_profile')
+    }
+    return render(request, "Attendance_app/confirm_delete.html", context)
 
 
 def setting_app(request):
