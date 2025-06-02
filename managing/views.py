@@ -439,7 +439,7 @@ def update_holiday(request, pk):
         form = HolidayForm(request.POST, instance=holiday)
         if form.is_valid():
             form.save()
-            return redirect(reverse('managing:list_holidays'))
+            return redirect(reverse('Attendance:list_holidays'))
     else:
         form = HolidayForm(instance=holiday)
 

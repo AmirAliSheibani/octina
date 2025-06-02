@@ -1,0 +1,446 @@
+@font-face {
+    font-family: 'Shabnam';
+    src: url('../fonts/Shabnam.ttf') format('truetype');
+}
+
+body {
+    font-family: 'Shabnam', sans-serif;
+    height: 100%;
+    direction: rtl;
+    text-align: right;
+    background: #F3F3F3;
+}
+
+#working-hours {
+    font-weight: bold;
+
+}
+
+form {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.container {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 35px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-family: 'Shabnam', sans-serif;
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-family: 'Shabnam', sans-serif;
+    color: #555;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+p {
+    font-family: 'Shabnam', sans-serif;
+    color: #2e3133;
+}
+
+span {
+    font-family: 'Shabnam', sans-serif;
+    font-weight: bold;
+}
+
+button {
+    font-family: 'Shabnam', sans-serif;
+    background-color: #5356FF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    font-family: 'Shabnam', sans-serif;
+    border-collapse: collapse;
+    color: #333;
+    overflow-x: auto;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #0A6EBD;
+    color: #86cfda;
+    font-family: 'Shabnam', sans-serif;
+}
+
+/* Alternating Row Colors */
+tr:nth-child(even) {
+    background-color: #e1f5fe;
+}
+
+
+.month-navigation {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+}
+
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+
+.header {
+    background-color: #008DDA;
+    color: #e1f5fe;
+    overflow-x: auto;
+    padding: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.filter-form {
+    display: flex;
+    align-items: center;
+}
+
+.filter-form select {
+    margin-left: 8px;
+}
+
+.filter-form label {
+    color: inherit;
+    margin-right: 8px;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+
+.boxes {
+    display: flex;
+}
+
+.box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    margin: 10px;
+    flex: 1;
+}
+
+.green {
+    background-color: #96C291;
+    color: white;
+}
+
+.red {
+    background-color: #FFB7B7;
+    color: white;
+}
+
+.light-blue {
+    background-color: #4CB9E7;
+    color: #2196F3;
+}
+
+.box-text {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.box-count {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.refresh-button {
+    position: absolute;
+    top: 5px; /* فاصله بالا از نوار باکس */
+    left: 5px; /* فاصله چپ از نوار باکس */
+    width: 20px; /* عرض دکمه رفرش */
+    height: 20px; /* ارتفاع دکمه رفرش */
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    font-size: 14px; /* اندازه فونت دکمه رفرش */
+    transition: background-color 0.3s ease; /* انتقال آرام ترنزیشن رنگ زمینه */
+}
+
+.refresh-button:hover {
+    background-color: rgba(255, 255, 255, 0.5); /* رنگ بک‌گراند با کم رنگی هنگام هاور */
+}
+
+.time-field {
+    position: relative;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.time-field label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.time-field input[type="time"] {
+    width: 200px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f7f7f7;
+    color: #333;
+    font-size: 14px;
+}
+
+.time-field input[type="time"]:focus {
+    outline: none;
+    border-color: #66afe9;
+    box-shadow: 0 0 5px #66afe9;
+}
+
+.time-field::after {
+    content: "\f017";
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    font-family: 'Shabnam', sans-serif;
+    font-weight: 900;
+    font-size: 12px;
+    color: #aaa;
+}
+
+.work-days {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    font-family: 'Shabnam', sans-serif;
+    margin-bottom: 10px;
+}
+
+.work-days label {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.work-days input[type="checkbox"] {
+    margin-right: 5px;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.work-days label span {
+    margin-left: 5px;
+    font-weight: normal;
+    color: #555;
+    font-family: 'Shabnam', sans-serif;
+}
+
+
+.work-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.work-form .form-group {
+    margin-bottom: 10px;
+}
+
+.work-form label {
+    font-weight: bold;
+    margin-right: 5px;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.work-form input[type="time"],
+.work-form input[type="checkbox"] {
+    margin-right: 5px;
+    font-family: 'Shabnam', sans-serif;
+}
+
+/* Form field styles */
+.form-field {
+    margin-bottom: 20px;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.form-field label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #333;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.form-field select,
+.form-field input[type="text"],
+.form-field input[type="number"] {
+    width: 50%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.form-field select:focus,
+.form-field input[type="text"]:focus,
+.form-field input[type="number"]:focus {
+    border-color: #555;
+    font-family: 'Shabnam', sans-serif;
+}
+
+/* ManyToMany field styles */
+.form-field .m2m-select {
+    height: 200px;
+    overflow-y: auto;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.form-field .m2m-select option {
+    padding: 5px;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.form-textbox {
+    margin-bottom: 20px;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.form-textbox label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #333;
+    font-family: 'Shabnam', sans-serif;
+}
+
+.form-textbox select,
+.form-textbox input[type="text"],
+.form-textbox input[type="number"] {
+    width: 40%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+    font-family: 'Shabnam', sans-serif;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    font-family: 'Shabnam', sans-serif;
+    border-collapse: collapse;
+    color: #333;
+    overflow-x: auto;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #007bff;
+    font-weight: bold;
+    color: #fff;
+    font-family: 'Shabnam', sans-serif;
+}
+
+/* Alternating Row Colors */
+tr:nth-child(even) {
+    background-color: #e1f5fe;
+}
+
+.month-navigation {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+}
+
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+input[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}

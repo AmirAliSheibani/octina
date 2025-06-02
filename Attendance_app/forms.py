@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.admin.widgets import AdminDateWidget
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-
+from jalali_date.widgets import AdminJalaliDateWidget
 from pricing.models import CustomUser, Vacation, VacationType
 from datetime import datetime, date
 from django.core.exceptions import ValidationError
@@ -171,29 +171,23 @@ class UpdateProfileForm(forms.ModelForm):
         self.fields['profile_position'].queryset = Positions.objects.filter(created_by=request.user)
 
 
-from django import forms
-from jalali_date.fields import JalaliDateField, SplitJalaliDateTimeField
-from jalali_date.widgets import AdminJalaliDateWidget, AdminSplitJalaliDateTime
-
+# forms.py
+from django_jalali.forms.widgets import jDateInput
 
 class HolidayForm(forms.ModelForm):
     class Meta:
         model = Holidays
-        fields = ('name', 'date')
+        fields = ['name', 'date']
+        widgets = {
+            'date': jDateInput(attrs={
+                'class': 'mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-teal-500 focus:border-teal-500',
+            }),
+            'name': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-teal-500 focus:border-teal-500',
+                'placeholder': 'مثلاً: روز معلم',
+            }),
+        }
 
-    def __init__(self, *args, **kwargs):
-        super(HolidayForm, self).__init__(*args, **kwargs)
-
-        self.fields['date'] = JalaliDateField(
-            label='تاریخ',
-            widget=AdminJalaliDateWidget(attrs={
-                'class': 'p-2 border border-gray-300 rounded-xl w-full'
-            })
-        )
-
-        self.fields['name'].widget.attrs.update({
-            'class': 'p-2 border border-gray-300 rounded-xl w-full'
-        })
 
 
 class VacationForm(forms.ModelForm):

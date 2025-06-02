@@ -41,7 +41,7 @@ from decimal import Decimal
 
 
 class Holidays(models.Model):
-    date = jmodels.jDateTimeField(auto_created=True)
+    date = jmodels.jDateField()
     name = models.CharField(max_length=80, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_by_Holidays', blank=True,
                                    null=True)
