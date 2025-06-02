@@ -371,8 +371,15 @@ def create_position(request):
 
 def delete_position(request, pk):
     position = Positions.objects.get(id=pk)
-    position.delete()
-    return redirect(reverse('managing:list_position'))
+    if request.method == 'POST':
+        position.delete()
+        return redirect(reverse('managing:list_position'))
+    context = {
+        "object_type": "سمت",
+        "object_name": position,
+        "cancel_url": reverse('managing:list_position')
+    }
+    return render(request, 'Attendance_app/confirm_delete.html', context)
 
 
 def update_position(request, pk):
