@@ -418,8 +418,18 @@ def create_holiday(request):
 
 def delete_holiday(request, pk):
     holiday = Holidays.objects.get(id=pk)
-    holiday.delete()
-    return redirect(reverse('managing:list_holidays'))
+    if request.method == 'POST':
+
+        holiday.delete()
+        return redirect(reverse('Attendance:list_holidays'))
+    context = {
+        'object_type': "روز تعطیل",
+        'object_name': holiday.name,
+        'cancel_url': reverse('Attendance:list_holidays')
+    }
+    return render(request, 'Attendance_app/confirm_delete.html', context)
+
+
 
 
 def update_holiday(request, pk):
