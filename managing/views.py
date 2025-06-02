@@ -302,13 +302,22 @@ def create_shift_work(request):
 
 
 def delete_shift_work(request, pk):
-    shift = ShiftWork.objects.get(id=pk)
-    related_positions = list(shift.Shift_work.all())
-    shift.delete()
-    for position in related_positions:
-        if position.shift_work.count() == 0:
-            deactivate_position(position, 'بدون شیفت کاری')
-    return redirect(reverse('managing:list_shift_work'))
+    shift = get_object_or_404(ShiftWork, id=pk)
+    if request.method == 'POST':
+        related_positions = list(shift.Shift_work.all())
+        shift.delete()
+        for position in related_positions:
+            if position.shift_work.count() == 0:
+                deactivate_position(position, 'بدون شیفت کاری')
+        return redirect('managing:list_shift_work')
+
+    context = {
+        'object_type': 'شیفت کاری',
+        'object_name': shift.name,
+        'cancel_url': reverse('managing:list_shift_work')
+    }
+    return render(request, 'Attendance_app/confirm_delete.html', context)
+
 
 
 def update_shift_work(request, pk):

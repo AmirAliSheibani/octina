@@ -1,0 +1,16 @@
+<!-- templates/shared/confirm_delete.html -->
+{% extends "app_base/base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow">
+  <h2 class="text-lg font-semibold text-red-600">تأیید حذف</h2>
+  <p class="mt-2 text-gray-700">
+    آیا مطمئن هستید که می‌خواهید {{ object_type }} <strong>{{ object_name }}</strong> را حذف کنید؟
+  </p>
+
+  <form method="post" class="mt-4 flex justify-between">
+    {% csrf_token %}
+    <a href="{{ cancel_url }}" class="px-4 py-2 text-gray-500 hover:underline">انصراف</a>
+    <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">حذف</button>
+  </form>
+</div>
+{% endblock %}
