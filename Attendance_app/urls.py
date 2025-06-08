@@ -19,6 +19,6 @@ urlpatterns = [
     path('delete_user_warning/<int:warning_id>/', views.delete_user_warning, name='delete_user_warning'),
     path('warnings/seen/<int:warning_id>/', views.mark_warning_seen, name='mark_warning_seen'),
     path('absent_record_list/<int:month>/<int:year>/', views.absent_record_user_list_view, name='absent_record_list'),
-    path('', views.restricted_view, name='redirected_view')
-
+    path('', views.restricted_view, name='redirected_view'),
+    path('test-comma/', views.test_comma_view, name='test_comma'),
 ]

@@ -1,15 +1,15 @@
 {% extends 'app_base/base.html' %}
+{% load humanize %}
 {% load static %}
-
 {% block content %}
 
 
     <!-- اطلاعات کلی -->
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow space-y-4">
         <h2 class="text-lg font-semibold">درآمد ماه جاری:
-            <span class="text-green-600">{% if income %}{{ income }}{% else %}خالی{% endif %}</span>
+            <span class="text-green-600">{% if income %}{{ income_user_formatted }}{% else %}خالی{% endif %}</span>
         </h2>
-
+        <p>{{ 23232323|intcomma }}</p>
         {% if current_shift %}
         <div class="space-y-1">
             <p class="text-sm {% if late %}text-red-600{% endif %}">شروع شیفت امروز: {{ current_shift.work_start_time }}</p>

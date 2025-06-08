@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.humanize',
     'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -42,7 +43,6 @@ INSTALLED_APPS = [
     'tempus_dominus',
 
     # 'django_recaptcha',
-    'django.contrib.humanize',
     'django_jalali',
     'jalali_date',
     'widget_tweaks',

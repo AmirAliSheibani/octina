@@ -30,12 +30,15 @@ def calculate_income(income, job_time, overtime=None):
         # یوزر حقوق ساعتی دارد، پس حقوق عادی + اضافه‌کاری حساب شود
         hourly_income = income.position.profile_position.position_income * (job_time.total_seconds() / 3600)
         income.user_income += Decimal(hourly_income)
-
+        print(overtime)
         if overtime:
+            print('true')
             overtime_income = income.position.profile_position.overtime_position_income * (
                         overtime.total_seconds() / 3600)
             income.surplus += Decimal(overtime_income)
             income.user_income += Decimal(overtime_income)  # برای یوزرهای ساعتی، اضافه‌کاری هم به درآمد کل اضافه شود
+        else:
+            print('false')
 
     income.save()
 
@@ -100,13 +103,16 @@ def process_pricing(request, pk):
                 # فقط اضافه‌کاری حساب شود
                 # calculate_income(income, job_time)
             else:
+                print("حقوق عادی + اضافه‌کاری حساب شود")
                 # حقوق عادی + اضافه‌کاری حساب شود
                 calculate_income(income, job_time)
         else:
             # خارج از ساعت شیفت = اضافه‌کاری حساب شود
+            print("خارج از ساعت شیفت = اضافه‌کاری حساب شود")
             calculate_income(income, job_time, overtime=at.overtime_duration)
     else:
         # روز تعطیل = اضافه‌کاری حساب شود
+        print("روز تعطیل = اضافه‌کاری حساب شود")
         calculate_income(income, job_time,overtime=at.overtime_duration)
 
 

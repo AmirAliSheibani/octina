@@ -43,7 +43,8 @@ from django.db.models import Q
 from django.core.cache import cache
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-
+from django.utils import translation
+from django.contrib.humanize.templatetags.humanize import intcomma
 
 @subscription_required
 @profile_required
@@ -51,7 +52,7 @@ def restricted_view(request, *args, **kwargs):
     return redirect('Attendance:home')
 
 
-@check_progress  # home page
+@check_progress  # home_page
 def create_attendance_view(request):
     """ View for handling attendance and user progress. """
 
@@ -63,6 +64,10 @@ def create_attendance_view(request):
     # Get user's income (Optimized)
     income = Income.objects.filter(month=month, year=year, user=request.user).values_list('user_income',
                                                                                           flat=True).first()
+
+    with translation.override('en'):
+        income_user_formatted = intcomma(int(income)) if income else None
+
     warnings = AbsenceWarning.objects.filter(user=request.user, is_seen=False)
     if request.user.is_staff:
         location_exists = Location.objects.filter(created_by=request.user).exists()
@@ -79,6 +84,7 @@ def create_attendance_view(request):
         return render(request, 'Attendance_app/index.html', {
             'position': position,
             'income': income,
+            'income_user_formatted': income_user_formatted,
             'month': month,
             'year': year,
             'no_confirmation_users': progress_data['attendance_obj'],
@@ -101,6 +107,7 @@ def create_attendance_view(request):
     return render(request, 'Attendance_app/index.html', {
         'position': position,
         'income': income,
+        'income_user_formatted': income_user_formatted,
         'year': year,
         'month': month,
         'warnings': warnings,
@@ -526,3 +533,8 @@ def absent_record_user_list_view(request, month, year):
         'month': month,
         'year': year,
     })
+
+
+
+def test_comma_view(request):
+    return render(request, 'Attendance_app/test_humanize.html')
