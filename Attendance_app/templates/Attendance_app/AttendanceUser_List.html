@@ -2,7 +2,7 @@
 {% load static %}
 {% load jformat %}
 {% block content %}
-
+{% load filter_tag %}
 <div class="container mx-auto p-4 space-y-6">
 
     <div class="bg-white shadow-lg rounded-2xl p-6 space-y-4 border border-blue-200">
@@ -11,7 +11,7 @@
         <div class="text-blue-900 space-y-1">
             <h5 class="font-medium">میزان درآمد در این ماه:
                 <span class="font-bold text-green-700">
-                    {% if income %}{{ income.user_income }}{% else %}خالی{% endif %}
+                    {% if income %}{{ income.user_income|formatted_price }}{% else %}خالی{% endif %}
                 </span>
             </h5>
             <h5 class="font-medium">مجموع ساعت‌های کاری در این ماه:
@@ -42,7 +42,7 @@
                         <td class="p-3">{{ obj.end }}</td>
                         <td class="p-3">{{ job_time }}</td>
                         <td class="p-3">{{ obj.created_date|jformat:"%Y/%m/%d" }}</td>
-                        <td class="p-3 text-green-700">{{ inc }}</td>
+                        <td class="p-3 text-green-700">{{ inc|formatted_price }}</td>
                         <td class="p-3">
                             <a href="{% url 'Attendance:result_detail' user.id obj.id %}"
                                class="text-indigo-600 hover:text-indigo-800 underline">بیشتر</a>

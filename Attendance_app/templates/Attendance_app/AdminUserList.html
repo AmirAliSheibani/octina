@@ -1,7 +1,7 @@
 {% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-
+{% load filter_tag %}
 {% block content %}
     <body class="bg-blue-50 text-blue-900">
     <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
@@ -76,7 +76,7 @@
                         <td class="px-4 py-2">{{ user.last_name }}</td>
                         <td class="px-4 py-2">{{ user.possit }}</td>
                         <td class="px-4 py-2">{{ attendance.job_time|slice:":10" }}</td>
-                        <td class="px-4 py-2">{{ income.user_income }}</td>
+                        <td class="px-4 py-2">{{ income.user_income|formatted_price }}</td>
                         <td class="px-4 py-2"><a href="{% url 'Attendance:result_list' user.id month year %}"
                                                  class="text-blue-600 hover:underline">بیشتر</a></td>
                         <td class="px-4 py-2"><a href="{% url 'managing:delete_user_for_staff' user.id month year %}"

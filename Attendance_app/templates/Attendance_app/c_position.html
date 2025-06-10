@@ -1,7 +1,7 @@
 {% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-
+{% load filter_tag %}
 {% block content %}
 
     <div class="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl p-6 space-y-6">
@@ -30,7 +30,7 @@
                 <div>
                     <label class="block font-semibold mb-1 text-gray-700" for="{{ form.position_income.id_for_label }}">درآمد
                         پوزیشن (ماهانه یا ساعتی):</label>
-                    {{ form.position_income }}
+                    {{ form.position_income|formatted_price }}
                 </div>
 
                 <div>
@@ -49,7 +49,7 @@
                 <div>
                     <label class="block font-semibold mb-1 text-gray-700"
                            for="{{ form.overtime_position_income.id_for_label }}">درآمد اضافه‌کاری:</label>
-                    {{ form.overtime_position_income }}
+                    {{ form.overtime_position_income|formatted_price }}
                 </div>
 
                 <button type="submit"

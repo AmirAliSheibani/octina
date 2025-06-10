@@ -1,7 +1,7 @@
 {% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-
+{% load filter_tag %}
 {% block content %}
 <div class="p-4">
 
@@ -38,7 +38,7 @@
                             <td>{{ user.last_name }}</td>
                             <td>{{ user.possit }}</td>
                             <td>{{ user.user_attendance.last.job_time }}</td>
-                            <td>{{ user.user_incomes.last }}</td>
+                            <td>{{ user.user_incomes.last|formatted_price }}</td>
                             <td>{{ nonprogress.created_date|date:"Y/m/d" }}</td>
                             <td>
                                 <form method="POST" action="{% url 'managing:delete_none_progress' nonprogress.id month year %}">

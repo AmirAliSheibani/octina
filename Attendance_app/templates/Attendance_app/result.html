@@ -31,8 +31,8 @@
             <p><span class="text-gray-500">زمان خروج:</span> {{ end }}</p>
         </div>
         <div class="bg-green-50 p-4 rounded-xl shadow">
-            <p><span class="text-gray-500">درآمد ماه جاری:</span> <span class="text-green-700 font-bold">{{ income.user_income }}</span></p>
-            <p><span class="text-gray-500">درآمد اضافه‌کاری:</span> <span class="text-yellow-600 font-bold">{{ income.surplus }}</span></p>
+            <p><span class="text-gray-500">درآمد ماه جاری:</span> <span class="text-green-700 font-bold">{{ income.user_income|formatted_price }}</span></p>
+            <p><span class="text-gray-500">درآمد اضافه‌کاری:</span> <span class="text-yellow-600 font-bold">{{ income.surplus|formatted_price }}</span></p>
         </div>
         {% if not monthly %}
         <div class="bg-indigo-50 p-4 rounded-xl shadow">

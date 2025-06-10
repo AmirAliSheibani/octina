@@ -1,7 +1,7 @@
 {% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-
+{% load filter_tag %}
 {% block content %}
     <div class="max-w-6xl mx-auto px-4 py-10 bg-gradient-to-br from-white via-blue-50 to-white rounded-xl shadow-lg border border-blue-100">
         <h1 class="text-3xl font-bold text-center text-blue-700 mb-10">🌟 لیست سمت‌های کاری</h1>
@@ -25,8 +25,8 @@
                         <tr class="hover:bg-blue-50 transition cursor-pointer"
                             onclick="window.location.href='{% url 'managing:update_position' poss.id %}'">
                             <td class="px-6 py-4 font-semibold">{{ poss.positions }}</td>
-                            <td class="px-6 py-4">{{ poss.position_income }}</td>
-                            <td class="px-6 py-4">{{ poss.overtime_position_income }}</td>
+                            <td class="px-6 py-4">{{ poss.position_income|formatted_price }}</td>
+                            <td class="px-6 py-4">{{ poss.overtime_position_income|formatted_price }}</td>
                             <td class="px-6 py-4">
                                 {% for day in poss.work_days.all %}
                                     <span class="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full mr-1">{{ day }}</span>
@@ -62,8 +62,8 @@
                     <div class="bg-white border border-blue-100 rounded-xl shadow-sm p-4 cursor-pointer"
                          onclick="window.location.href='{% url 'managing:update_position' poss.id %}'">
                         <div class="text-lg font-bold text-blue-700">{{ poss.positions }}</div>
-                        <p class="mt-1">💰 درآمد: {{ poss.position_income }}</p>
-                        <p>⏱ اضافه‌کاری: {{ poss.overtime_position_income }}</p>
+                        <p class="mt-1">💰 درآمد: {{ poss.position_income|formatted_price }}</p>
+                        <p>⏱ اضافه‌کاری: {{ poss.overtime_position_income|formatted_price }}</p>
 
                         {% if poss.shift_work.all %}
                             <div class="mt-3">

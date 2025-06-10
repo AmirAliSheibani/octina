@@ -1,4 +1,5 @@
 {% load static %}
+{% load filter_tag %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,10 +27,10 @@
             <td>درآمد ( {% if position.monthly %} در ماه){% else %} بر ساعت{% endif %} )
 
                 <hr>
-                {{ position.position_income }}</td>
+                {{ position.position_income|formatted_price }}</td>
             <td>درآمد اضافه کاری (ساعتی)
                 <hr>
-                {{ position.overtime_position_income }}</td>
+                {{ position.overtime_position_income|formatted_price }}</td>
 
             </tr>
     {% for shift_work in position.shift_work.all %}
@@ -56,13 +57,13 @@
         <tr>
             <td>نام کاربری
                 <hr>
-                {{ income.user }}</td>
+                {{ income.user|formatted_price }}</td>
             <td>درآمد ماه جاری
                 <hr>
-                {{ income.user_income }}</td>
+                {{ income.user_|formatted_price }}</td>
             <td>درآمد اضافه کاری
                 <hr>
-                {{ income.surplus }}</td>
+                {{ income.surplus|formatted_price }}</td>
             <td>مجموع ساعت کاری
                 <hr>
                 {{ income.job_time }}</td>
