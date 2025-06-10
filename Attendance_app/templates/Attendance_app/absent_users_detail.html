@@ -1,7 +1,7 @@
 {% extends 'app_base/base.html' %}
 {% load static %}
 {% load humanize %}
-
+{% load filter_tag %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
@@ -36,7 +36,6 @@
                     <th class="px-4 py-3">گروه شغلی</th>
                     <th class="px-4 py-3">مجموع زمان کار</th>
                     <th class="px-4 py-3">مجموع درآمد</th>
-                    <th class="px-4 py-3">تاریخ ایجاد</th>
                     <th class="px-4 py-3">جزئیات</th>
                     <th class="px-4 py-3">حذف</th>
                 </tr>
@@ -44,14 +43,14 @@
             <tbody>
                 {% for user in absent_users %}
                     <tr class="hover:bg-gray-50 transition border-t border-gray-200">
-                        <td class="px-4 py-3">{{ user }}</td>
+                        <td class="px-4 py-3">{{ user }} </td>
+
                         <td class="px-4 py-3">{{ user.last_name }}</td>
                         <td class="px-4 py-3">{{ user.possit }}</td>
                         <td class="px-4 py-3">{{ user.user_attendance.last.job_time }}</td>
-                        <td class="px-4 py-3">{{ user.user_incomes.last }}</td>
-                        <td class="px-4 py-3">date</td>
+                        <td class="px-4 py-3">{{ user.user_incomes.last|formatted_price }}</td>
                         <td class="px-4 py-3">
-                            <a href="{% url 'managing:manager_user_absence_detail' user.id month year %}" class="text-indigo-600 hover:underline">
+                            <a href="{% url 'managing:manager_user_absence_detail' user.user_id month year %}" class="text-indigo-600 hover:underline">
                                 مشاهده
                             </a>
                         </td>
