@@ -28,9 +28,15 @@ class Command(BaseCommand):
             absent_user_ids = [user[0] for user in absent_users]
 
             # بررسی تعداد غیبت‌ها در ماه جاری برای هر کاربر غایب
-            current_month = today.month
-            current_year = today.year
-
+            start_of_month = today.replace(day=1)
+            end_of_month = start_of_month.replace(day=29)
+            try:
+                end_of_month = start_of_month.replace(day=31)
+            except ValueError:
+                try:
+                    end_of_month = start_of_month.replace(day=30)
+                except ValueError:
+                    end_of_month = start_of_month.replace(day=29)
             for user_id, username in absent_users:
                 # ذخیره AttendanceStatus برای غیبت
                 AttendanceStatus.objects.create(
@@ -38,7 +44,7 @@ class Command(BaseCommand):
                     status='absent',
                     detail="غیبت کامل در روز کاری"
                 )
-                absence_count = AttendanceStatus.objects.filter(created_date=current_month, status='absent').count()
+                absence_count = AttendanceStatus.objects.filter(created_date__range=(start_of_month, end_of_month), status='absent').count()
                 if absence_count > 2:
                     message = f"شما بیش از 2 بار در این ماه غایب بوده‌اید! لطفاً علت را توضیح دهید."
                     AbsenceWarning.objects.create(user_id=user_id, message=message)

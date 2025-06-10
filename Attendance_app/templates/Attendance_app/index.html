@@ -1,13 +1,14 @@
 {% extends 'app_base/base.html' %}
 {% load humanize %}
 {% load static %}
+{% load filter_tag %}
 {% block content %}
 
 
     <!-- اطلاعات کلی -->
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow space-y-4">
         <h2 class="text-lg font-semibold">درآمد ماه جاری:
-            <span class="text-green-600">{% if income %}{{ income_user_formatted }}{% else %}خالی{% endif %}</span>
+            <span class="text-green-600">{% if income %}{{ income|formatted_price }}{% else %}خالی{% endif %}</span>
         </h2>
         <p>{{ 23232323|intcomma }}</p>
         {% if current_shift %}
