@@ -10,7 +10,6 @@
         <h2 class="text-lg font-semibold">درآمد ماه جاری:
             <span class="text-green-600">{% if income %}{{ income|formatted_price }}{% else %}خالی{% endif %}</span>
         </h2>
-        <p>{{ 23232323|intcomma }}</p>
         {% if current_shift %}
         <div class="space-y-1">
             <p class="text-sm {% if late %}text-red-600{% endif %}">شروع شیفت امروز: {{ current_shift.work_start_time }}</p>
