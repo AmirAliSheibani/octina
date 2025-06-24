@@ -561,8 +561,10 @@ def delete_user_for_staff(request, pk, mo, year):
 
 def update_user_for_staff(request, pk):
     user = CustomUser.objects.get(id=pk)
-
-    profile = Profile.objects.get(user=user)
+    try:
+        profile = Profile.objects.get(user=user)
+    except Profile.DoesNotExist:
+        raise
     if request.method == 'POST':
         form = StaffCreateUser(request.POST, instance=user)
         if form.is_valid():

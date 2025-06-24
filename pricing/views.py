@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 
-from django.shortcuts import render, redirect
 from django.urls import reverse
 from Attendance_app.models import AttendanceUser
 from Attendance_app.utils import get_day_mapping

@@ -41,8 +41,7 @@ def process_user_location(request):
         # callculate the distance
         distance = geodesic((reference_latitude, reference_longitude), (latitude, longitude)).meters
 
-        date = datetime.now().date()
-        at = AttendanceUser.objects.get(user=user, created_date=date)
+        at = AttendanceUser.objects.get(user=user, in_progress=True)
         start = datetime.now().time()
         if distance < 50:
             print("موقعیت در فاصله کمتر از 50 متر است")
@@ -60,8 +59,7 @@ def process_user_location(request):
 
 def ignore_location(request):
     user = request.user
-    date = datetime.now().date()
-    at = AttendanceUser.objects.get(user=user, created_date=date)
+    at = AttendanceUser.objects.get(user=user, in_progress=True)
     start = datetime.now().time()
     at.confirmation = False
     at.start = start

@@ -53,7 +53,7 @@ def restricted_view(request, *args, **kwargs):
 @check_progress  # home_page
 def create_attendance_view(request):
     """ View for handling attendance and user progress. """
-
+    print('hi')
     position = Profile.objects.select_related('user').get(user=request.user)
     now = timezone.now()
     jalali_date = jdatetime.date.fromgregorian(date=now)
@@ -182,6 +182,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
 
 
 def result_detail(request, pk):
+
     attendance_obj = AttendanceUser.objects.get(id=pk)
 
     income, created = Income.objects.get_or_create(
@@ -220,12 +221,15 @@ def start_attendance_view(request):
     async_to_sync(get_channel_layer().group_send)(
         'group_name', {'type': 'send_user_id', 'user_id': request.user.id}
     )
-
-    # دریافت یا ایجاد رکورد حضور
-    attendance_obj, created = AttendanceUser.objects.get_or_create(
-        user=request.user, created_date=date,
-        defaults={'token': uuid.uuid4(), 'start': start, 'in_progress': True}
-    )
+    attendance_obj = AttendanceUser.objects.filter(user=request.user, in_progress=True).first()
+    if not attendance_obj:
+        # دریافت یا ایجاد رکورد حضور
+        attendance_obj, created = AttendanceUser.objects.get_or_create(
+            user=request.user, created_date=date,
+            defaults={'token': uuid.uuid4(), 'start': start, 'in_progress': True}
+        )
+    else:
+        created = False
 
     if location and attendance_obj.confirmation is None:
         return redirect(reverse('locations:get_user_location'))
@@ -310,9 +314,11 @@ def process_result_view(request, pk):
 
 @method_decorator(check_progress, name='dispatch')
 class ShowResult(TemplateView):
+
     template_name = 'Attendance_app/result.html'
 
     def get_context_data(self, **kwargs):
+        print('ShowResult')
         context = super().get_context_data(**kwargs)
         request = self.request
 
@@ -353,7 +359,7 @@ class ShowResult(TemplateView):
             defaults={'position': attend.user.possit, 'job_time': timedelta()}
         )
 
-        job_time_duration = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
+        # job_time_duration = datetime.combine(datetime.min, attend.end) - datetime.combine(datetime.min, attend.start)
         context.update({
             'monthly': income.position.profile_position.monthly,
             'income': income,

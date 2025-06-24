@@ -51,6 +51,8 @@ def profile_required(view_func):
 def check_progress(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
+        print(request)
+        print('checking progress')
         attendance_obj = AttendanceUser.objects.filter(user=request.user, in_progress=True).first()
         if attendance_obj:
             return redirect(reverse('Attendance:start'))

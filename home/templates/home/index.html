@@ -18,8 +18,10 @@
                                         <p>{{object.description}}
                                         </p>
                                         <div class="btn-box">
-                                            <a href="{% url 'home:slidermore' object.id %}" class="btn1">
-                                                Read More
+                                            <a href="{% if request.user.is_authenticated %}
+                                            	{% url 'Attendance:home' %}{% else %} {% url 'user:register' %}
+                                            {% endif %} " class="btn1">
+                                                شروع کنید
                                             </a>
                                         </div>
                                     </div>
