@@ -120,7 +120,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         """
         profile = attendance_obj.user.possit
         job_time_hours = attendance_obj.job_time.total_seconds() / 3600
-
+        print(attendance_obj.month, attendance_obj.year)
         income, created = Income.objects.get_or_create(
             month=attendance_obj.created_date.month,
             year=attendance_obj.created_date.year,
@@ -133,6 +133,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
                 "created_by": self.request.user.created_who
             }
         )
+
         return income
 
     def format_job_time(self, job_time_str):
@@ -163,6 +164,7 @@ class AttendanceListView(CustomizedRquirementLogin, ListView):
         context['user'] = user
         if attendances.exists():
             attendance_obj = attendances.first()
+            print(attendance_obj.month, attendance_obj.year)
             income = self.get_income_or_create(attendance_obj)
             position_income = income.position.profile_position.position_income
 

@@ -1,7 +1,6 @@
 {% load static %}
 
 
-
 <div class="hero_area">
 
     <div class="hero_bg_box">
@@ -43,29 +42,41 @@
                         <li class="nav-item {% if request.resolver_match.view_name == 'home:team' %}active{% endif %}">
                             <a class="nav-link" href="{% url 'home:team' %}">تیم</a>
                         </li>
-                    {% if request.user.is_authenticated %}
-                    	<li class="nav-item {% if request.resolver_match.view_name == 'user:logout' %}active{% endif %}">
-                            <a class="nav-link" href="{% url 'user:logout' %}"> <i class="fa fa-user" aria-hidden="true"></i> خروج از اکانت</a>
-                        </li>
+                        {% if request.user.is_authenticated %}
+                            <li class="nav-item {% if request.resolver_match.view_name == 'user:logout' %}active{% endif %}">
+                                <a class="nav-link" href="{% url 'user:logout' %}"> <i class="fa fa-user"
+                                                                                       aria-hidden="true"></i> خروج از
+                                    اکانت</a>
+                            </li>
                         {% else %}
-                         <li class="nav-item {% if request.resolver_match.view_name == 'user:login' %}active{% endif %}">
-                            <a class="nav-link" href="{% url 'user:login' %}"> <i class="fa fa-user" aria-hidden="true"></i> ورود به سایت</a>
-                        </li>
-                    {% endif %}
-                    {% if request.user.is_staff %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'Attendance:redirected_view' %}"> <i class="fa fa-user" aria-hidden="true"></i>اپلیکیشن ورود و خروج</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="/admin"> <i class="fa fa-user" aria-hidden="true"></i>ادمین پنل</a>
-                        </li>
- {% endif %}
-                    {% if not request.user.is_staff and request.user.created_who %}
+                            <li class="nav-item {% if request.resolver_match.view_name == 'user:login' %}active{% endif %}">
+                                <a class="nav-link" href="{% url 'user:login' %}"> <i class="fa fa-user"
+                                                                                      aria-hidden="true"></i> ورود به
+                                    سایت</a>
+                            </li>
+                        {% endif %}
+                        {% if request.user.is_staff %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'Attendance:redirected_view' %}"> <i class="fa fa-user"
+                                                                                                      aria-hidden="true"></i>اپلیکیشن
+                                    ورود و خروج</a>
+                            </li>
+                            {% if request.user.is_superuser %}
+                                <li class="nav-item">
+                                    <a class="nav-link" target="_blank" href="/admin"> <i class="fa fa-user"
+                                                                                          aria-hidden="true"></i>ادمین
+                                        پنل</a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                        {% if not request.user.is_staff and request.user.created_who %}
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'Attendance:home' %}"> <i class="fa fa-user" aria-hidden="true"></i>اپلیکیشن ورود و خروج</a>
-                        </li>
-                     {% endif %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'Attendance:home' %}"> <i class="fa fa-user"
+                                                                                           aria-hidden="true"></i>اپلیکیشن
+                                    ورود و خروج</a>
+                            </li>
+                        {% endif %}
                         <form class="form-inline">
                             <button class="btn  my-2 my-sm-0 nav_search-btn" type="submit">
                                 <i class="fa fa-search" aria-hidden="true"></i>
