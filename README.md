@@ -451,18 +451,6 @@ project/
 
 ---
 
-## Screenshots
-
-Add project screenshots here:
-
-* dashboard
-* attendance start page
-* location verification page
-* admin user list
-* payroll report
-* Excel export preview
-
----
 
 ## License
 
