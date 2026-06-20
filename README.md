@@ -398,7 +398,7 @@ Typical rules:
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/octina.git
+git clone https://github.com/AmirAliSheibani/octina.git
 cd octina
 
 python -m venv venv
@@ -423,12 +423,6 @@ DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 ```
 
-If SMS or external services are used in your setup:
-
-```env
-GHASEDAK_API_KEY=your-api-key
-FRONTEND_URL=https://your-domain.com
-```
 
 ---
 
