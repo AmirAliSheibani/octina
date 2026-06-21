@@ -398,7 +398,7 @@ Typical rules:
 ## Installation
 
 ```bash
-git clone https://github.com/AmirAliSheibani/octina.git
+git clone https://github.com/AmirAliSheibani/octina--Workforce-Management-System.git
 cd octina
 
 python -m venv venv
